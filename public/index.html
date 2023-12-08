@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
+  <script src="https://vjs.zencdn.net/7.15.4/video.js"></script>
+<head>
+  <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+  <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
+  <link href="//db.onlinewebfonts.com/c/48c281b5af4a287544f8be3b33256618?family=Hello+Headline" rel="stylesheet" type="text/css">
+  <style>
+    body {
+      margin: 0;
+      background-color: #87c0e8;
+      color: white;
+      font-family: "Hello Headline", Arial, sans-serif;
+      text-align: center;
+      padding: 0;
+    }
+
+    .logo {
+      margin-top: 50px;
+    }
+
+    .logo img {
+      max-width: 200px;
+    }
+
+    p {
+      margin-bottom: 30px;
+      font-family: "Hello Headline", sans-serif;
+    }
+
+    myPlayer {
+      height: 100%; 
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px;
+    }
+
+    .share-button {
+      display: inline-block;
+      width: 150px;
+      padding: 10px;
+      background-color: #ffffff;
+      color: #000000;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 5px;
+      font-family: "Hello Headline", sans-serif;
+      cursor: pointer;
+    }
+
+    @media screen and (orientation: portrait) and (min-width: 400px) and (max-width: 1000px) {
+      body {
+        font-size: 50px;
+      }
+
+      .logo img {
+        max-width: 450px;
+      }
+
+      .button-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 50px;
+        margin: 50px;
+      }
+
+      .share-button {
+        display: inline-block;
+        width: 500px;
+        padding: 20px;
+        background-color: #ffffff;
+        color: #000000;
+        text-decoration: none;
+        font-weight: bold;
+        border-radius: 15px;
+        font-family: "Hello Headline", sans-serif;
+        cursor: pointer;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <img src="https://www.themoviedb.org/t/p/original/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Logo">
+  </div>
+
+  <p>There's nothing here...</p>
+
+  <video id="myPlayer" class="video-js vjs-default-skin" controls preload="auto" width="320" height="240"  style="margin: 0 auto; display: block;">
+    <source src="https://bluey.cloudns.org/emby/videos/1886/live.m3u8?api_key=df8984914efa4d1f9dd6bbf6663c416c&DeviceId=aa7993e3-3489-4036-a893-5df7fe19c49e&MediaSourceId=86e5e3f41de2ecc03a430afd9ec75f40&PlaySessionId=0bf9d70993ce4340a44828f1ae7c4209" type="application/x-mpegURL">
+    Your browser does not support the video tag.
+  </video>
+
+  <div class="button-container">
+    <a class="share-button" href="https://blueyapp.myrwn-rshdrshd.repl.co/tvapp.html" onclick="loadPage('https://blueyapp.myrwn-rshdrshd.repl.co/tvapp.html')">TV App</a>
+    <a class="share-button" href="https://blueyapp.myrwn-rshdrshd.repl.co/signup.html" onclick="loadPage('https://blueyapp.myrwn-rshdrshd.repl.co/signup.html')">Bluey App Beta</a>
+  </div>
+
+  <script>
+    // Initialize Video.js player
+    var player = videojs('myPlayer');
+
+    // Optional: Customize player options
+    player.options({
+      autoplay: false, // Set to true if you want the video to start automatically
+    });
+
+    // Optional: Add event listeners or additional configurations
+    // player.on('event', function() { /* Your code here */ });
+
+    // Function to handle page navigation
+    function loadPage(url) {
+      window.location.href = url;
+    }
+  </script>
+
+  <script>
+    function loadPage(url) {
+      window.location.href = url;
+    }
+  </script>
+</body>
+</html>

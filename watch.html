@@ -1,287 +1,403 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Watch Bluey!</title>
-      <meta name="title" content="Watch Bluey!">
-      <meta name="description" content="Watch Bluey on this website!">
-      <meta name="keywords" content="bluey, bluey, bluey">
-      <meta name="robots" content="index, follow">
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-      <meta name="language" content="English">
-      <meta name="author" content="Bluey Heeler">
-      <meta property="og:image" content="https://www.themoviedb.org/t/p/original/7iTOLVTKoBLwDYcoOA1qTS6NY5y.jpg" />
-      <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
-      <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
-      <link href="//db.onlinewebfonts.com/c/48c281b5af4a287544f8be3b33256618?family=Hello+Headline" rel="stylesheet" type="text/css">
-      <style>
-         body {
-         margin: 0;
-         padding: 0;
-         font-family: 'Hello Headline', sans-serif;
-         background-color: #87c0e8;
-         }
-         #top-image {
-         text-align: center; /* Center align content */
-         margin-top: 20px; /* Adjust the margin as needed */
-         margin-bottom: 20px;
-         }
-         #top-image img {
-         max-width: 100%;
-         height: auto;
-         max-height: 70px; /* Set the maximum height as needed */
-         }
-         #myPlayer {
-         width: 355px;
-         height: 200px;
-         margin: 0 auto;
-         display: block;
-         background-color: #000;
-         }
-         #content {
-         margin-top: 10px;
-         }
-         #seasons-container {
-         display: flex;
-         justify-content: center;
-         padding: 10px 0;
-         background-color: #87c0e8;
-         text-align: center; /* Center align content */
-         }
-         .season-selector__button {
-         margin: 5px;
-         cursor: pointer;
-         color: #ffffff;
-         border: none;
-         background-color: transparent;
-         padding: 10px 10px;
-         border-radius: 5px;
-         font-family: 'Hello Headline', sans-serif;
-         }
-         .season-selector__button.selected {
-         color: #000000;
-         background-color: #ffffff;
-         }
-         #episodes {
-         overflow-y: scroll; /* Add scroll only on the vertical axis */
-         scrollbar-width: thin; /* For Firefox */
-         scrollbar-color: transparent transparent; /* For Firefox */
-         max-height: 500px;
-         max-width: 700px;
-         padding: 5px 0;
-         background-color: #87c0e8;
-         margin: 0 auto; /* Center-align the episode buttons */
-         }
-         /* For Webkit browsers like Chrome and Safari */
-         #episodes::-webkit-scrollbar {
-         width: 6px; /* Adjust as needed */
-         }
-         #episodes::-webkit-scrollbar-thumb {
-         background-color: transparent; /* Adjust as needed */
-         }
-         #episodes li {
-         margin-bottom: 5px;
-         margin-left: 5px;
-         margin-right: 5px;
-         list-style-type: none;
-         cursor: pointer;
-         border: 1px solid #dee2e6;
-         border-radius: 5px;
-         padding: 10px;
-         color: #fff;
-         background-color: #404066;
-         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-         display: flex;
-         align-items: flex-start;
-         }
-         #episodes img {
-         margin: auto; /* Center the image horizontally */
-         margin-right: 15px;
-         display: block; /* Remove any default spacing below the image */
-         width: 100px;
-         height: auto;
-         max-width: 100%;
-         max-height: 90px;
-         object-fit: cover;
-         }
-         #episodes h2 {
-         font-size: 20px;
-         font-weight: bold;
-         margin: auto;
-         }
-         #episodes p {
-         font-size: 12px;
-         margin: 0;
-         }
-         #episodes li.selected {
-         background-color: #ffffff; /* White background for selected episode */
-         color: #000000; /* Black text color for selected episode */
-         }
-      </style>
-   </head>
-   <body>
-      <div id="top-image">
-         <img src="https://www.themoviedb.org/t/p/original/mSajMzX7C0gHys7T2bCx09Mj3Tc.svg" alt="Top Image">
-      </div>
-      <video id="myPlayer" class="video-js" controls preload="auto" width="640" height="360" data-setup='{}'>
-         Your browser does not support the video tag.
-      </video>
-      <div id="content">
-         <div id="seasons-container">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch Bluey!</title>
+    <meta name="title" content="Watch Bluey!">
+    <meta name="description" content="Watch Bluey on this website!">
+    <meta name="keywords" content="bluey, bluey, bluey">
+    <meta name="robots" content="index, follow">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="language" content="English">
+    <meta name="author" content="Bluey Heeler">
+    <meta property="og:image"
+        content="https://www.themoviedb.org/t/p/original/7iTOLVTKoBLwDYcoOA1qTS6NY5y.jpg" />
+    <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
+    <link href="//db.onlinewebfonts.com/c/48c281b5af4a287544f8be3b33256618?family=Hello+Headline" rel="stylesheet"
+        type="text/css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Hello Headline', sans-serif;
+            background-color: #87c0e8;
+        }
+
+        #top-image {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        #top-image img {
+            max-width: 100%;
+            height: auto;
+            max-height: 70px;
+        }
+
+        #myPlayer {
+            width: 355px;
+            height: 200px;
+            margin: 0 auto;
+            display: block;
+            background-color: #000;
+        }
+
+        #content {
+            margin-top: 10px;
+            position: relative; /* Added for positioning overlay relative to this container */
+        }
+
+        #seasons-container {
+            display: flex;
+            justify-content: space-between; /* Adjusted to create space for the info button */
+            padding: 10px 0;
+            background-color: #87c0e8;
+            text-align: center;
+        }
+
+        .season-selector__button {
+            margin: 5px;
+            cursor: pointer;
+            color: #ffffff;
+            border: none;
+            background-color: transparent;
+            padding: 10px 10px;
+            border-radius: 5px;
+            font-family: 'Hello Headline', sans-serif;
+        }
+
+        .season-selector__button.selected {
+            color: #000000;
+            background-color: #ffffff;
+        }
+
+        #info-button {
+            margin: 5px;
+            cursor: pointer;
+            color: #ffffff;
+            background-color: #edcc6f;
+            padding: 10px 10px;
+            border: none;
+            border-radius: 5px;
+            font-family: 'Hello Headline', sans-serif;
+        }
+
+        #episodes {
+            overflow-y: scroll;
+            scrollbar-width: thin;
+            scrollbar-color: transparent transparent;
+            max-height: 500px;
+            max-width: 700px;
+            padding: 5px 0;
+            background-color: #87c0e8;
+            margin: 0 auto;
+        }
+
+        #episodes::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #episodes::-webkit-scrollbar-thumb {
+            background-color: transparent;
+        }
+
+        #episodes li {
+            margin-bottom: 5px;
+            margin-left: 5px;
+            margin-right: 5px;
+            list-style-type: none;
+            cursor: pointer;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            color: #fff;
+            background-color: #404066;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: flex-start;
+        }
+
+        #episodes img {
+            margin: auto;
+            margin-right: 15px;
+            display: block;
+            width: 100px;
+            height: auto;
+            max-width: 100%;
+            max-height: 90px;
+            object-fit: cover;
+        }
+
+        #episodes h2 {
+            font-size: 20px;
+            font-weight: bold;
+            margin: auto;
+        }
+
+        #episodes p {
+            font-size: 12px;
+            margin: 0;
+        }
+
+        #episodes li.selected {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        .overlay {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%; /* Adjusted width to make it narrower */
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .overlay-content {
+            text-align: left; /* Align text to the left */
+            color: #fff;
+            padding: 20px;
+            display: flex;
+            align-items: center; /* Center items vertically */
+        }
+
+        .overlay img {
+            max-width: 80%;
+            margin-right: 15px;
+            height: auto;
+            max-height: 200px;
+            border-radius: 5px; /* Added border-radius for rounded corners */
+        }
+
+        .close-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 20px;
+        }
+
+        .overlay-content-text {
+            flex: 1; /* Take remaining space */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="top-image">
+        <img
+            src="https://www.themoviedb.org/t/p/original/mSajMzX7C0gHys7T2bCx09Mj3Tc.svg"
+            alt="Top Image">
+    </div>
+    <video id="myPlayer" class="video-js" controls preload="auto" width="640" height="360" data-setup='{}'>
+        Your browser does not support the video tag.
+    </video>
+    <div id="content">
+        <div id="seasons-container">
             <div id="seasons"></div>
-         </div>
-         <ul id="episodes"></ul>
-      </div>
-      <script src="https://vjs.zencdn.net/7.15.4/video.js"></script>
-      <script>
-         const serverUrl = "https://bluey.cloudns.org:443";
-         const apiKey = "366d928a0e5d48cf9bb9e9a6fe57bd4f";
-         const itemId = "11";
-         let selectedSeason = null;
-         let episodes = [];
-         let currentEpisodeIndex = 0;
-         let playerInitialized = false; // Flag to check if the player is initialized
-         
-         document.addEventListener("DOMContentLoaded", () => {
-           fetchSeasons();
-         });
-         
-         function fetchSeasons() {
-           fetch(`${serverUrl}/emby/Shows/${itemId}/Seasons?api_key=${apiKey}`)
-             .then(response => response.json())
-             .then(seasons => {
-               const seasonsContainer = document.getElementById('seasons');
-               seasons.Items.forEach(season => {
-                 const seasonBtn = document.createElement("button");
-                 seasonBtn.classList.add("season-selector__button");
-                 seasonBtn.innerText = `Season ${season.IndexNumber}`;
-                 seasonBtn.addEventListener("click", () => {
-                   handleSeasonClick(seasonBtn, season);
-                   fetchEpisodes(season);
-                 });
-                 seasonsContainer.appendChild(seasonBtn);
-               });
-         
-               // Initialize the player without autoplay
-               if (!playerInitialized) {
-                 const player = videojs('myPlayer', { autoplay: false });
-                 playerInitialized = true;
-               }
-             })
-             .catch(error => {
-               console.error("Error retrieving seasons:", error);
-             });
-         }
-         
-         function handleSeasonClick(button, season) {
-           if (selectedSeason) {
-             selectedSeason.classList.remove("selected");
-           }
-           selectedSeason = button;
-           selectedSeason.classList.add("selected");
-         
-           // Reset current episode index to 0 when changing season
-           currentEpisodeIndex = 0;
-           renderEpisodes(episodes); // Update episode list for the new season
-         }
-         
-         function fetchEpisodes(season) {
-           fetch(`${serverUrl}/emby/Shows/${itemId}/Episodes?SeasonId=${season.Id}&api_key=${apiKey}&Fields=Overview`)
-             .then(response => response.json())
-             .then(data => {
-               episodes = data.Items;
-               renderEpisodes(episodes);
-               // Do not play episode immediately after selecting a season
-               // playEpisode(episodes[currentEpisodeIndex]);
-             })
-             .catch(error => {
-               console.error("Error retrieving episodes:", error);
-             });
-         }
-         
-         function renderEpisodes(episodes) {
-           const episodeList = document.getElementById('episodes');
-           episodeList.innerHTML = ''; // Clear the list
-           episodes.forEach((episode, index) => {
-             const episodeItem = document.createElement("li");
-             episodeItem.innerHTML = `
-               <img src="${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="Episode Thumbnail">
-               <div>
-                 <h2>Episode ${episode.IndexNumber}: ${episode.Name}</h2>
-                 <p>${episode.Overview}</p>
-               </div>
-             `;
-             episodeItem.addEventListener("click", () => {
-               playEpisode(episode, index);
-             });
-         
-             // Add the "selected" class to the clicked episode
-             if (currentEpisodeIndex === index) {
-               episodeItem.classList.add("selected");
-             }
-         
-             episodeList.appendChild(episodeItem);
-           });
-         }
-         
-         function playEpisode(episode, index) {
-           const player = videojs('myPlayer');
-         
-           // Remove existing text tracks before adding new ones
-           player.remoteTextTracks().tracks_.forEach(track => player.removeRemoteTextTrack(track));
-         
-           // Fetch the playback info for the episode to retrieve the media source ID
-           fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources`)
-             .then(response => response.json())
-             .then(playbackInfo => {
-               if (!playbackInfo.MediaSources || playbackInfo.MediaSources.length === 0) {
-                 console.error(`No media sources found for episode: ${episode.Name}`);
-                 return;
-               }
-         
-               const mediaSourceId = playbackInfo.MediaSources[0].Id; // Assuming the first media source
-               const subtitleUrl = `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/2/0/Stream.vtt?api_key=${apiKey}`;
-         
-               player.addRemoteTextTrack({
-                 kind: 'subtitles',
-                 src: subtitleUrl,
-                 srclang: 'en',
-                 label: 'English',
-               });
-         
-               player.src({
-                 type: 'video/mp4',
-                 src: `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`
-               });
-         
-               player.off('ended', playNextEpisode); // Remove previous 'ended' event listener
-               player.on('ended', playNextEpisode); // Listen for 'ended' event
-               player.play();
-         
-               // Remove "selected" class from the previous episode
-               document.querySelector("#episodes li.selected").classList.remove("selected");
-         
-               // Add "selected" class to the newly selected episode
-               const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
-               if (selectedEpisodeItem) {
-                 selectedEpisodeItem.classList.add("selected");
-               }
-         
-               // Update the current episode index
-               currentEpisodeIndex = index;
-             })
-             .catch(error => {
-               console.error("Error retrieving playback info:", error);
-             });
-         }
-         
-         function playNextEpisode() {
-           if (currentEpisodeIndex < episodes.length - 1) {
-             currentEpisodeIndex++;
-             playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
-           }
-         }
-      </script>
-   </body>
+            <button id="info-button" onclick="showInfo()">Info</button>
+        </div>
+        <ul id="episodes"></ul>
+        <div class="overlay" id="overlay">
+            <div class="overlay-content">
+                <img id="overlay-image" alt="Episode Thumbnail">
+                <div class="overlay-content-text">
+                    <h2 id="overlay-episode-number"></h2>
+                    <h2 id="overlay-title"></h2>
+                    <p id="overlay-description"></p>
+                </div>
+            </div>
+            <div class="close-overlay" onclick="closeOverlay()">X</div>
+        </div>
+    </div>
+
+    <script src="https://vjs.zencdn.net/7.15.4/video.js"></script>
+    <script>
+        const serverUrl = "https://bluey.cloudns.org:443";
+        const apiKey = "366d928a0e5d48cf9bb9e9a6fe57bd4f";
+        const itemId = "11";
+        let selectedSeason = null;
+        let episodes = [];
+        let currentEpisodeIndex = 0;
+        let playerInitialized = false; // Flag to check if the player is initialized
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchSeasons();
+        });
+
+        function fetchSeasons() {
+            fetch(`${serverUrl}/emby/Shows/${itemId}/Seasons?api_key=${apiKey}`)
+                .then(response => response.json())
+                .then(seasons => {
+                    const seasonsContainer = document.getElementById('seasons');
+                    seasons.Items.forEach(season => {
+                        const seasonBtn = document.createElement("button");
+                        seasonBtn.classList.add("season-selector__button");
+                        seasonBtn.innerText = `Season ${season.IndexNumber}`;
+                        seasonBtn.addEventListener("click", () => {
+                            handleSeasonClick(seasonBtn, season);
+                            fetchEpisodes(season);
+                        });
+                        seasonsContainer.appendChild(seasonBtn);
+                    });
+
+                    // Initialize the player without autoplay
+                    if (!playerInitialized) {
+                        const player = videojs('myPlayer', { autoplay: false });
+                        playerInitialized = true;
+                    }
+                })
+                .catch(error => {
+                    console.error("Error retrieving seasons:", error);
+                });
+        }
+
+        function handleSeasonClick(button, season) {
+            if (selectedSeason) {
+                selectedSeason.classList.remove("selected");
+            }
+            selectedSeason = button;
+            selectedSeason.classList.add("selected");
+
+            // Reset current episode index to 0 when changing season
+            currentEpisodeIndex = 0;
+            renderEpisodes(episodes); // Update episode list for the new season
+        }
+
+        function fetchEpisodes(season) {
+            fetch(`${serverUrl}/emby/Shows/${itemId}/Episodes?SeasonId=${season.Id}&api_key=${apiKey}&Fields=Overview`)
+                .then(response => response.json())
+                .then(data => {
+                    episodes = data.Items;
+                    renderEpisodes(episodes);
+                    // Do not play episode immediately after selecting a season
+                    // playEpisode(episodes[currentEpisodeIndex]);
+                })
+                .catch(error => {
+                    console.error("Error retrieving episodes:", error);
+                });
+        }
+
+        function renderEpisodes(episodes) {
+            const episodeList = document.getElementById('episodes');
+            episodeList.innerHTML = ''; // Clear the list
+            episodes.forEach((episode, index) => {
+                const episodeItem = document.createElement("li");
+                episodeItem.innerHTML = `
+                    <img src="${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="Episode Thumbnail">
+                    <div>
+                        <h2>Episode ${episode.IndexNumber}: ${episode.Name}</h2>
+                        <p>${episode.Overview}</p>
+                    </div>
+                `;
+                episodeItem.addEventListener("click", () => {
+                    playEpisode(episode, index);
+                });
+
+                // Add the "selected" class to the clicked episode
+                if (currentEpisodeIndex === index) {
+                    episodeItem.classList.add("selected");
+                }
+
+                episodeList.appendChild(episodeItem);
+            });
+        }
+
+        function playEpisode(episode, index) {
+            const player = videojs('myPlayer');
+
+            // Remove existing text tracks before adding new ones
+            player.remoteTextTracks().tracks_.forEach(track => player.removeRemoteTextTrack(track));
+
+            // Fetch the playback info for the episode to retrieve the media source ID
+            fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources`)
+                .then(response => response.json())
+                .then(playbackInfo => {
+                    if (!playbackInfo.MediaSources || playbackInfo.MediaSources.length === 0) {
+                        console.error(`No media sources found for episode: ${episode.Name}`);
+                        return;
+                    }
+
+                    const mediaSourceId = playbackInfo.MediaSources[0].Id; // Assuming the first media source
+                    const subtitleUrl = `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/2/0/Stream.vtt?api_key=${apiKey}`;
+
+                    player.addRemoteTextTrack({
+                        kind: 'subtitles',
+                        src: subtitleUrl,
+                        srclang: 'en',
+                        label: 'English',
+                    });
+
+                    player.src({
+                        type: 'video/mp4',
+                        src: `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`
+                    });
+
+                    player.off('ended', playNextEpisode); // Remove previous 'ended' event listener
+                    player.on('ended', playNextEpisode); // Listen for 'ended' event
+                    player.play();
+
+                    // Remove "selected" class from the previous episode
+                    document.querySelector("#episodes li.selected").classList.remove("selected");
+
+                    // Add "selected" class to the newly selected episode
+                    const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
+                    if (selectedEpisodeItem) {
+                        selectedEpisodeItem.classList.add("selected");
+                    }
+
+                    // Update the current episode index
+                    currentEpisodeIndex = index;
+
+                    // Display overlay for the selected episode
+                    renderOverlay(episode);
+                })
+                .catch(error => {
+                    console.error("Error retrieving playback info:", error);
+                });
+        }
+
+        function playNextEpisode() {
+            if (currentEpisodeIndex < episodes.length - 1) {
+                currentEpisodeIndex++;
+                playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+            }
+        }
+
+        function renderOverlay(episode) {
+            const overlay = document.getElementById('overlay');
+            const overlayImage = document.getElementById('overlay-image');
+            const overlayTitle = document.getElementById('overlay-title');
+            const overlayDescription = document.getElementById('overlay-description');
+            const overlayEpisodeNumber = document.getElementById('overlay-episode-number');
+
+            overlayImage.src = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
+            overlayEpisodeNumber.innerText = `S${episode.ParentIndexNumber}E${episode.IndexNumber}`;
+            overlayTitle.innerText = episode.Name;
+            overlayDescription.innerText = episode.Overview;
+
+            overlay.style.display = 'block';
+        }
+
+        function closeOverlay() {
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function showInfo() {
+            // Display overlay for the selected episode when Info button is clicked
+            const selectedEpisode = episodes[currentEpisodeIndex];
+            renderOverlay(selectedEpisode);
+        }
+    </script>
+</body>
+
 </html>

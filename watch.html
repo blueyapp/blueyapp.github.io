@@ -63,12 +63,21 @@
          background-color: #ffffff;
          }
          #episodes {
-         overflow-y: auto;
+         overflow-y: scroll; /* Add scroll only on the vertical axis */
+         scrollbar-width: thin; /* For Firefox */
+         scrollbar-color: transparent transparent; /* For Firefox */
          max-height: 500px;
          max-width: 700px;
          padding: 5px 0;
          background-color: #87c0e8;
          margin: 0 auto; /* Center-align the episode buttons */
+         }
+         /* For Webkit browsers like Chrome and Safari */
+         #episodes::-webkit-scrollbar {
+         width: 6px; /* Adjust as needed */
+         }
+         #episodes::-webkit-scrollbar-thumb {
+         background-color: transparent; /* Adjust as needed */
          }
          #episodes li {
          margin-bottom: 5px;
@@ -86,17 +95,19 @@
          align-items: flex-start;
          }
          #episodes img {
-         width: 80px;
+         margin: auto; /* Center the image horizontally */
+         margin-right: 15px;
+         display: block; /* Remove any default spacing below the image */
+         width: 100px;
          height: auto;
          max-width: 100%;
          max-height: 90px;
          object-fit: cover;
-         margin-right: 10px;
          }
          #episodes h2 {
          font-size: 20px;
          font-weight: bold;
-         margin-bottom: 5px;
+         margin: auto;
          }
          #episodes p {
          font-size: 12px;

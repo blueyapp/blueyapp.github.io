@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
+  <script src="https://vjs.zencdn.net/7.15.4/video.js"></script>
+  <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+  <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
+  <link href="//db.onlinewebfonts.com/c/48c281b5af4a287544f8be3b33256618?family=Hello+Headline" rel="stylesheet" type="text/css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Hello Headline", Arial, sans-serif !important;
+      background-color: #87c0e8 !important;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      width: 150px;
+    }
+
+    .nav {
+      display: flex;
+      list-style: none;
+    }
+
+    .nav li {
+      margin-left: 20px;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 40px;
+    }
+
+    .main-left {
+      width: 50%;
+    }
+
+    .main-right {
+      width: 40%;
+    }
+
+    .main h1 {
+      font-size: 48px;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    .main p {
+      font-size: 18px;
+      color: #fff;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .main button {
+      display: inline-block;
+      padding: 15px 25px;
+      border: none;
+      border-radius: 10px;
+      background-color: #ffffff;
+      color: black;
+      font-size: 18px;
+      font-weight: bold;
+      font-family: "Hello Headline", Arial, sans-serif !important;
+      cursor: pointer;
+    }
+
+    .main img {
+      width: 100%;
+      height: auto;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+      }
+
+      .nav {
+        margin-top: 20px;
+      }
+
+      .main {
+        flex-direction: column;
+      }
+
+      .main-left,
+      .main-right {
+        width: 100%;
+      }
+
+      .main-right {
+        margin-top: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="https://www.themoviedb.org/t/p/original/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="JabT" class="logo">
+      <ul class="nav">
+        <li>
+          <a href="https://pages.bluey.cloudns.org">Home</a>
+        </li>
+        <li>
+          <a href="https://pages.bluey.cloudns.org/watch">Watch</a>
+        </li>
+        <li>
+          <a href="https://pages.bluey.cloudns.org/download">Download</a>
+        </li>
+      </ul>
+    </div>
+    <div class="main">
+      <div class="main-left">
+        <h1>Watch Bluey without censorship.</h1>
+        <p>This is the app for watching Bluey newer episodes and without censorship. You can stream live and on-demand, listen to the music, and posting Bluey realated thing.</p>
+        <h2>Changelog</h2>
+        <ul>
+          <li><strong>10.19 - 2024-01-29</strong></li>
+          <ul>
+            <li><em>Added</em></li>
+            <ul>
+              <li>Added predictive back gesture</li>
+            </ul>
+            <li><em>Fixed</em></li>
+            <ul>
+              <li>Fixed bug on the app</li>
+            </ul>
+          </ul>
+        </ul>
+        <p><br></p><button onclick="window.open('https://pages.bluey.cloudns.org/download')">Download Bluey App</button>
+      </div>
+      <div class="main-right">
+        <div style="display: flex; align-items: center; justify-content: center;">
+          <img src="phone.png" alt="JabTV App Screenshot"> 
+          <img src="phone.png" alt="JabTV App Screenshot">
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

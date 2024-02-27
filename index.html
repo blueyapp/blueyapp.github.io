@@ -194,15 +194,27 @@
     }
 
       // Loading screen logic 
-      const loadingOverlay = document.querySelector('.loading-overlay');
+const loadingOverlay = document.querySelector('.loading-overlay');
 
-      function sendPing() {
-        fetch('https://live.bluey.cloudns.org/iptv/channel/1.m3u8')
-          .then(() => setTimeout(sendPing, 10)) 
-          .catch((error) => console.error('Ping error:', error));
-      }
+function sendPing() {
+  fetch('https://live.bluey.cloudns.org/iptv/channel/1.m3u8')
+    .then(() => {
+      // Ping successful - hide loading, show video, and reload
+      loadingOverlay.style.display = 'none'; 
+      document.querySelector('.container').style.display = 'block';
 
-      sendPing();
+      // Reload the video source 
+      player.src({ src: "https://live.bluey.cloudns.org/iptv/session/1/hls.m3u8", type: 'application/x-mpegURL' });
+      player.load(); // Start playback
+    })
+    .catch((error) => {
+      console.error('Ping error:', error);
+      // Ping failed - retry after a short delay
+      setTimeout(sendPing, 20); // Retry every 2 seconds
+    });
+}
+
+sendPing(); // Start the initial pinging
 
       setTimeout(() => {
         loadingOverlay.style.display = 'none'; 

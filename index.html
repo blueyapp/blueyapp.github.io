@@ -210,16 +210,11 @@ function sendPing() {
   .catch((error) => {
    console.error('Ping error:', error);
    // Ping failed - retry after a short delay
-   setTimeout(sendPing, 2000); // Retry every 2 seconds
+   setTimeout(sendPing, 20); // Retry every 2 seconds
   });
 }
 
 sendPing();
-
-      setTimeout(() => {
-        loadingOverlay.style.display = 'none'; 
-        document.querySelector('.container').style.display = 'block';
-      }, 15000); 
     </script>
   </div> 
 </body>

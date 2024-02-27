@@ -160,7 +160,7 @@
 
     function sendPing() {
       fetch('http://fest.bluey.cloudns.org/iptv/channel/1.m3u8')
-        .then(() => setTimeout(sendPing, 5000)) // Repeat every 5 seconds
+        .then(() => setTimeout(sendPing, 1)) // Repeat every 5 seconds
         .catch((error) => console.error('Ping error:', error));
     }
 

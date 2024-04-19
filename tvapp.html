@@ -17,10 +17,13 @@
   <style>
     body {
       font-family: "Hello Headline", Arial, sans-serif;
-    }
-
-    body {
       background-color: #87c0e8;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px;
     }
     
     .header {
@@ -150,6 +153,19 @@
       .nav {
         margin-top: 20px;
         align-items: center;
+      }
+      
+      .main {
+        flex-direction: column;
+      }
+
+      .main-left,
+      .main-right {
+        width: 100%;
+      }
+
+      .main-right {
+        margin-top: 20px;
       }
 
       .centered-image {

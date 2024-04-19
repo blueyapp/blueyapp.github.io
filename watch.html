@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Watch Bluey!</title>
-    <meta name="title" content="Watch Bluey!">
-    <meta name="description" content="Watch Bluey on this website!">
-    <meta name="keywords" content="bluey, bluey, bluey">
-    <meta name="robots" content="index, follow">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="language" content="English">
-    <meta name="author" content="Bluey Heeler">
-    <meta property="og:image"
-        content="https://www.themoviedb.org/t/p/original/7iTOLVTKoBLwDYcoOA1qTS6NY5y.jpg" />
-    <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
-    <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
-    <link href="//db.onlinewebfonts.com/c/48c281b5af4a287544f8be3b33256618?family=Hello+Headline" rel="stylesheet"
-        type="text/css">
-    <script>
-      if (navigator.userAgent.indexOf("Safari") != -1 && navigator.userAgent.indexOf("Chrome") == -1) {
-        window.location.href = "https://blueyapp.glide.page";
-      } 
-    </script>
-    <style>
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Watch Bluey!</title>
+      <meta name="title" content="Watch Bluey!">
+      <meta name="description" content="Watch Bluey on this website!">
+      <meta name="keywords" content="bluey, bluey, bluey">
+      <meta name="robots" content="index, follow">
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <meta name="language" content="English">
+      <meta name="author" content="Bluey Heeler">
+      <meta property="og:image"
+         content="https://www.themoviedb.org/t/p/original/7iTOLVTKoBLwDYcoOA1qTS6NY5y.jpg" />
+      <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
+      <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
+      <link href="//db.onlinewebfonts.com/c/48c281b5af4a287544f8be3b33256618?family=Hello+Headline" rel="stylesheet"
+         type="text/css">
+      <script>
+         if (navigator.userAgent.indexOf("Safari") != -1 && navigator.userAgent.indexOf("Chrome") == -1) {
+           window.location.href = "https://blueyapp.glide.page";
+         } 
+      </script>
+      <style>
          * {
          box-sizing: border-box;
          margin: 0;
@@ -195,6 +195,16 @@
          .overlay-content-text {
          flex: 1; /* Take remaining space */
          }
+         #download-button {
+         margin-top: 10px; /* Add spacing */
+         cursor: pointer;
+         color: #ffffff;
+         background-color: #e2793b;
+         padding: 10px 20px; /* Adjust padding */
+         border: none;
+         border-radius: 5px;
+         font-family: 'Hello Headline', sans-serif;
+         }
          @media (max-width: 768px) {
          .header {
          flex-direction: column;
@@ -211,6 +221,27 @@
          }
          .main-right {
          margin-top: 20px;
+         }
+         .overlay-content {
+         text-align: center; /* Center align content */
+         color: #fff;
+         padding: 20px;
+         display: flex;
+         flex-direction: column; /* Stack content vertically */
+         align-items: center; /* Center items horizontally */
+         }
+         .overlay-content-text {
+         flex: 1; /* Take remaining space */
+         }
+         #download-button {
+         margin-top: 10px; /* Add spacing */
+         cursor: pointer;
+         color: #ffffff;
+         background-color: #e2793b;
+         padding: 10px 20px; /* Adjust padding */
+         border: none;
+         border-radius: 5px;
+         font-family: 'Hello Headline', sans-serif;
          }
          }
       </style>
@@ -247,6 +278,7 @@
                   <h2 id="overlay-episode-number"></h2>
                   <h2 id="overlay-title"></h2>
                   <p id="overlay-description"></p>
+                  <button id="download-button" onclick="downloadEpisode()">Download</button>
                </div>
             </div>
             <div class="close-overlay" onclick="closeOverlay()">X</div>
@@ -428,6 +460,12 @@
              // Display overlay for the selected episode when Info button is clicked
              const selectedEpisode = episodes[currentEpisodeIndex];
              renderOverlay(selectedEpisode);
+         }
+         
+         function downloadEpisode() {
+         const episode = episodes[currentEpisodeIndex];
+         const downloadUrl = `${serverUrl}/emby/Items/${episode.Id}/Download?api_key=${apiKey}`;
+         window.location.href = downloadUrl; // Redirect to the download URL
          }
       </script>
    </body>

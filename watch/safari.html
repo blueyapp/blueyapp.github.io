@@ -441,9 +441,6 @@
          // Remove "selected" class from the previous episode
          document.querySelector("#episodes li.selected").classList.remove("selected");
          
-         // Changes the URL the watermark links to
-         document.querySelector("button.bmpui-ui-watermark").dataset.url = "https://example.com";
-         
          // Add "selected" class to the newly selected episode
          const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
          if (selectedEpisodeItem) {

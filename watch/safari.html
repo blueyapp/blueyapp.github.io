@@ -263,9 +263,9 @@
             </li>
          </ul>
       </div>
-<div class="player-wrapper">
-  <div id="player"></div>
-</div>
+      <div class="player-wrapper">
+         <div id="player"></div>
+      </div>
       <div id="content">
          <div id="seasons-container">
             <div id="seasons"></div>
@@ -376,47 +376,46 @@
                  episodeList.appendChild(episodeItem);
              });
          }        
-// Declare the player variable outside the function
-let player = null;
-
-function playEpisode(episode, index) {
-    // Pause the existing player if it exists
-    if (player) {
-        player.pause();
-    }
-
-    // Initialize a new player instance
-    player = new bitmovin.player.Player(document.getElementById('player'), {
-        key: 'fba29d36-759d-4de3-971d-b0a89d7f84e8',
-        analytics: {
+         // Declare the player variable outside the function
+         let player = null;
+         
+         function playEpisode(episode, index) {
+         // Pause the existing player if it exists
+         if (player) {
+         player.pause();
+         }  
+         // Initialize a new player instance
+         player = new bitmovin.player.Player(document.getElementById('player'), {
+         key: 'fba29d36-759d-4de3-971d-b0a89d7f84e8',
+         analytics: {
             key: '367f6f32-48c4-49fc-84b5-2afd94c4c203',
-            title: `Episode ${episode.IndexNumber}: ${episode.Name}`,
-        },
-        playback: {
+            title: `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`,
+         },
+         playback: {
             autoplay: true
-        }
-    });
-
-    const playbackFinishedListener = () => {
-        // Play the next episode when the current one finishes
-        if (index + 1 < episodes.length) {
+         }
+         });
+         
+         const playbackFinishedListener = () => {
+         // Play the next episode when the current one finishes
+         if (index + 1 < episodes.length) {
             playEpisode(episodes[index + 1], index + 1);
-        }
-        player.off(bitmovin.player.PlayerEvent.PlaybackFinished, playbackFinishedListener);
-    };
-
-    player.on(bitmovin.player.PlayerEvent.PlaybackFinished, playbackFinishedListener);
-
-    fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources`)
-        .then(response => response.json())
-        .then(playbackInfo => {
+         }
+         player.off(bitmovin.player.PlayerEvent.PlaybackFinished, playbackFinishedListener);
+         };
+         
+         player.on(bitmovin.player.PlayerEvent.PlaybackFinished, playbackFinishedListener);
+         
+         fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources`)
+         .then(response => response.json())
+         .then(playbackInfo => {
             const mediaSourceId = playbackInfo.MediaSources[0].Id;
             const PlaySessionId = playbackInfo.PlaySessionId;
             const VideoBitRate = playbackInfo.MediaSources[0].MediaStreams[0].BitRate;
             const AudioBitRate = playbackInfo.MediaSources[0].MediaStreams[1].BitRate;
-            const epname = `Episode ${episode.IndexNumber}: ${episode.Name}`;
+            const epname = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
             const source = `${serverUrl}/emby/videos/${episode.Id}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${PlaySessionId}&api_key=${apiKey}&VideoCodec=h264,h265,hevc&AudioCodec=mp3,aac&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}&AudioStreamIndex=1&TranscodingMaxAudioChannels=2&SegmentContainer=m4s,ts&MinSegments=2&BreakOnNonKeyFrames=True&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&hevc-codectag=hvc1&TranscodeReasons=ContainerBitrateExceedsLimit`;
-
+         
             player.load({
                 title: epname,
                 hls: source,
@@ -433,27 +432,30 @@ function playEpisode(episode, index) {
                 player.play();
                 showInfo();
             });
-        })
-        .catch(error => {
+         })
+         .catch(error => {
             console.error("Error retrieving playback info:", error);
-        });
-
-    // Remove "selected" class from the previous episode
-    document.querySelector("#episodes li.selected").classList.remove("selected");
-
-    // Add "selected" class to the newly selected episode
-    const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
-    if (selectedEpisodeItem) {
-        selectedEpisodeItem.classList.add("selected");
-    }
-
-    // Update the current episode index
-    currentEpisodeIndex = index;
-
-    // Display overlay for the selected episode
-    renderOverlay(episode);
-}
-
+         });
+         
+         
+         // Remove "selected" class from the previous episode
+         document.querySelector("#episodes li.selected").classList.remove("selected");
+         
+         // Changes the URL the watermark links to
+         document.querySelector("button.bmpui-ui-watermark").dataset.url = "https://example.com";
+         
+         // Add "selected" class to the newly selected episode
+         const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
+         if (selectedEpisodeItem) {
+         selectedEpisodeItem.classList.add("selected");
+         }
+         
+         // Update the current episode index
+         currentEpisodeIndex = index;
+         
+         // Display overlay for the selected episode
+         renderOverlay(episode);
+         }
          
          function playNextEpisode() {
              player.pause();

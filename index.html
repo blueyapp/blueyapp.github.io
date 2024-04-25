@@ -2,7 +2,7 @@
 <html>
 <head>
   <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
-  <script src="https://vjs.zencdn.net/7.15.4/video.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bitmovin-player@8/bitmovinplayer.js"></script>
   <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Home</title>
   <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
@@ -89,6 +89,22 @@
       text-align: center;
     }
 
+   .player-wrapper {
+      width: 90%;
+      margin: 20px auto;
+      box-shadow: 0 0 30px rgba(0,0,0,0.7);
+    }
+    
+    #player {
+      width: 100%; /* Set width to 100% */
+      height: auto; /* Allow height to adjust */
+      background-color: #000;
+    }
+         
+    .bmpui-ui-watermark {
+      display: none;
+    }
+    
     @media (max-width: 768px) {
       .header {
         flex-direction: column;
@@ -166,10 +182,9 @@
     </div>
     <p>There's nothing here...</p>
 
-    <video id="myPlayer" class="video-js vjs-default-skin" controls preload="auto" width="320" height="180" style="margin: 0 auto; display: block;">
-      <source src="https://live.bluey.cloudns.org/iptv/session/1/hls.m3u8" type="application/x-mpegURL">
-      Your browser does not support the video tag.
-    </video>
+    <div class="player-wrapper">
+      <div id="player"></div>
+    </div>
 
     <div class="button-container">
       <a class="share-button" href="/tvapp.html" onclick="loadPage('/tvapp.html')">TV App</a>
@@ -177,45 +192,47 @@
     </div>
 
   <script>
-    // Initialize Video.js player
-    var player = videojs('myPlayer');
-
-    // Optional: Customize player options
-    player.options({
-      autoplay: false, // Set to true if you want the video to start automatically
-    });
-
-    // Optional: Add event listeners or additional configurations
-    // player.on('event', function() { /* Your code here */ });
-
     // Function to handle page navigation
     function loadPage(url) {
       window.location.href = url;
     }
 
-      // Loading screen logic 
-const loadingOverlay = document.querySelector('.loading-overlay');
+    // Loading screen logic 
+    const loadingOverlay = document.querySelector('.loading-overlay');
 
-function sendPing() {
- fetch('https://live.bluey.cloudns.org/iptv/channel/1.m3u8')
-  .then(() => {
-   // Ping successful - hide loading, show video, and reload
-   loadingOverlay.style.display = 'none'; 
-   document.querySelector('.container').style.display = 'block';
+    function sendPing() {
+      fetch('https://live.bluey.cloudns.org/iptv/channel/1.m3u8')
+        .then(() => {
+          // Ping successful - hide loading, show video, and reload
+          loadingOverlay.style.display = 'none'; 
+          document.querySelector('.container').style.display = 'block';
+          
+          // Reload the Bitmovin Player source
+          player.load(source);
+        })
+        .catch((error) => {
+          console.error('Ping error:', error);
+          // Ping failed - retry after a short delay
+          setTimeout(sendPing, 2000); // Retry every 2 seconds
+        });
+    }
 
-   // Reload the video source 
-   player.src({ src: "https://live.bluey.cloudns.org/iptv/session/1/hls.m3u8", type: 'application/x-mpegURL' });
-   player.load(); // Start playback
-  })
-  .catch((error) => {
-   console.error('Ping error:', error);
-   // Ping failed - retry after a short delay
-   setTimeout(sendPing, 20); // Retry every 2 seconds
-  });
-}
+    sendPing();
 
-sendPing();
-    </script>
+    // Bitmovin Player setup
+    var conf = {
+      key: 'fba29d36-759d-4de3-971d-b0a89d7f84e8',
+    };
+
+    var source = {
+      title: 'Bluey Fest Live Stream',
+      hls: 'https://live.bluey.cloudns.org/iptv/session/1/hls.m3u8',
+      poster: 'https://i.ibb.co/zbKZj22/image.png',
+    };
+
+    var player = new bitmovin.player.Player(document.getElementById('player'), conf);
+    player.load(source);
+  </script>
   </div> 
 </body>
-</html> 
+</html>

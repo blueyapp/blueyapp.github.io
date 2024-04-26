@@ -54,7 +54,7 @@
          font-weight: bold;
          }
          .player-wrapper {
-         width: 100%; /* Set width to 100% */
+         width: 90%; /* Set width to 90% */
          margin: 30px auto;
          box-shadow: 0 0 30px rgba(0,0,0,0.7);
          }
@@ -383,18 +383,13 @@
          // Pause the existing player if it exists
          if (player) {
          player.pause();
-         }  
-         // Initialize a new player instance
-         player = new bitmovin.player.Player(document.getElementById('player'), {
-         key: 'fba29d36-759d-4de3-971d-b0a89d7f84e8',
-         analytics: {
-            key: '367f6f32-48c4-49fc-84b5-2afd94c4c203',
-            title: `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`,
-         },
-         playback: {
-            autoplay: true
+         } else {
+         // Initialize a new player instance if it doesn't exist
+         const conf = {
+            key: 'fba29d36-759d-4de3-971d-b0a89d7f84e8',
+         };
+         player = new bitmovin.player.Player(document.getElementById('player'), conf);
          }
-         });
          
          const playbackFinishedListener = () => {
          // Play the next episode when the current one finishes
@@ -406,6 +401,7 @@
          
          player.on(bitmovin.player.PlayerEvent.PlaybackFinished, playbackFinishedListener);
          
+         // Fetch playback info and load the episode
          fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources`)
          .then(response => response.json())
          .then(playbackInfo => {
@@ -437,6 +433,8 @@
             console.error("Error retrieving playback info:", error);
          });
          
+         // Update the current episode index
+         currentEpisodeIndex = index;
          
          // Remove "selected" class from the previous episode
          document.querySelector("#episodes li.selected").classList.remove("selected");
@@ -447,12 +445,10 @@
          selectedEpisodeItem.classList.add("selected");
          }
          
-         // Update the current episode index
-         currentEpisodeIndex = index;
-         
          // Display overlay for the selected episode
          renderOverlay(episode);
          }
+         
          
          function playNextEpisode() {
              player.pause();

@@ -58,13 +58,15 @@
          color: #ffffff;
          font-weight: bold;
          }
-         #myPlayer {
-         width: 355px;
-         height: 200px;
-         margin: 0 auto;
-         display: block;
+         .player-wrapper {
+         width: 90%; /* Set width to 90% */
+         margin: 30px auto;
+         box-shadow: 0 0 30px rgba(0,0,0,0.7);
+         }
+         #player {
+         width: 100%; /* Set width to 100% */
+         height: auto; /* Allow height to adjust */
          background-color: #000;
-         margin-top: 30px;
          }
          #content {
          margin-top: 10px;
@@ -205,6 +207,9 @@
          border-radius: 5px;
          font-family: 'Hello Headline', sans-serif;
          }
+         .bmpui-ui-watermark {
+         display: none;
+         }
          @media (max-width: 768px) {
          .header {
          flex-direction: column;
@@ -232,6 +237,7 @@
          }
          .overlay-content-text {
          flex: 1; /* Take remaining space */
+         padding: 20px;
          }
          #download-button {
          margin-top: 10px; /* Add spacing */
@@ -262,9 +268,9 @@
             </li>
          </ul>
       </div>
-      <video id="myPlayer" class="video-js" controls preload="auto" width="640" height="360" data-setup='{}'>
-         Your browser does not support the video tag.
-      </video>
+      <div class="player-wrapper">
+         <div id="player"></div>
+      </div>
       <div id="content">
          <div id="seasons-container">
             <div id="seasons"></div>
@@ -284,7 +290,7 @@
             <div class="close-overlay" onclick="closeOverlay()">X</div>
          </div>
       </div>
-      <script src="https://vjs.zencdn.net/7.15.4/video.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bitmovin-player@8/bitmovinplayer.js"></script>
       <script>
          const serverUrl = "https://bluey.cloudns.org:443";
          const apiKey = "6b2548952ea2439ea800b8cd3f1072d1";
@@ -374,63 +380,85 @@
          
                  episodeList.appendChild(episodeItem);
              });
-         }
+         }        
+         // Declare the player variable outside the function
+         let player = null;
          
          function playEpisode(episode, index) {
-             const player = videojs('myPlayer');
-         
-             // Remove existing text tracks before adding new ones
-             player.remoteTextTracks().tracks_.forEach(track => player.removeRemoteTextTrack(track));
-         
-             // Fetch the playback info for the episode to retrieve the media source ID
-             fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources`)
-                 .then(response => response.json())
-                 .then(playbackInfo => {
-                     if (!playbackInfo.MediaSources || playbackInfo.MediaSources.length === 0) {
-                         console.error(`No media sources found for episode: ${episode.Name}`);
-                         return;
-                     }
-         
-                     const mediaSourceId = playbackInfo.MediaSources[0].Id; // Assuming the first media source
-                     const subtitleUrl = `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/2/0/Stream.vtt?api_key=${apiKey}`;
-         
-                     player.addRemoteTextTrack({
-                         kind: 'subtitles',
-                         src: subtitleUrl,
-                         srclang: 'en',
-                         label: 'English',
-                     });
-         
-                     player.src({
-                         type: 'video/mp4',
-                         src: `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`
-                     });
-         
-                     player.off('ended', playNextEpisode); // Remove previous 'ended' event listener
-                     player.on('ended', playNextEpisode); // Listen for 'ended' event
-                     player.play();
-         
-                     // Remove "selected" class from the previous episode
-                     document.querySelector("#episodes li.selected").classList.remove("selected");
-         
-                     // Add "selected" class to the newly selected episode
-                     const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
-                     if (selectedEpisodeItem) {
-                         selectedEpisodeItem.classList.add("selected");
-                     }
-         
-                     // Update the current episode index
-                     currentEpisodeIndex = index;
-         
-                     // Display overlay for the selected episode
-                     renderOverlay(episode);
-                 })
-                 .catch(error => {
-                     console.error("Error retrieving playback info:", error);
-                 });
+         // Pause the existing player if it exists
+         if (player) {
+         player.pause();
+         } else {
+         // Initialize a new player instance if it doesn't exist
+         const conf = {
+            key: 'fba29d36-759d-4de3-971d-b0a89d7f84e8',
+         };
+         player = new bitmovin.player.Player(document.getElementById('player'), conf);
          }
          
+         const playbackFinishedListener = () => {
+         // Play the next episode when the current one finishes
+         if (index + 1 < episodes.length) {
+            playEpisode(episodes[index + 1], index + 1);
+         }
+         player.off(bitmovin.player.PlayerEvent.PlaybackFinished, playbackFinishedListener);
+         };
+         
+         player.on(bitmovin.player.PlayerEvent.PlaybackFinished, playbackFinishedListener);
+         
+         // Fetch playback info and load the episode
+         fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources`)
+         .then(response => response.json())
+         .then(playbackInfo => {
+            const mediaSourceId = playbackInfo.MediaSources[0].Id;
+            const PlaySessionId = playbackInfo.PlaySessionId;
+            const VideoBitRate = playbackInfo.MediaSources[0].MediaStreams[0].BitRate;
+            const AudioBitRate = playbackInfo.MediaSources[0].MediaStreams[1].BitRate;
+            const epname = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
+            const progressive = `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`;
+            const hls = `${serverUrl}/emby/videos/${episode.Id}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${PlaySessionId}&api_key=${apiKey}&VideoCodec=h264,h265,hevc&AudioCodec=mp3,aac&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}&AudioStreamIndex=1&TranscodingMaxAudioChannels=2&SegmentContainer=m4s,ts&MinSegments=2&BreakOnNonKeyFrames=True&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&hevc-codectag=hvc1&TranscodeReasons=ContainerBitrateExceedsLimit`;
+         
+            player.load({
+                title: epname,
+                hls: hls,
+                progressive: progressive,
+                poster: `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`,
+            }).then(() => {
+                const enSubtitle = {
+                    id: "sub1",
+                    lang: "en",
+                    label: "English",
+                    url: `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/2/0/Stream.vtt?api_key=${apiKey}`,
+                    kind: "subtitle"
+                };
+                player.subtitles.add(enSubtitle);
+                player.play();
+                showInfo();
+            });
+         })
+         .catch(error => {
+            console.error("Error retrieving playback info:", error);
+         });
+         
+         // Update the current episode index
+         currentEpisodeIndex = index;
+         
+         // Remove "selected" class from the previous episode
+         document.querySelector("#episodes li.selected").classList.remove("selected");
+         
+         // Add "selected" class to the newly selected episode
+         const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
+         if (selectedEpisodeItem) {
+         selectedEpisodeItem.classList.add("selected");
+         }
+         
+         // Display overlay for the selected episode
+         renderOverlay(episode);
+         }
+         
+         
          function playNextEpisode() {
+             player.pause();
              if (currentEpisodeIndex < episodes.length - 1) {
                  currentEpisodeIndex++;
                  playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);

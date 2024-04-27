@@ -11,9 +11,43 @@
     .bmpui-ui-watermark {
        display: none;
     }
+
+    /* Loading Screen Styles */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999; 
+    }
+
+    .loading-message {
+      color: #ffffff;
+      font-size: 24px;
+      font-family: sans-serif;
+      overflow: hidden; 
+    }
+
+    .loading-message span {
+      display: inline-block;
+      animation: loadingDots 1s infinite alternate;
+    }
+
+    @keyframes loadingDots {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
   </style>
 </head>
 <body>
+  <div class="loading-overlay">
+    <div class="loading-message">Loading<span>.</span><span>.</span><span>.</span></div>
+  </div>
+  
 <div class="player-wrapper">
   <div id="player"></div>
 </div>

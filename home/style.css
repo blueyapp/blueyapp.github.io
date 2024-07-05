@@ -93,6 +93,14 @@ z-index:10;
   text-align: center;
 }
 
+.bluey img {
+  max-width: 50%;
+  height: auto;
+  margin-bottom: 5px;
+  display: block;
+  margin: auto;
+}
+
 .iv-_dXQ_ .iv-_fg7g:hover,
   .iv-_dXQ_ .iv-_fg7g:visited,
   .iv-_dXQ_ .iv-_fg7g:active,

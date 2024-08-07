@@ -203,7 +203,7 @@
     const loadingOverlay = document.querySelector('.loading-overlay');
 
     function sendPing() {
-      fetch('https://tv.bluey.cloudns.org/iptv/channel/1.m3u8')
+      fetch('https://tv.bluey.cam/iptv/channel/1.m3u8')
         .then(() => {
           // Ping successful - hide loading, show video, and reload
           loadingOverlay.style.display = 'none'; 
@@ -228,7 +228,7 @@
 
     var source = {
       title: 'Bluey Fest Live Stream',
-      hls: 'https://tv.bluey.cloudns.org/iptv/session/1/hls.m3u8',
+      hls: 'https://tv.bluey.cam/iptv/session/1/hls.m3u8',
       poster: 'https://i.ibb.co/zbKZj22/image.png',
     };
 

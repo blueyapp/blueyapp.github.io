@@ -202,6 +202,38 @@
         #loadingContainer img {
             animation: spin 1s linear infinite;
         }
+
+        /* Styles for the popup */
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .popup-content {
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -242,6 +274,15 @@
         </div>
     </div>
 
+    <!-- Safari Autoplay Popup -->
+    <div id="safariPopup" class="popup">
+        <div class="popup-content">
+            <span class="popup-close" onclick="closePopup()">&times;</span>
+            <h2>Autoplay Blocked</h2>
+            <p>Due to autoplay restrictions on Safari, please click the play button to start the music.</p>
+        </div>
+    </div>
+
     <script>
         const EMBY_URL = 'https://bluey.cam';
         const EMBY_USER_ID = 'ba603d94a7c24b3b8c7e7ea2fedc9162';
@@ -253,6 +294,7 @@
         const repeatOnceButton = document.getElementById('repeatOnceButton');
         const repeatAllButton = document.getElementById('repeatAllButton');
         const loadingContainer = document.getElementById('loadingContainer');
+        const safariPopup = document.getElementById('safariPopup');
 
         let musicItems = [];
         let currentIndex = 0;
@@ -314,13 +356,29 @@
 
             loadingContainer.style.display = 'flex'; // Show loading icon
 
-            audioPlayer.src = musicUrl;
+            // Create a new audio element to handle the autoplay restriction
+            const tempAudio = new Audio(musicUrl);
+            tempAudio.muted = true; // Mute to comply with autoplay restrictions
 
-            // Wait for the audio to load before hiding the loading icon
-            audioPlayer.oncanplaythrough = () => {
+            tempAudio.addEventListener('canplaythrough', () => {
+                audioPlayer.src = musicUrl;
+                audioPlayer.muted = false; // Unmute the player when loading is complete
+                audioPlayer.play().catch(error => {
+                    console.log('Autoplay blocked. Please click the play button.');
+                    if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
+                        safariPopup.style.display = 'flex'; // Show the popup for Safari
+                    }
+                });
                 loadingContainer.style.display = 'none'; // Hide loading icon
-                audioPlayer.play();
-            };
+            });
+
+            // Play the temp audio to trigger Safari's autoplay handling
+            tempAudio.play().catch(error => {
+                console.log('Autoplay blocked. Please click the play button.');
+                if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
+                    safariPopup.style.display = 'flex'; // Show the popup for Safari
+                }
+            });
         }
 
         function playNextMusic() {
@@ -363,6 +421,10 @@
         }
 
         init();
+
+        function closePopup() {
+            safariPopup.style.display = 'none';
+        }
     </script>
 </body>
 </html>

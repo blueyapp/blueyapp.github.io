@@ -1,0 +1,26 @@
+/*
+      www.OnlineWebFonts.Com 
+      You must credit the author Copy this link on your web 
+      <div>Font made from <a href="http://www.onlinewebfonts.com/fonts">Web Fonts</a>is licensed by CC BY 4.0</div>
+      OR
+      <a href="http://www.onlinewebfonts.com/fonts">Web Fonts</a>
+
+      CSS rules to specify fonts
+
+      font-family: "Hello Headline";;
+
+*/
+
+@font-face{
+    font-family: "Hello Headline";
+    src: url("https://pages.bluey.cam/fonts/48c281b5af4a287544f8be3b33256618.eot");
+    src: url("https://pages.bluey.cam/fonts/48c281b5af4a287544f8be3b33256618.eot?#iefix")format("embedded-opentype"),
+        url("https://pages.bluey.cam/fonts/48c281b5af4a287544f8be3b33256618.woff")format("woff"),
+        url("https://pages.bluey.cam/fonts/48c281b5af4a287544f8be3b33256618.woff2")format("woff2"),
+        url("https://pages.bluey.cam/fonts/48c281b5af4a287544f8be3b33256618.ttf")format("truetype"),
+        url("https://pages.bluey.cam/fonts/48c281b5af4a287544f8be3b33256618.svg#Hello Headline")format("svg");
+    font-weight:normal;
+    font-style:normal;
+    font-display:swap;
+}
+ 

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      <meta charset="UTF-8">      
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">      
+      <title>Watch Bluey!</title>      
+      <meta name="title" content="Bluey">      
+      <meta name="description" content="Watch Bluey and Bluey Minisodes on this website!">      
+      <meta name="keywords" content="bluey, bluey, bluey">      
+      <meta name="robots" content="index, follow">      
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">      
+      <meta name="language" content="English">      
+      <meta name="author" content="Bluey Heeler">      
+      <!-- Meta tags for social share preview -->      
+      <meta property="og:title" content="Watch Bluey!">      
+      <meta property="og:description" content="Watch Bluey and Bluey Minisodes on this website!">      
+      <meta property="og:image" content="https://cdn.iview.abc.net.au/thumbs/1200/ch/CH2003Q_66399c133e743_1920.jpg">      
+      <!-- URL to your image -->      
+      <meta property="og:url" content="https://pages.bluey.cam/watch">      
+      <!-- URL of your page -->      
+      <meta name="twitter:card" content="summary_large_image">      
+      <meta name="twitter:title" content="Watch Bluey!">      
+      <meta name="twitter:description" content="Watch Bluey and Bluey Minisodes on this website!">      
+      <meta name="twitter:image" content="https://cdn.iview.abc.net.au/thumbs/1200/ch/CH2003Q_66399c133e743_1920.jpg">      
+      <!-- URL to your image -->      
+      <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
+      <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
+      <link href="//db.onlinewebfonts.com/c/48c281b5af4a287544f8be3b33256618?family=Hello+Headline" rel="stylesheet"
+         type="text/css">
+      <style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: "Hello Headline", Arial, sans-serif !important;
+    background-color: #87c0e8 !important;
+  }
+  
+  .error {
+    font-family: "Hello Headline", Arial, sans-serif;
+    background-color: #87c0e8;
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .error img {
+    width: 300px;
+    border-radius: 0px;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    width: 150px;
+    border-radius: 0px;
+  }
+
+  .nav {
+    display: flex;
+    list-style: none;
+  }
+
+  .nav li {
+    margin-left: 20px;
+  }
+
+  .nav a {
+    text-decoration: none;
+    color: #ffffff;
+    font-weight: bold;
+  }
+  
+  .hidden {
+     display: none;
+  }
+
+  .series-selection {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 50px;
+    flex-wrap: wrap;
+  }
+
+  .series-option {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    width: 45%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .series-option img {
+    width: 100px;
+    height: auto;
+    border-radius: 10px;
+    margin-right: 20px;
+  }
+
+  .series-option-content {
+    text-align: left;
+  }
+
+  .series-option-content h2 {
+    font-family: "Hello Headline", Arial, sans-serif;
+    margin-bottom: 10px;
+  }
+
+  .series-option-content p {
+    margin-bottom: 20px;
+  }
+
+  .series-option-content button {
+    font-family: "Hello Headline", Arial, sans-serif;
+    background-color: #87c0e8;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .series-option-content button:hover {
+    background-color: #5a9fd6;
+    transform: scale(1.05);
+  }
+
+  .series-option-content button:active {
+    transform: scale(0.95);
+  }
+
+  @media (max-width: 768px) {
+    .header {
+      flex-direction: column;
+    }
+
+    .nav {
+      margin-top: 20px;
+    }
+
+    .main {
+      flex-direction: column;
+    }
+
+    .main-left,
+    .main-right {
+      width: 100%;
+    }
+
+    .main-right {
+      margin-top: 20px;
+    }
+
+    .series-selection {
+      flex-direction: column;
+    }
+
+    .series-option {
+      width: 100%;
+      flex-direction: row;
+      align-items: flex-start;
+    }
+
+    .series-option img {
+      margin-bottom: 0;
+      margin-right: 20px;
+    }
+
+    .series-option-content {
+      text-align: left;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="https://www.themoviedb.org/t/p/original/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
+      <ul class="nav">
+        <li>
+          <a href="/">Home</a>
+        </li>
+        <li>
+          <a href="/watch">Watch</a>
+        </li>
+        <li>
+          <a href="/music">Music</a>
+        </li>
+        <li>
+          <a href="/download">App</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="series-selection">
+      <div class="series-option">
+        <img src="https://www.bluey.tv/wp-content/uploads/2021/01/Bluey-The-Album.jpg" alt="Bluey The Album">
+        <div class="series-option-content">
+          <h2>Bluey The Album</h2>
+          <p>Bluey The Album features 17 songs, all original compositions from Season 1 including music from fan favourite episodes such as ‘Keepy Uppy’, ‘Here Come The Grannies!’, ‘Pool’ and ‘The Creek’.</p>
+          <button onclick="location.href='/music/bluey-the-album'">Listen Bluey The Album</button>
+        </div>
+      </div>
+      <div class="series-option">
+        <img src="https://i.scdn.co/image/ab67616d00001e021ccfea3f92d87379bcd39489" alt="Dance Mode Album">
+        <div class="series-option-content">
+          <h2>Dance Mode!</h2>
+          <p>‘Dance Mode’ is the exciting follow up to the award-winning, number 1 debut ‘Bluey: The Album’. Bringing together 17 brand new recordings from series 1, 2 and 3, all originally composed by Joff Bush.</p>
+          <button onclick="location.href='/music/dance-mode'">Listen Dance Mode!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rug Island</title>
+    <meta name="title" content="Rug Island">
+    <meta name="description" content="Bluey’s third album, Bluey: Rug Island, featuring 16 original tracks by the series’ award-winning composer Joff Bush and the Bluey music team will be released on October 25, 2024!">
+    <meta name="keywords" content="bluey, bluey, bluey">
+    <meta name="robots" content="index, follow">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="language" content="English">
+    <meta name="author" content="Bluey Heeler">
+    <!-- Meta tags for social share preview -->
+    <meta property="og:title" content="Rug Island">
+    <meta property="og:description" content="Bluey’s third album, Bluey: Rug Island, featuring 16 original tracks by the series’ award-winning composer Joff Bush and the Bluey music team will be released on October 25, 2024!">
+    <meta property="og:image" content="/RI-C-1536x864.png">
+    <!-- URL to your image -->
+    <meta property="og:url" content="https://pages.bluey.cam/music/rug-island">
+    <!-- URL of your page -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Rug Island">
+    <meta name="twitter:description" content="Bluey’s third album, Bluey: Rug Island, featuring 16 original tracks by the series’ award-winning composer Joff Bush and the Bluey music team will be released on October 25, 2024!">
+    <meta name="twitter:image" content="/RI-C-1536x864.png">
+    <!-- URL to your image -->
+    <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
+    <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Hello Headline", Arial, sans-serif !important;
+            background-color: #87c0e8 !important;
+        }
+        
+        .album {
+            font-family: "Hello Headline", Arial, sans-serif;
+            background-color: #87c0e8;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .album .img-container {
+            width: 200px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .album img {
+            width: 100%;
+            border-radius: 10px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            width: 150px;
+            border-radius: 0px;
+        }
+
+        .nav {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav li {
+            margin-left: 20px;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .music-player {
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .music-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .music-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+        .music-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .highlight {
+            background-color: #d0e0ff;
+            font-weight: bold;
+        }
+
+        .music-item img {
+            margin-left: auto;
+            cursor: pointer;
+        }
+
+        .audio-player-container {
+            background-color: #fff;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        audio {
+            width: 100%;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .controls img {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 5px 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        p {
+            margin-bottom: 30px;
+            margin-top: 30px;
+            font-family: "Hello Headline", sans-serif;
+            color: white;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+            }
+
+            .nav {
+                margin-top: 20px;
+            }
+
+            .main {
+                flex-direction: column;
+            }
+
+            .main-left,
+            .main-right {
+                width: 100%;
+            }
+
+            .main-right {
+                margin-top: 20px;
+            }
+        }
+
+        /* Spinner animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loadingContainer img {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Styles for the popup */
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .popup-content {
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
+            <ul class="nav">
+                <li><a href="/">Home</a></li>
+                <li><a href="/watch">Watch</a></li>
+                <li><a href="/music">Music</a></li>
+                <li><a href="/download">App</a></li>
+            </ul>
+        </div>
+        
+        <div class="album">
+            <div class="img-container">
+                <img src="/images/Bluey_Rug-Island_Digital-Single_Rug-Island-scaled.jpg" alt="Logo">
+            </div>
+        </div>
+
+        <div class="music-player">
+            <h1>Rug Island</h1>
+            <div class="controls">
+                <button id="repeatOnceButton">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAABFklEQVR4nO2WPQ4BQRSAv8JS+e3ECRxFJXEGUUhoXUHtIEqNjvhLFCrCESQUKNCQlbfJZmNnlh3b2C952WLezrfzMvNmISZGzQAoo6cODCWM8ADuQA8o+OT0Jc8JY2InjkAHSHpydkANuOrEKaAFzIGLZ/IgsQYqrvly8lSKS8DqC5lKjE6cckk3QBVIq0rjER6kUpZP7tVP3HZJnfKY2Fxa8UIG7JWaPk5K8VkGdOU1zhgYRS2N+QULYEbEZGXjnj55qSzHJgw1EU+DJBekMdxD3ip2M9rKHE1VoiWt7xDyOsvISh3pUtFOX819HfKSeBdLoKj6SpNiuxNOpLxWkBIlgAaw/8WfQxDyQBe4RS02eZxi/pAnPrySPmqzKTQAAAAASUVORK5CYII=" alt="Repeat Once">
+                </button>
+                <button id="repeatAllButton">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAABAklEQVR4nO3Vv0rDUBiG8d9g7KTVgoN4BR28kE4FL8JB0NVbcHbzRlzclKqFDk6KtyDUQV2sQyXwCaFDyD/jYB44W97z5HzkvKGjozxX2PcHLPGFC+y0LV7GesUp1osEezjGPT5WNqq6HjHKk+7hoSFZYXEvI33CGBs1Rz2P6SV5gZOMdKuCMCte4ByDIoFphNKT1uESwzKB9xBXGW8tbnDdtrTjN5jiTsv048N9KxMaxhWpw0GIb4s8PIgSWESoKmkZPcceR3kPJlFz85X6K8tmnPRHOsurzlEUetM/iRl2896ySXHahJMYb1JkRGs4xEvNUVdmG2f4bFvc5HXq+Id8AxS0ib0GErJgAAAAAElFTkSuQmCC" alt="Repeat All">
+                </button>
+                <div id="loadingContainer" style="display: none;">
+                    <img width="30" height="30" src="https://img.icons8.com/ios-glyphs/30/loading-sign.png" alt="loading-sign"/>
+                </div>
+            </div>
+            <div class="audio-player-container">
+                <audio id="audioPlayer" controls></audio>
+            </div>
+            <ul id="musicList" class="music-list"></ul>
+        </div>
+    </div>
+
+    <!-- Safari Autoplay Popup -->
+    <div id="safariPopup" class="popup">
+        <div class="popup-content">
+            <span class="popup-close" onclick="closePopup()">&times;</span>
+            <h2>Autoplay Blocked</h2>
+            <p>Due to autoplay restrictions on Safari, please click the play button to start the music.</p>
+        </div>
+    </div>
+
+    <script>
+        const EMBY_URL = 'https://bluey.cam';
+        const EMBY_USER_ID = 'ba603d94a7c24b3b8c7e7ea2fedc9162';
+        const EMBY_API_TOKEN = '6b2548952ea2439ea800b8cd3f1072d1';
+        const parentID = '78774';
+
+        const musicListElement = document.getElementById('musicList');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const repeatOnceButton = document.getElementById('repeatOnceButton');
+        const repeatAllButton = document.getElementById('repeatAllButton');
+        const loadingContainer = document.getElementById('loadingContainer');
+        const safariPopup = document.getElementById('safariPopup');
+
+        let musicItems = [];
+        let currentIndex = 0;
+        let repeatOnce = false;
+        let repeatAll = false;
+
+        async function fetchMusicData() {
+            const response = await fetch(`${EMBY_URL}/emby/Users/${EMBY_USER_ID}/Items?ParentId=${parentID}&Fields=BasicSyncInfo,CanDelete,PrimaryImageAspectRatio,SyncStatus&ImageTypeLimit=1&EnableTotalRecordCount=false&X-Emby-Token=${EMBY_API_TOKEN}`);
+            const data = await response.json();
+            return data.Items;
+        }
+
+        function createMusicItemElement(musicItem, index) {
+            const li = document.createElement('li');
+            li.className = 'music-item';
+
+            const title = document.createElement('span');
+            title.textContent = `${musicItem.IndexNumber}. ${musicItem.Name}`; // Add the track number before the music name
+
+            const downloadButton = document.createElement('img');
+            downloadButton.src = 'https://img.icons8.com/ios-glyphs/30/downloading-updates.png';
+            downloadButton.alt = 'Download';
+            downloadButton.width = 30;
+            downloadButton.height = 30;
+            downloadButton.style.marginLeft = 'auto';
+            downloadButton.style.cursor = 'pointer';
+            downloadButton.onclick = () => {
+                const musicId = musicItem.Id;
+                const downloadUrl = `${EMBY_URL}/emby/Items/${musicId}/Download?api_key=${EMBY_API_TOKEN}`;
+                window.open(downloadUrl, '_blank');
+            };
+
+            li.appendChild(title);
+            li.appendChild(downloadButton);
+            li.onclick = () => playMusic(index);
+
+            return li;
+        }
+
+        function displayMusicList(musicItems) {
+            musicItems.forEach((musicItem, index) => {
+                const musicItemElement = createMusicItemElement(musicItem, index);
+                musicListElement.appendChild(musicItemElement);
+            });
+        }
+
+        function updateHighlight() {
+            const items = musicListElement.querySelectorAll('.music-item');
+            items.forEach((item, index) => {
+                item.classList.toggle('highlight', index === currentIndex);
+            });
+        }
+
+        function playMusic(index) {
+            currentIndex = index;
+            updateHighlight(); // Update the highlight when music changes
+            const musicId = musicItems[index].Id;
+            const musicUrl = `${EMBY_URL}/emby/Audio/${musicId}/universal?UserId=${EMBY_USER_ID}&MaxStreamingBitrate=4000000&Container=opus,mp3|mp3,mp2,mp3|mp2,m4a|aac,mp4|aac,flac,webma,webm,wav|PCM_S16LE,wav|PCM_S24LE,ogg&TranscodingContainer=aac&TranscodingProtocol=hls&AudioCodec=aac&api_key=${EMBY_API_TOKEN}`;
+
+            loadingContainer.style.display = 'flex'; // Show loading icon
+
+            // Create a new audio element to handle the autoplay restriction
+            const tempAudio = new Audio(musicUrl);
+            tempAudio.muted = true; // Mute to comply with autoplay restrictions
+
+            tempAudio.addEventListener('canplaythrough', () => {
+                audioPlayer.src = musicUrl;
+                audioPlayer.muted = false; // Unmute the player when loading is complete
+                audioPlayer.play().catch(error => {
+                    console.log('Autoplay blocked. Please click the play button.');
+                    if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
+                        safariPopup.style.display = 'flex'; // Show the popup for Safari
+                    }
+                });
+                loadingContainer.style.display = 'none'; // Hide loading icon
+            });
+
+            // Play the temp audio to trigger Safari's autoplay handling
+            tempAudio.play().catch(error => {
+                console.log('Autoplay blocked. Please click the play button.');
+                if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
+                    safariPopup.style.display = 'flex'; // Show the popup for Safari
+                }
+            });
+        }
+
+        function playNextMusic() {
+            if (repeatOnce) {
+                audioPlayer.play();
+            } else if (repeatAll) {
+                currentIndex = (currentIndex + 1) % musicItems.length;
+                playMusic(currentIndex);
+            } else {
+                currentIndex += 1;
+                if (currentIndex < musicItems.length) {
+                    playMusic(currentIndex);
+                }
+            }
+        }
+
+        audioPlayer.addEventListener('ended', playNextMusic);
+
+        repeatOnceButton.addEventListener('click', () => {
+            repeatOnce = !repeatOnce;
+            repeatOnceButton.style.backgroundColor = repeatOnce ? 'lightblue' : '';
+            if (repeatOnce) {
+                repeatAll = false;
+                repeatAllButton.style.backgroundColor = '';
+            }
+        });
+
+        repeatAllButton.addEventListener('click', () => {
+            repeatAll = !repeatAll;
+            repeatAllButton.style.backgroundColor = repeatAll ? 'lightblue' : '';
+            if (repeatAll) {
+                repeatOnce = false;
+                repeatOnceButton.style.backgroundColor = '';
+            }
+        });
+
+        async function init() {
+            musicItems = await fetchMusicData();
+            displayMusicList(musicItems);
+        }
+
+        init();
+
+        function closePopup() {
+            safariPopup.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

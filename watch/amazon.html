@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Watch Bluey!</title>
+      <meta name="title" content="Watch Bluey!">
+      <meta name="description" content="Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures, developing her imagination as well as her mental, physical and emotional resilience.">
+      <meta name="keywords" content="bluey, bluey, bluey">
+      <meta name="robots" content="index, follow">
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <meta name="language" content="English">
+      <meta name="author" content="Bluey Heeler">
+      <!-- Meta tags for social share preview -->
+      <meta property="og:title" content="Watch Bluey!">
+      <meta property="og:description" content="Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures, developing her imagination as well as her mental, physical and emotional resilience.">
+      <meta property="og:image" content="https://cdn.iview.abc.net.au/thumbs/1200/ch/CH2003Q_66399c133e743_1920.jpg">
+      <!-- URL to your image -->
+      <meta property="og:url" content="https://pages.bluey.cam/watch/episodes">
+      <!-- URL of your page -->
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:title" content="Watch Bluey!">
+      <meta name="twitter:description" content="Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures, developing her imagination as well as her mental, physical and emotional resilience.">
+      <meta name="twitter:image" content="https://cdn.iview.abc.net.au/thumbs/1200/ch/CH2003Q_66399c133e743_1920.jpg">
+      <!-- URL to your image -->
+      <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
+      <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
+      <link href="https://pages.bluey.cam/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
+      <style>
+         * {
+         box-sizing: border-box;
+         margin: 0;
+         padding: 0;
+         }
+         body {
+         font-family: "Hello Headline", Arial, sans-serif !important;
+         background-color: #87c0e8 !important;
+         }
+         .container {
+         max-width: 1200px;
+         margin: 0 auto;
+         padding: 20px;
+         }
+         .header {
+         display: flex;
+         align-items: center;
+         justify-content: space-between;
+         }
+         .logo {
+         width: 150px;
+         border-radius: 0px;
+         }
+         .nav {
+         display: flex;
+         list-style: none;
+         }
+         .nav li {
+         margin-left: 20px;
+         }
+         .nav a {
+         text-decoration: none;
+         color: #ffffff;
+         font-weight: bold;
+         }
+         .player-wrapper {
+         width: 90%; /* Set width to 90% */
+         margin: 30px auto;
+         box-shadow: 0 0 30px rgba(0,0,0,0.7);
+         }
+         #player {
+         width: 100%; /* Set width to 100% */
+         height: auto; /* Allow height to adjust */
+         background-color: #000;
+         }
+         #content {
+         margin-top: 10px;
+         position: relative; /* Added for positioning overlay relative to this container */
+         }
+         #seasons-container {
+         display: flex;
+         margin: 0 auto;
+         justify-content: space-between; /* Adjusted to create space for the info button */
+         padding: 10px 0;
+         background-color: #87c0e8;
+         text-align: center;
+         max-width: 700px;
+         }
+         .season-selector__button {
+         margin: 5px;
+         cursor: pointer;
+         color: #ffffff;
+         border: none;
+         background-color: transparent;
+         padding: 10px 10px;
+         border-radius: 5px;
+         font-family: 'Hello Headline', sans-serif;
+         }
+         .season-selector__button.selected {
+         color: #000000;
+         background-color: #ffffff;
+         }
+         #info-button {
+         margin: 5px;
+         cursor: pointer;
+         color: #ffffff;
+         background-color: #edcc6f;
+         padding: 10px 10px;
+         border: none;
+         border-radius: 5px;
+         font-family: 'Hello Headline', sans-serif;
+         }
+         #episodes {
+         overflow-y: scroll;
+         scrollbar-width: thin;
+         scrollbar-color: transparent transparent;
+         max-height: 500px;
+         max-width: 700px;
+         padding: 5px 0;
+         background-color: #87c0e8;
+         margin: 0 auto;
+         }
+         #episodes::-webkit-scrollbar {
+         width: 6px;
+         }
+         #episodes::-webkit-scrollbar-thumb {
+         background-color: transparent;
+         }
+         #episodes li {
+         margin-bottom: 5px;
+         margin-left: 5px;
+         margin-right: 5px;
+         list-style-type: none;
+         cursor: pointer;
+         border: 1px solid #dee2e6;
+         border-radius: 5px;
+         padding: 10px;
+         color: #fff;
+         background-color: #404066;
+         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+         display: flex;
+         align-items: flex-start;
+         }
+         #episodes img {
+         margin: auto;
+         margin-right: 15px;
+         display: block;
+         width: 100px;
+         height: auto;
+         max-width: 100%;
+         max-height: 90px;
+         object-fit: cover;
+         }
+         #episodes h2 {
+         font-size: 20px;
+         font-weight: bold;
+         margin: auto;
+         }
+         #episodes p {
+         font-size: 12px;
+         margin: 0;
+         }
+         #episodes li.selected {
+         background-color: #ffffff;
+         color: #000000;
+         }
+         .overlay {
+         display: none;
+         position: absolute;
+         top: 50%;
+         left: 50%;
+         transform: translate(-50%, -50%);
+         width: 100%; /* Adjusted width to make it narrower */
+         height: 100%;
+         background-color: rgba(0, 0, 0, 0.8);
+         z-index: 1;
+         overflow: hidden;
+         border-radius: 10px;
+         }
+         .overlay-content {
+         text-align: left; /* Align text to the left */
+         color: #fff;
+         padding: 20px;
+         display: flex;
+         align-items: center; /* Center items vertically */
+         }
+         .overlay img {
+         max-width: 50%;
+         margin-right: 15px;
+         height: auto;
+         max-height: 200px;
+         border-radius: 5px; /* Added border-radius for rounded corners */
+         }
+         .close-overlay {
+         position: absolute;
+         top: 10px;
+         right: 10px;
+         cursor: pointer;
+         color: #fff;
+         font-size: 20px;
+         }
+         .overlay-content-text {
+         flex: 1; /* Take remaining space */
+         }
+         #download-button {
+         margin-top: 10px; /* Add spacing */
+         cursor: pointer;
+         color: #ffffff;
+         background-color: #e2793b;
+         padding: 10px 20px; /* Adjust padding */
+         border: none;
+         border-radius: 5px;
+         font-family: 'Hello Headline', sans-serif;
+         }
+         .bmpui-ui-watermark {
+         display: none;
+         }
+         .donate {
+         align-items: center;
+         }
+         @media (max-width: 768px) {
+         .header {
+         flex-direction: column;
+         }
+         .nav {
+         margin-top: 20px;
+         }
+         .main {
+         flex-direction: column;
+         }
+         .main-left,
+         .main-right {
+         width: 100%;
+         }
+         .main-right {
+         margin-top: 20px;
+         }
+         .overlay-content {
+         text-align: center; /* Center align content */
+         color: #fff;
+         padding: 20px;
+         display: flex;
+         flex-direction: column; /* Stack content vertically */
+         align-items: center; /* Center items horizontally */
+         }
+         .overlay-content-text {
+         flex: 1; /* Take remaining space */
+         padding: 20px;
+         }
+         #download-button {
+         margin-top: 10px; /* Add spacing */
+         cursor: pointer;
+         color: #ffffff;
+         background-color: #e2793b;
+         padding: 10px 20px; /* Adjust padding */
+         border: none;
+         border-radius: 5px;
+         font-family: 'Hello Headline', sans-serif;
+         }
+         }
+      </style>
+   </head>
+   <body>
+      <div class="container">
+      <div class="header">
+         <img src="https://www.themoviedb.org/t/p/original/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
+         <ul class="nav">
+            <li>
+               <a href="/">Home</a>
+            </li>
+            <li>
+               <a href="/watch">Watch</a>
+            </li>
+            <li>
+               <a href="/music">Music</a>
+            </li>
+            <li>
+               <a href="/download">App</a>
+            </li>
+         </ul>
+      </div>
+      <div class="player-wrapper">
+         <div id="player"></div>
+      </div>
+      <div id="content">
+         <div id="seasons-container">
+            <div id="seasons"></div>
+            <button id="info-button" onclick="showInfo()">Info</button>
+         </div>
+         <ul id="episodes"></ul>
+         <div class="overlay" id="overlay">
+            <div class="overlay-content">
+               <img id="overlay-image" alt="Episode Thumbnail">
+               <div class="overlay-content-text">
+                  <h2 id="overlay-episode-number"></h2>
+                  <h2 id="overlay-title"></h2>
+                  <p id="overlay-description"></p>
+                  <button id="download-button" onclick="downloadEpisode()">Download</button>
+               </div>
+            </div>
+            <div class="close-overlay" onclick="closeOverlay()">X</div>
+         </div>
+         <div class="donate">
+            <a href="https://www.buymeacoffee.com/BlueyEmby"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a pavlova&emoji=🍰&slug=BlueyEmby&button_colour=404066&font_colour=FFFFFF&font_family=Comic&outline_colour=000000&coffee_colour=ffffff" /></a>
+         </div>
+      </div>
+      <script src="https://cdn.jsdelivr.net/npm/bitmovin-player@8/bitmovinplayer.js"></script>
+      <script>
+         const serverUrl = "https://media.bluey.cam:443";
+         const apiKey = "ef82e7b6ea894d5c9a10bf7b97b2f235";
+         const itemId = "fd67342a44928a18c75c70e53fd6b28c";
+         let selectedSeason = null;
+         let episodes = [];
+         let currentEpisodeIndex = 0;
+         let playerInitialized = false; // Flag to check if the player is initialized
+         
+         document.addEventListener("DOMContentLoaded", () => {
+             fetchSeasons();
+         });
+         
+         function fetchSeasons() {
+             fetch(`${serverUrl}/Shows/${itemId}/Seasons?api_key=${apiKey}`)
+                 .then(response => response.json())
+                 .then(seasons => {
+                     const seasonsContainer = document.getElementById('seasons');
+                     seasons.Items.forEach(season => {
+                         const seasonBtn = document.createElement("button");
+                         seasonBtn.classList.add("season-selector__button");
+                         seasonBtn.innerText = `Season ${season.IndexNumber}`;
+                         seasonBtn.addEventListener("click", () => {
+                             handleSeasonClick(seasonBtn, season);
+                             fetchEpisodes(season);
+                         });
+                         seasonsContainer.appendChild(seasonBtn);
+                     });
+         
+                     // Initialize the player without autoplay
+                     if (!playerInitialized) {
+                         const player = videojs('myPlayer', { autoplay: false });
+                         playerInitialized = true;
+                     }
+                 })
+                 .catch(error => {
+                     console.error("Error retrieving seasons:", error);
+                 });
+         }
+         
+         function handleSeasonClick(button, season) {
+             if (selectedSeason) {
+                 selectedSeason.classList.remove("selected");
+             }
+             selectedSeason = button;
+             selectedSeason.classList.add("selected");
+         
+             // Reset current episode index to 0 when changing season
+             currentEpisodeIndex = 0;
+             renderEpisodes(episodes); // Update episode list for the new season
+         }
+         
+         function fetchEpisodes(season) {
+             fetch(`${serverUrl}/Shows/${itemId}/Episodes?SeasonId=${season.Id}&api_key=${apiKey}&Fields=Overview`)
+                 .then(response => response.json())
+                 .then(data => {
+                     episodes = data.Items;
+                     renderEpisodes(episodes);
+                     // Do not play episode immediately after selecting a season
+                     // playEpisode(episodes[currentEpisodeIndex]);
+                 })
+                 .catch(error => {
+                     console.error("Error retrieving episodes:", error);
+                 });
+         }
+         
+         function renderEpisodes(episodes) {
+             const episodeList = document.getElementById('episodes');
+             episodeList.innerHTML = ''; // Clear the list
+             episodes.forEach((episode, index) => {
+                 const episodeItem = document.createElement("li");
+                 episodeItem.innerHTML = `
+                     <img src="${serverUrl}/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="Episode Thumbnail">
+                     <div>
+                         <h2>Episode ${episode.IndexNumber}: ${episode.Name}</h2>
+                         <p>${episode.Overview}</p>
+                     </div>
+                 `;
+                 episodeItem.addEventListener("click", () => {
+                     playEpisode(episode, index);
+                 });
+         
+                 // Add the "selected" class to the clicked episode
+                 if (currentEpisodeIndex === index) {
+                     episodeItem.classList.add("selected");
+                 }
+         
+                 episodeList.appendChild(episodeItem);
+             });
+         }        
+         // Declare the player variable outside the function
+         let player = null;
+         
+         function playEpisode(episode, index) {
+         // Pause the existing player if it exists
+         if (player) {
+         player.pause();
+         } else {
+         // Initialize a new player instance if it doesn't exist
+         const conf = {
+            key: '1a69b597-a4b2-4bf7-99ba-bd417397c111',
+         };
+         player = new bitmovin.player.Player(document.getElementById('player'), conf);
+         }
+         
+         const playbackFinishedListener = () => {
+         // Play the next episode when the current one finishes
+         if (index + 1 < episodes.length) {
+            playEpisode(episodes[index + 1], index + 1);
+         }
+         player.off(bitmovin.player.PlayerEvent.PlaybackFinished, playbackFinishedListener);
+         };
+         
+         player.on(bitmovin.player.PlayerEvent.PlaybackFinished, playbackFinishedListener);
+         
+         // Fetch playback info and load the episode
+         fetch(`${serverUrl}/Users/5d47298a0c97453893198c8f9c634858/Items/${episode.Id}?api_key=${apiKey}&Fields=Overview`)
+         .then(response => response.json())
+         .then(playbackInfo => {
+            const mediaSourceId = playbackInfo.MediaSources[0].Id;
+            const PlaySessionId = playbackInfo.PlaySessionId;
+            const VideoBitRate = playbackInfo.MediaSources[0].MediaStreams[0].BitRate;
+            const AudioBitRate = playbackInfo.MediaSources[0].MediaStreams[1].SampleRate;
+            const epname = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
+            const progressive = `${serverUrl}/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`;
+            const hls = `${serverUrl}/videos/${episode.Id}/master.m3u8?DeviceId=TW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NDsgcnY6MTI5LjApIEdlY2tvLzIwMTAwMTAxIEZpcmVmb3gvMTI5LjB8MTcyMzIyMjg5ODQ3MA11&MediaSourceId=${mediaSourceId}&VideoCodec=h264&AudioCodec=aac%2Cmp3&AudioStreamIndex=1&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}&MaxFramerate=25&api_key=${apiKey}&TranscodingMaxAudioChannels=2&RequireAvc=false&SegmentContainer=ts&MinSegments=1&BreakOnNonKeyFrames=True&hevc-level=150&hevc-videobitdepth=10&hevc-profile=main10&TranscodeReasons=ContainerBitrateExceedsLimit`;
+         
+            player.load({
+                title: epname,
+                hls: hls,
+                progressive: progressive,
+                poster: `${serverUrl}/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`,
+            }).then(() => {
+                const enSubtitle1 = {
+                    id: "sub1",
+                    lang: "en",
+                    label: "English",
+                    url: `${serverUrl}/Videos/${episode.Id}/${mediaSourceId}/Subtitles/4/0/Stream.vtt?api_key=${apiKey}`,
+                    kind: "subtitle"
+                };
+                const enSubtitle2 = {
+                    id: "sub2",
+                    lang: "en",
+                    label: "English - SDH",
+                    url: `${serverUrl}/Videos/${episode.Id}/${mediaSourceId}/Subtitles/3/0/Stream.vtt?api_key=${apiKey}`,
+                    kind: "subtitle"
+                };
+                player.subtitles.add(enSubtitle1);
+                player.subtitles.add(enSubtitle2);
+                player.play();
+                showInfo();
+            });
+         })
+         .catch(error => {
+            console.error("Error retrieving playback info:", error);
+         });
+         
+         // Update the current episode index
+         currentEpisodeIndex = index;
+         
+         // Remove "selected" class from the previous episode
+         document.querySelector("#episodes li.selected").classList.remove("selected");
+         
+         // Add "selected" class to the newly selected episode
+         const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
+         if (selectedEpisodeItem) {
+         selectedEpisodeItem.classList.add("selected");
+         }
+         
+         // Display overlay for the selected episode
+         renderOverlay(episode);
+         }
+         
+         
+         function playNextEpisode() {
+             player.pause();
+             if (currentEpisodeIndex < episodes.length - 1) {
+                 currentEpisodeIndex++;
+                 playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+             }
+         }
+         
+         function renderOverlay(episode) {
+             const overlay = document.getElementById('overlay');
+             const overlayImage = document.getElementById('overlay-image');
+             const overlayTitle = document.getElementById('overlay-title');
+             const overlayDescription = document.getElementById('overlay-description');
+             const overlayEpisodeNumber = document.getElementById('overlay-episode-number');
+         
+             overlayImage.src = `${serverUrl}/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
+             overlayEpisodeNumber.innerText = `S${episode.ParentIndexNumber}E${episode.IndexNumber}`;
+             overlayTitle.innerText = episode.Name;
+             overlayDescription.innerText = episode.Overview;
+         
+             overlay.style.display = 'block';
+         }
+         
+         function closeOverlay() {
+             document.getElementById('overlay').style.display = 'none';
+         }
+         
+         function showInfo() {
+             // Display overlay for the selected episode when Info button is clicked
+             const selectedEpisode = episodes[currentEpisodeIndex];
+             renderOverlay(selectedEpisode);
+         }
+         
+         function downloadEpisode() {
+         const episode = episodes[currentEpisodeIndex];
+         const downloadUrl = `${serverUrl}/Items/${episode.Id}/Download?api_key=${apiKey}`;
+         window.location.href = downloadUrl; // Redirect to the download URL
+         }
+      </script>
+   </body>
+</html>

@@ -24,7 +24,7 @@
       <meta name="twitter:image" content="https://licensinginternational.org/wp-content/uploads/2023/04/bluey.jpg">
       <!-- URL to your image -->
       <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
-      <link href="//pages.bluey.cam/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
+      <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
     <style>
         * {
             box-sizing: border-box;
@@ -239,7 +239,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="https://www.themoviedb.org/t/p/original/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
+            <img src="/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
             <ul class="nav">
                 <li><a href="/">Home</a></li>
                 <li><a href="/watch">Watch</a></li>
@@ -250,7 +250,7 @@
         
         <div class="album">
             <div class="img-container">
-                <img src="https://i.scdn.co/image/ab67616d00001e021ccfea3f92d87379bcd39489" alt="Logo">
+                <img src="/images/ab67616d00001e021ccfea3f92d87379bcd39489.jpg" alt="Logo">
             </div>
         </div>
 
@@ -312,7 +312,7 @@
             li.className = 'music-item';
 
             const title = document.createElement('span');
-            title.textContent = musicItem.Name;
+            title.textContent = `${musicItem.IndexNumber}. ${musicItem.Name}`; // Add the track number before the music name
 
             const downloadButton = document.createElement('img');
             downloadButton.src = 'https://img.icons8.com/ios-glyphs/30/downloading-updates.png';

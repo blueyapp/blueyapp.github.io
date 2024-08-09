@@ -66,14 +66,14 @@
       background-size: cover;
       background-position: top center;
       background-repeat: no-repeat;
-      background-image: url('https://www.bluey.tv/wp-content/uploads/2024/08/RI-C-1536x864.png'); /* Default landscape image */
+      background-image: url('/images/RI-C-1536x864.png'); /* Default landscape image */
       z-index: 500;
     }
 
     /* Use different image for portrait devices */
     @media (max-width: 768px) {
       .hero-section {
-        background-image: url('https://www.bluey.tv/wp-content/uploads/2024/08/RI-Full.png'); /* Replace with your portrait image URL */
+        background-image: url('/images/RI-Full.png'); /* Replace with your portrait image URL */
         height: 1035px;
       }
     }
@@ -206,7 +206,7 @@
   </div>
 
   <div class="header">
-    <img src="https://www.themoviedb.org/t/p/original/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
+    <img src="/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
     <ul class="nav">
       <li><a href="/">Home</a></li>
       <li><a href="/watch">Watch</a></li>
@@ -266,7 +266,7 @@
     var source = {
       title: 'Bluey Fest Live Stream',
       hls: 'https://tv.bluey.cam/iptv/session/1/hls.m3u8',
-      poster: 'https://i.ibb.co/zbKZj22/image.png',
+      poster: '/images/Bluey-Fest.png',
     };
 
     var player = new bitmovin.player.Player(document.getElementById('player'), conf);

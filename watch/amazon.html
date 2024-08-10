@@ -25,7 +25,7 @@
       <!-- URL to your image -->
       <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
       <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
-      <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
+      <link href="//pages.bluey.cam/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
       <style>
          * {
          box-sizing: border-box;
@@ -262,7 +262,7 @@
    <body>
       <div class="container">
       <div class="header">
-         <img src="/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
+         <img src="https://pages.bluey.cam/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
          <ul class="nav">
             <li>
                <a href="/">Home</a>
@@ -294,7 +294,7 @@
                   <h2 id="overlay-episode-number"></h2>
                   <h2 id="overlay-title"></h2>
                   <p id="overlay-description"></p>
-                  <button id="download-button" onclick="downloadEpisode()">Download</button>
+                  <button id="download-button" onclick="downloadEpisode()">Download | 4K Only</button>
                </div>
             </div>
             <div class="close-overlay" onclick="closeOverlay()">X</div>
@@ -429,7 +429,7 @@
             const AudioBitRate = playbackInfo.MediaSources[0].MediaStreams[1].SampleRate;
             const epname = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
             const progressive = `${serverUrl}/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`;
-            const hls = `${serverUrl}/videos/${episode.Id}/master.m3u8?DeviceId=TW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NDsgcnY6MTI5LjApIEdlY2tvLzIwMTAwMTAxIEZpcmVmb3gvMTI5LjB8MTcyMzIyMjg5ODQ3MA11&MediaSourceId=${mediaSourceId}&VideoCodec=h264&AudioCodec=aac%2Cmp3&AudioStreamIndex=1&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}&MaxFramerate=25&api_key=${apiKey}&TranscodingMaxAudioChannels=2&RequireAvc=false&SegmentContainer=ts&MinSegments=1&BreakOnNonKeyFrames=True&hevc-level=150&hevc-videobitdepth=10&hevc-profile=main10&TranscodeReasons=ContainerBitrateExceedsLimit`;
+            const hls = `${serverUrl}/videos/${episode.Id}/master.m3u8?DeviceId=TW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NDsgcnY6MTI5LjApIEdlY2tvLzIwMTAwMTAxIEZpcmVmb3gvMTI5LjB8MTcyMzIyMjg5ODQ3MA11&MediaSourceId=${mediaSourceId}&VideoCodec=h264&AudioCodec=aac%2Cmp3&AudioStreamIndex=1&VideoBitrate=5616000&AudioBitrate=${AudioBitRate}&MaxFramerate=25&api_key=${apiKey}&TranscodingMaxAudioChannels=2&RequireAvc=false&SegmentContainer=ts&MinSegments=1&BreakOnNonKeyFrames=True&hevc-level=150&hevc-videobitdepth=10&hevc-profile=main10&TranscodeReasons=ContainerBitrateExceedsLimit`;
          
             player.load({
                 title: epname,

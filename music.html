@@ -23,7 +23,7 @@
       <meta name="twitter:description" content="Listen to all album from Bluey.">      
       <meta name="twitter:image" content="https://cdn.iview.abc.net.au/thumbs/1200/ch/CH2003Q_66399c133e743_1920.jpg">      
       <!-- URL to your image -->      
-      <link rel="icon" href="https://pages.bluey.cam/bluey-star.ico" type="image/x-icon">
+      <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
       <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
       <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
       <style>
@@ -149,6 +149,20 @@
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.3s ease;
   }
+  
+  .series-option-content button.dolby-button {
+    font-family: "Hello Headline", Arial, sans-serif;
+    background-color: transparent;
+    border: none;
+    color: white;
+    padding: 0px 0px;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 0px;
+    border-radius: 0px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
 
   .series-option-content button:hover {
     background-color: #5a9fd6;
@@ -199,6 +213,22 @@
     .series-option-content {
       text-align: left;
     }
+    
+    .dolby-button {
+      padding: 0;
+      width: 150px;
+      height: auto;
+      overflow: hidden;
+      background-color: transparent;
+      margin-left: 10px;
+    }
+    
+    .dolby-button img {
+      width: 100%; /* Image width follows button width */
+      height: 50px;
+      object-fit: cover;
+      display: block;
+    }
   }
 </style>
 </head>
@@ -229,6 +259,9 @@
           <h2>Bluey The Album</h2>
           <p>Bluey The Album features 17 songs, all original compositions from Season 1 including music from fan favourite episodes such as ‘Keepy Uppy’, ‘Here Come The Grannies!’, ‘Pool’ and ‘The Creek’.</p>
           <button onclick="location.href='/music/bluey-the-album'">Listen Bluey The Album</button>
+         <button onclick="location.href='/music/dolby/bluey-the-album'" class="dolby-button">
+                <img src="https://games.dolby.com/globalassets/games-2.0/logos/dolby-atmos-horiz-white-logo-720x405.gif" alt="Dolby Atmos Logo" class="dolby-logo">
+              </button>
         </div>
       </div>
       <div class="series-option">
@@ -237,6 +270,9 @@
           <h2>Dance Mode!</h2>
           <p>‘Dance Mode’ is the exciting follow up to the award-winning, number 1 debut ‘Bluey: The Album’. Bringing together 17 brand new recordings from series 1, 2 and 3, all originally composed by Joff Bush.</p>
           <button onclick="location.href='/music/dance-mode'">Listen Dance Mode!</button>
+          <button onclick="location.href='/music/dolby/dance-mode'" class="dolby-button">
+                <img src="https://games.dolby.com/globalassets/games-2.0/logos/dolby-atmos-horiz-white-logo-720x405.gif" alt="Dolby Atmos Logo" class="dolby-logo">
+              </button>
         </div>
       </div>
       <div class="series-option">

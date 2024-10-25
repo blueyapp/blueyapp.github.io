@@ -252,6 +252,8 @@
             <p>Due to autoplay restrictions on Safari, please click the play button to start the music.</p>
          </div>
       </div>
+      <!-- Include hls.js library in your HTML before the closing </body> tag -->
+      <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
       <script>
          const EMBY_URL = 'https://media.bluey.cam';
          const EMBY_USER_ID = '5d47298a0c97453893198c8f9c634858';
@@ -270,12 +272,14 @@
          let repeatOnce = false;
          let repeatAll = false;
          
+         // Fetch music data from Emby server
          async function fetchMusicData() {
              const response = await fetch(`${EMBY_URL}/Users/${EMBY_USER_ID}/Items?ParentId=${parentID}&Fields=BasicSyncInfo,CanDelete,PrimaryImageAspectRatio,SyncStatus&ImageTypeLimit=1&EnableTotalRecordCount=false&api_key=${EMBY_API_TOKEN}`);
              const data = await response.json();
              return data.Items;
          }
          
+         // Create HTML elements for each music item
          function createMusicItemElement(musicItem, index) {
              const li = document.createElement('li');
              li.className = 'music-item';
@@ -290,7 +294,8 @@
              downloadButton.height = 30;
              downloadButton.style.marginLeft = 'auto';
              downloadButton.style.cursor = 'pointer';
-             downloadButton.onclick = () => {
+             downloadButton.onclick = (event) => {
+                 event.stopPropagation(); // Prevent the click from triggering playMusic
                  const musicId = musicItem.Id;
                  const downloadUrl = `${EMBY_URL}/Items/${musicId}/Download?api_key=${EMBY_API_TOKEN}`;
                  window.open(downloadUrl, '_blank');
@@ -303,6 +308,7 @@
              return li;
          }
          
+         // Display the list of music items
          function displayMusicList(musicItems) {
              musicItems.forEach((musicItem, index) => {
                  const musicItemElement = createMusicItemElement(musicItem, index);
@@ -310,6 +316,7 @@
              });
          }
          
+         // Update the highlight of the current playing music item
          function updateHighlight() {
              const items = musicListElement.querySelectorAll('.music-item');
              items.forEach((item, index) => {
@@ -317,41 +324,58 @@
              });
          }
          
+         // Play the selected music using hls.js
          function playMusic(index) {
              currentIndex = index;
              updateHighlight(); // Update the highlight when music changes
              const musicId = musicItems[index].Id;
-             const musicUrl = `${EMBY_URL}/Audio/${musicId}/universal?UserId=${EMBY_USER_ID}&MaxStreamingBitrate=4000000&Container=opus,mp3|mp3,mp2,mp3|mp2,m4a|aac,mp4|aac,flac,webma,webm,wav|PCM_S16LE,wav|PCM_S24LE,ogg&TranscodingContainer=aac&TranscodingProtocol=hls&AudioCodec=aac&api_key=${EMBY_API_TOKEN}`;
+             const musicUrl = `${EMBY_URL}/Audio/${musicId}/universal?UserId=${EMBY_USER_ID}&MaxStreamingBitrate=4000000&Container=ts&TranscodingContainer=ts&TranscodingProtocol=hls&AudioCodec=aac&api_key=${EMBY_API_TOKEN}`;
          
              loadingContainer.style.display = 'flex'; // Show loading icon
          
-             // Create a new audio element to handle the autoplay restriction
-             const tempAudio = new Audio(musicUrl);
-             tempAudio.muted = true; // Mute to comply with autoplay restrictions
+             // Destroy previous hls instance if exists
+             if (window.hls) {
+                 window.hls.destroy();
+             }
          
-             tempAudio.addEventListener('canplaythrough', () => {
-                 audioPlayer.src = musicUrl;
-                 audioPlayer.muted = false; // Unmute the player when loading is complete
-                 audioPlayer.play().catch(error => {
-                     console.log('Autoplay blocked. Please click the play button.');
-                     if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
-                         safariPopup.style.display = 'flex'; // Show the popup for Safari
-                     }
+             if (Hls.isSupported()) {
+                 window.hls = new Hls();
+                 window.hls.loadSource(musicUrl);
+                 window.hls.attachMedia(audioPlayer);
+                 window.hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                     audioPlayer.play().catch(error => {
+                         console.log('Autoplay blocked. Please click the play button.');
+                         if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
+                             safariPopup.style.display = 'flex'; // Show the popup for Safari
+                         }
+                     });
+                     loadingContainer.style.display = 'none'; // Hide loading icon
                  });
+                 window.hls.on(Hls.Events.ERROR, function (event, data) {
+                     console.error('HLS.js error:', data);
+                     loadingContainer.style.display = 'none'; // Hide loading icon
+                 });
+             } else if (audioPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                 audioPlayer.src = musicUrl;
+                 audioPlayer.addEventListener('loadedmetadata', function () {
+                     audioPlayer.play().catch(error => {
+                         console.log('Autoplay blocked. Please click the play button.');
+                         if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
+                             safariPopup.style.display = 'flex'; // Show the popup for Safari
+                         }
+                     });
+                     loadingContainer.style.display = 'none'; // Hide loading icon
+                 });
+             } else {
+                 console.error('This browser does not support HLS.');
                  loadingContainer.style.display = 'none'; // Hide loading icon
-             });
-         
-             // Play the temp audio to trigger Safari's autoplay handling
-             tempAudio.play().catch(error => {
-                 console.log('Autoplay blocked. Please click the play button.');
-                 if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
-                     safariPopup.style.display = 'flex'; // Show the popup for Safari
-                 }
-             });
+             }
          }
          
+         // Play the next music item in the list
          function playNextMusic() {
              if (repeatOnce) {
+                 audioPlayer.currentTime = 0;
                  audioPlayer.play();
              } else if (repeatAll) {
                  currentIndex = (currentIndex + 1) % musicItems.length;
@@ -364,8 +388,10 @@
              }
          }
          
+         // Event listener for when the audio ends
          audioPlayer.addEventListener('ended', playNextMusic);
          
+         // Toggle repeat once functionality
          repeatOnceButton.addEventListener('click', () => {
              repeatOnce = !repeatOnce;
              repeatOnceButton.style.backgroundColor = repeatOnce ? 'lightblue' : '';
@@ -375,6 +401,7 @@
              }
          });
          
+         // Toggle repeat all functionality
          repeatAllButton.addEventListener('click', () => {
              repeatAll = !repeatAll;
              repeatAllButton.style.backgroundColor = repeatAll ? 'lightblue' : '';
@@ -384,13 +411,17 @@
              }
          });
          
+         // Initialize the music player by fetching data and displaying the list
          async function init() {
              musicItems = await fetchMusicData();
+             // Sort music items by IndexNumber to ensure correct order
+             musicItems.sort((a, b) => a.IndexNumber - b.IndexNumber);
              displayMusicList(musicItems);
          }
          
          init();
          
+         // Close the Safari autoplay popup
          function closePopup() {
              safariPopup.style.display = 'none';
          }

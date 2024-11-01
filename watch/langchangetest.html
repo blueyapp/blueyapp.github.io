@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Meta tags and other head content -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Watch Bluey Minisodes</title>
     <meta name="title" content="Watch Bluey Minisodes">
-    <meta name="description" content="The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together.">
+    <meta name="description" content="The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of everyday moments introduces some new characters and games they have been playing together.">
     <meta name="keywords" content="bluey, bluey, bluey">
     <meta name="robots" content="index, follow">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -13,20 +14,22 @@
     <meta name="author" content="Bluey Heeler">
     <!-- Meta tags for social share preview -->
     <meta property="og:title" content="Watch Bluey Minisodes">
-    <meta property="og:description" content="The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together.">
+    <meta property="og:description" content="The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of everyday moments introduces some new characters and games they have been playing together.">
     <meta property="og:image" content="https://cdn.iview.abc.net.au/thumbs/1200/mp/MP2423H118C00DS1_6667b1657c3f7_3600.jpg">
     <!-- URL to your image -->
     <meta property="og:url" content="https://pages.bluey.cam/watch/minisodes">
     <!-- URL of your page -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Watch Bluey Minisodes">
-    <meta name="twitter:description" content="The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together.">
+    <meta name="twitter:description" content="The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of everyday moments introduces some new characters and games they have been playing together.">
     <meta name="twitter:image" content="https://cdn.iview.abc.net.au/thumbs/1200/mp/MP2423H118C00DS1_6667b1657c3f7_3600.jpg">
     <!-- URL to your image -->
     <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
     <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
     <link href="//pages.bluey.cam/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
     <style>
+        /* Your existing CSS styles */
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -63,28 +66,28 @@
             font-weight: bold;
         }
         .player-wrapper {
-            width: 90%; /* Set width to 90% */
+            width: 90%;
             margin: 30px auto;
             box-shadow: 0 0 30px rgba(0,0,0,0.7);
         }
         #player {
-            width: 100%; /* Set width to 100% */
-            height: auto; /* Allow height to adjust */
+            width: 100%;
+            height: auto;
             background-color: #000;
         }
         #content {
             margin-top: 10px;
-            position: relative; /* Added for positioning overlay relative to this container */
+            position: relative;
         }
         #seasons-container {
             display: flex;
             margin: 0 auto;
-            justify-content: space-between; /* Adjusted to create space for the info button */
+            justify-content: space-between;
             padding: 10px 0;
             background-color: #87c0e8;
             text-align: center;
             max-width: 700px;
-            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            flex-wrap: wrap;
         }
         .season-selector__button {
             margin: 5px;
@@ -170,7 +173,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 100%; /* Adjusted width to make it narrower */
+            width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.8);
             z-index: 1;
@@ -178,18 +181,18 @@
             border-radius: 10px;
         }
         .overlay-content {
-            text-align: left; /* Align text to the left */
+            text-align: left;
             color: #fff;
             padding: 20px;
             display: flex;
-            align-items: center; /* Center items vertically */
+            align-items: center;
         }
         .overlay img {
             max-width: 50%;
             margin-right: 15px;
             height: auto;
             max-height: 200px;
-            border-radius: 5px; /* Added border-radius for rounded corners */
+            border-radius: 5px;
         }
         .close-overlay {
             position: absolute;
@@ -200,14 +203,14 @@
             font-size: 20px;
         }
         .overlay-content-text {
-            flex: 1; /* Take remaining space */
+            flex: 1;
         }
         #download-button {
-            margin-top: 10px; /* Add spacing */
+            margin-top: 10px;
             cursor: pointer;
             color: #ffffff;
             background-color: #e2793b;
-            padding: 10px 20px; /* Adjust padding */
+            padding: 10px 20px;
             border: none;
             border-radius: 5px;
             font-family: 'Hello Headline', sans-serif;
@@ -218,6 +221,26 @@
         .donate {
             align-items: center;
         }
+        /* Updated CSS for the language dropdown */
+        #language-select {
+            margin: 5px;
+            cursor: pointer;
+            color: #ffffff;
+            background-color: #404066;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-family: 'Hello Headline', sans-serif;
+            appearance: none; /* Removes default styling in some browsers */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+        #language-select option {
+            color: #000000;
+            background-color: #ffffff;
+        }
+        /* Remove or comment out the language-button styles if not needed */
+        /*
         .language-button {
             margin: 5px;
             cursor: pointer;
@@ -232,6 +255,7 @@
             color: #000000;
             background-color: #ffffff;
         }
+        */
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -250,23 +274,23 @@
                 margin-top: 20px;
             }
             .overlay-content {
-                text-align: center; /* Center align content */
+                text-align: center;
                 color: #fff;
                 padding: 20px;
                 display: flex;
-                flex-direction: column; /* Stack content vertically */
-                align-items: center; /* Center items horizontally */
+                flex-direction: column;
+                align-items: center;
             }
             .overlay-content-text {
-                flex: 1; /* Take remaining space */
+                flex: 1;
                 padding: 20px;
             }
             #download-button {
-                margin-top: 10px; /* Add spacing */
+                margin-top: 10px;
                 cursor: pointer;
                 color: #ffffff;
                 background-color: #e2793b;
-                padding: 10px 20px; /* Adjust padding */
+                padding: 10px 20px;
                 border: none;
                 border-radius: 5px;
                 font-family: 'Hello Headline', sans-serif;
@@ -280,36 +304,36 @@
 </head>
 <body>
     <div class="container">
+        <!-- Header content -->
         <div class="header">
             <img src="https://www.themoviedb.org/t/p/original/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
             <ul class="nav">
-                <li>
-                    <a href="/">Home</a>
-                </li>
-                <li>
-                    <a href="/watch">Watch</a>
-                </li>
-                <li>
-                    <a href="/music">Music</a>
-                </li>
-                <li>
-                    <a href="/download">App</a>
-                </li>
+                <li><a href="/">Home</a></li>
+                <li><a href="/watch">Watch</a></li>
+                <li><a href="/music">Music</a></li>
+                <li><a href="/download">App</a></li>
             </ul>
         </div>
+
+        <!-- Player wrapper -->
         <div class="player-wrapper">
             <div id="player"></div>
         </div>
+
+        <!-- Content -->
         <div id="content">
             <div id="seasons-container">
                 <div id="seasons"></div>
-                <!-- Added language buttons -->
-                <button id="english-button" class="language-button selected" onclick="setLanguage(1)">English</button>
-                <button id="malay-button" class="language-button" onclick="setLanguage(3)">Malay</button>
+                <!-- Replaced language buttons with a dropdown -->
+                <select id="language-select" onchange="setLanguage(this.value)">
+                    <option value="1" selected>English</option>
+                    <option value="3">Malay</option>
+                </select>
                 <button id="info-button" onclick="showInfo()">Info</button>
             </div>
             <ul id="episodes"></ul>
             <div class="overlay" id="overlay">
+                <!-- Overlay content -->
                 <div class="overlay-content">
                     <img id="overlay-image" alt="Episode Thumbnail">
                     <div class="overlay-content-text">
@@ -322,18 +346,22 @@
                 <div class="close-overlay" onclick="closeOverlay()">X</div>
             </div>
             <div class="donate">
-                <a href="https://www.buymeacoffee.com/BlueyEmby"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a pavlova&emoji=🍰&slug=BlueyEmby&button_colour=404066&font_colour=FFFFFF&font_family=Comic&outline_colour=000000&coffee_colour=ffffff" /></a>
+                <a href="https://www.buymeacoffee.com/BlueyEmby">
+                    <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a pavlova&emoji=🍰&slug=BlueyEmby&button_colour=404066&font_colour=FFFFFF&font_family=Comic&outline_colour=000000&coffee_colour=ffffff" />
+                </a>
             </div>
         </div>
+
+        <!-- Scripts -->
         <script src="https://cdn.jsdelivr.net/npm/bitmovin-player@8/bitmovinplayer.js"></script>
         <script>
             const serverUrl = "https://bluey.cam:443";
-            const apiKey = "6b2548952ea2439ea800b8cd3f1072d1";
+            const apiKey = "6b2548952ea2439ea800b8cd3f1072d1"; // Replace with your actual API key
             const itemId = "48548";
             let selectedSeason = null;
             let episodes = [];
             let currentEpisodeIndex = 0;
-            let playerInitialized = false; // Flag to check if the player is initialized
+            let playerInitialized = false;
             let selectedAudioStreamIndex = 1; // default to English
 
             document.addEventListener("DOMContentLoaded", () => {
@@ -358,7 +386,7 @@
 
                         // Initialize the player without autoplay
                         if (!playerInitialized) {
-                            const player = videojs('myPlayer', { autoplay: false });
+                            // [Initialize your player here if needed]
                             playerInitialized = true;
                         }
                     })
@@ -426,7 +454,7 @@
                 } else {
                     // Initialize a new player instance if it doesn't exist
                     const conf = {
-                        key: '1a69b597-a4b2-4bf7-99ba-bd417397c111',
+                        key: '1a69b597-a4b2-4bf7-99ba-bd417397c111', // Replace with your actual Bitmovin player key
                     };
                     player = new bitmovin.player.Player(document.getElementById('player'), conf);
                 }
@@ -533,20 +561,14 @@
                 window.location.href = downloadUrl; // Redirect to the download URL
             }
 
-            // Added the setLanguage function
             function setLanguage(value) {
                 selectedAudioStreamIndex = value;
-                // Update the selected class on the buttons
-                document.getElementById('english-button').classList.remove('selected');
-                document.getElementById('malay-button').classList.remove('selected');
-                if (value == 1) {
-                    document.getElementById('english-button').classList.add('selected');
-                } else if (value == 3) {
-                    document.getElementById('malay-button').classList.add('selected');
-                }
                 // Reload the current episode with the new language
-                playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+                if (episodes.length > 0) {
+                    playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+                }
             }
         </script>
-    </body>
+    </div>
+</body>
 </html>

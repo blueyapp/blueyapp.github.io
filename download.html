@@ -8,6 +8,8 @@
   <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
   <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
   <style>
+    /* Existing CSS styles */
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -18,7 +20,7 @@
       font-family: "Hello Headline", Arial, sans-serif !important;
       background-color: #87c0e8 !important;
     }
-    
+
     .imagebox {
       width: 300px;
       margin: 5px;
@@ -29,7 +31,7 @@
       justify-content: center;
       overflow-y: auto;
     }
-    
+
     .imagetv {
       height: 300px;
       margin: 5px;
@@ -41,22 +43,26 @@
       overflow-y: auto;
     }
 
-
     .container {
       max-width: 1200px;
       margin: 0 auto;
       padding: 20px;
     }
 
+    /* Modified header styles */
     .header {
       position: sticky;
       top: 0;
       background-color: #87c0e8;
       z-index: 1000;
+      padding: 10px 0;
+      width: 100%;
+    }
+
+    .header .container {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 0;
     }
 
     .logo {
@@ -106,13 +112,13 @@
       line-height: 1.5;
       margin-bottom: 20px;
     }
-    
+
     .main h2 {
-   	color: #fff;
+      color: #fff;
     }
-   
+
     .main li {
-   	color: #fff;
+      color: #fff;
     }
 
     .main button {
@@ -135,7 +141,7 @@
     }
 
     @media (max-width: 768px) {
-      .header {
+      .header .container {
         flex-direction: column;
       }
 
@@ -159,8 +165,9 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
+  <!-- Move the header outside of the container -->
+  <div class="header">
+    <div class="container">
       <img src="/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
       <ul class="nav">
         <li>
@@ -177,6 +184,9 @@
         </li>
       </ul>
     </div>
+  </div>
+  <!-- Main container -->
+  <div class="container">
     <div class="main">
       <div class="main-left">
         <h1 id="Android">Watch Bluey without censorship on Android.</h1>

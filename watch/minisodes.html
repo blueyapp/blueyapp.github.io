@@ -154,10 +154,16 @@
             max-height: 90px;
             object-fit: cover;
         }
+        /* Added flex: 1; and text-align: left; to the div containing episode details */
+        #episodes li div {
+            flex: 1;
+            text-align: left;
+        }
+        /* Updated margins for h2 to align text to the left */
         #episodes h2 {
             font-size: 20px;
             font-weight: bold;
-            margin: auto;
+            margin: 0;
         }
         #episodes p {
             font-size: 12px;

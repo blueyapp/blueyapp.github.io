@@ -354,26 +354,25 @@
 
             // Declare the player variable globally
             let player = null;
-
+            
             document.addEventListener("DOMContentLoaded", () => {
                 fetchSeasons();
-
+            
                 // Initialize the player once
                 const conf = {
                     key: '1a69b597-a4b2-4bf7-99ba-bd417397c111', // Replace with your actual Bitmovin player key
                 };
                 player = new bitmovin.player.Player(document.getElementById('player'), conf);
-
+            
                 // Attach the PlaybackFinished listener once
                 player.on(bitmovin.player.PlayerEvent.PlaybackFinished, () => {
-                    // Play the next episode when the current one finishes
                     if (currentEpisodeIndex + 1 < episodes.length) {
                         currentEpisodeIndex++;
                         playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
                     }
                 });
             });
-
+            
             function fetchSeasons() {
                 fetch(`${serverUrl}/emby/Shows/${itemId}/Seasons?api_key=${apiKey}`)
                     .then(response => response.json())
@@ -390,23 +389,20 @@
                             seasonsContainer.appendChild(seasonBtn);
                         });
                     })
-                    .catch(error => {
-                        console.error("Error retrieving seasons:", error);
-                    });
+                    .catch(error => console.error("Error retrieving seasons:", error));
             }
-
+            
             function handleSeasonClick(button, season) {
                 if (selectedSeason) {
                     selectedSeason.classList.remove("selected");
                 }
                 selectedSeason = button;
                 selectedSeason.classList.add("selected");
-
-                // Reset current episode index to 0 when changing season
-                currentEpisodeIndex = 0;
+            
+                currentEpisodeIndex = 0; // Reset current episode index when changing season
                 fetchEpisodes(season);
             }
-
+            
             function fetchEpisodes(season) {
                 fetch(`${serverUrl}/emby/Shows/${itemId}/Episodes?SeasonId=${season.Id}&api_key=${apiKey}&Fields=Overview`)
                     .then(response => response.json())
@@ -414,11 +410,9 @@
                         episodes = data.Items;
                         renderEpisodes(episodes);
                     })
-                    .catch(error => {
-                        console.error("Error retrieving episodes:", error);
-                    });
+                    .catch(error => console.error("Error retrieving episodes:", error));
             }
-
+            
             function renderEpisodes(episodes) {
                 const episodeList = document.getElementById('episodes');
                 episodeList.innerHTML = ''; // Clear the list
@@ -434,26 +428,48 @@
                     episodeItem.addEventListener("click", () => {
                         playEpisode(episode, index);
                     });
-
-                    // Add the "selected" class to the clicked episode
+            
                     if (currentEpisodeIndex === index) {
                         episodeItem.classList.add("selected");
                     }
-
+            
                     episodeList.appendChild(episodeItem);
                 });
             }
-
+            
             function playEpisode(episode, index) {
-                // Show the player when an episode is selected
                 document.querySelector('.player-wrapper').style.display = 'block';
-
-                // Pause the existing player if it exists
+            
                 if (player) {
                     player.pause();
                 }
-
-                // Fetch playback info and load the episode
+            
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`,
+                        artist: "Bluey",
+                        album: `Season ${episode.ParentIndexNumber}`,
+                        artwork: [
+                            { src: `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`, sizes: '1920x1080', type: 'image/png' },
+                        ]
+                    });
+            
+                    navigator.mediaSession.setActionHandler('play', () => player.play());
+                    navigator.mediaSession.setActionHandler('pause', () => player.pause());
+                    navigator.mediaSession.setActionHandler('nexttrack', () => {
+                        if (currentEpisodeIndex + 1 < episodes.length) {
+                            currentEpisodeIndex++;
+                            playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+                        }
+                    });
+                    navigator.mediaSession.setActionHandler('previoustrack', () => {
+                        if (currentEpisodeIndex > 0) {
+                            currentEpisodeIndex--;
+                            playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+                        }
+                    });
+                }
+            
                 fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources`)
                     .then(response => response.json())
                     .then(playbackInfo => {
@@ -463,8 +479,8 @@
                         const AudioBitRate = playbackInfo.MediaSources[0].MediaStreams[1].BitRate;
                         const epname = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
                         const progressive = `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`;
-                        const hls = `${serverUrl}/emby/videos/${episode.Id}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${PlaySessionId}&api_key=${apiKey}&VideoCodec=h264,h265,hevc&AudioCodec=mp3,aac&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}&AudioStreamIndex=${selectedAudioStreamIndex}&TranscodingMaxAudioChannels=2&SegmentContainer=m4s,ts&MinSegments=2&BreakOnNonKeyFrames=True&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&hevc-codectag=hvc1&TranscodeReasons=ContainerBitrateExceedsLimit`;
-
+                        const hls = `${serverUrl}/emby/videos/${episode.Id}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${PlaySessionId}&api_key=${apiKey}&VideoCodec=h264,h265,hevc&AudioCodec=mp3,aac&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}&AudioStreamIndex=${selectedAudioStreamIndex}`;
+            
                         player.load({
                             title: epname,
                             hls: hls,
@@ -483,68 +499,61 @@
                             showInfo();
                         });
                     })
-                    .catch(error => {
-                        console.error("Error retrieving playback info:", error);
-                    });
-
-                // Update the current episode index
+                    .catch(error => console.error("Error retrieving playback info:", error));
+            
                 currentEpisodeIndex = index;
-
-                // Remove "selected" class from the previous episode
+            
                 const prevSelected = document.querySelector("#episodes li.selected");
                 if (prevSelected) {
                     prevSelected.classList.remove("selected");
                 }
-
-                // Add "selected" class to the newly selected episode
+            
                 const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
                 if (selectedEpisodeItem) {
                     selectedEpisodeItem.classList.add("selected");
                 }
-
-                // Display overlay for the selected episode
+            
                 renderOverlay(episode);
             }
-
+            
             function renderOverlay(episode) {
                 const overlay = document.getElementById('overlay');
                 const overlayImage = document.getElementById('overlay-image');
                 const overlayTitle = document.getElementById('overlay-title');
                 const overlayDescription = document.getElementById('overlay-description');
                 const overlayEpisodeNumber = document.getElementById('overlay-episode-number');
-
+            
                 overlayImage.src = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
                 overlayEpisodeNumber.innerText = `S${episode.ParentIndexNumber}E${episode.IndexNumber}`;
                 overlayTitle.innerText = episode.Name;
                 overlayDescription.innerText = episode.Overview;
-
+            
                 overlay.style.display = 'block';
             }
-
+            
             function closeOverlay() {
                 document.getElementById('overlay').style.display = 'none';
             }
-
+            
             function showInfo() {
-                // Display overlay for the selected episode when Info button is clicked
                 const selectedEpisode = episodes[currentEpisodeIndex];
                 renderOverlay(selectedEpisode);
             }
-
+            
             function downloadEpisode() {
                 const episode = episodes[currentEpisodeIndex];
                 const downloadUrl = `${serverUrl}/emby/Items/${episode.Id}/Download?api_key=${apiKey}`;
-                window.location.href = downloadUrl; // Redirect to the download URL
+                window.location.href = downloadUrl;
             }
-
+            
             function setLanguage(value) {
                 selectedAudioStreamIndex = value;
-                // Reload the current episode with the new language
                 if (episodes.length > 0) {
                     playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
                 }
             }
-        </script>
-    </div>
-</body>
+                    
+         </script>
+      </div>
+   </body>
 </html>

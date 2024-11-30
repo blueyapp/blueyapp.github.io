@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bluey the Album</title>
-    <meta name="title" content="Bluey the Album">
-    <meta name="description" content="Bluey The Album features 17 songs, all original compositions from Season 1 including music from fan favourite episodes such as ‘Keepy Uppy’, ‘Here Come The Grannies!’, ‘Pool’ and ‘The Creek’.">
-    <meta name="keywords" content="bluey, bluey, bluey">
-    <meta name="robots" content="index, follow">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="language" content="English">
-    <meta name="author" content="Bluey Heeler">
-    <!-- Meta tags for social share preview -->
-    <meta property="og:title" content="Bluey the Album">
-    <meta property="og:description" content="Bluey The Album features 17 songs, all original compositions from Season 1 including music from fan favourite episodes such as ‘Keepy Uppy’, ‘Here Come The Grannies!’, ‘Pool’ and ‘The Creek’.">
-    <meta property="og:image" content="https://www.bluey.tv/wp-content/uploads/2021/01/Bluey-The-Album.jpg">
-    <!-- URL to your image -->
-    <meta property="og:url" content="https://pages.bluey.cam/music/bluey-the-album">
-    <!-- URL of your page -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Bluey the Album">
-    <meta name="twitter:description" content="Bluey The Album features 17 songs, all original compositions from Season 1 including music from fan favourite episodes such as ‘Keepy Uppy’, ‘Here Come The Grannies!’, ‘Pool’ and ‘The Creek’.">
-    <meta name="twitter:image" content="https://www.bluey.tv/wp-content/uploads/2021/01/Bluey-The-Album.jpg">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Bluey the Album</title>
+      <meta name="title" content="Bluey the Album">
+      <meta name="description" content="Bluey The Album features 17 songs, all original compositions from Season 1 including music from fan favourite episodes such as ‘Keepy Uppy’, ‘Here Come The Grannies!’, ‘Pool’ and ‘The Creek’.">
+      <meta name="keywords" content="bluey, bluey, bluey">
+      <meta name="robots" content="index, follow">
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <meta name="language" content="English">
+      <meta name="author" content="Bluey Heeler">
+      <!-- Meta tags for social share preview -->
+      <meta property="og:title" content="Bluey the Album">
+      <meta property="og:description" content="Bluey The Album features 17 songs, all original compositions from Season 1 including music from fan favourite episodes such as ‘Keepy Uppy’, ‘Here Come The Grannies!’, ‘Pool’ and ‘The Creek’.">
+      <meta property="og:image" content="https://www.bluey.tv/wp-content/uploads/2021/01/Bluey-The-Album.jpg">
+      <!-- URL to your image -->
+      <meta property="og:url" content="https://pages.bluey.cam/music/bluey-the-album">
+      <!-- URL of your page -->
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:title" content="Bluey the Album">
+      <meta name="twitter:description" content="Bluey The Album features 17 songs, all original compositions from Season 1 including music from fan favourite episodes such as ‘Keepy Uppy’, ‘Here Come The Grannies!’, ‘Pool’ and ‘The Creek’.">
+      <meta name="twitter:image" content="https://www.bluey.tv/wp-content/uploads/2021/01/Bluey-The-Album.jpg">
       <!-- URL to your image -->
       <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
       <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
@@ -343,12 +343,7 @@
                  window.hls.loadSource(musicUrl);
                  window.hls.attachMedia(audioPlayer);
                  window.hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                     audioPlayer.play().catch(error => {
-                         console.log('Autoplay blocked. Please click the play button.');
-                         if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
-                             safariPopup.style.display = 'flex'; // Show the popup for Safari
-                         }
-                     });
+                     audioPlayer.play().catch(handleAutoplayError);
                      loadingContainer.style.display = 'none'; // Hide loading icon
                  });
                  window.hls.on(Hls.Events.ERROR, function (event, data) {
@@ -358,17 +353,46 @@
              } else if (audioPlayer.canPlayType('application/vnd.apple.mpegurl')) {
                  audioPlayer.src = musicUrl;
                  audioPlayer.addEventListener('loadedmetadata', function () {
-                     audioPlayer.play().catch(error => {
-                         console.log('Autoplay blocked. Please click the play button.');
-                         if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
-                             safariPopup.style.display = 'flex'; // Show the popup for Safari
-                         }
-                     });
+                     audioPlayer.play().catch(handleAutoplayError);
                      loadingContainer.style.display = 'none'; // Hide loading icon
                  });
              } else {
                  console.error('This browser does not support HLS.');
                  loadingContainer.style.display = 'none'; // Hide loading icon
+             }
+         
+             // Update Media Session API metadata
+             if ('mediaSession' in navigator) {
+                 const currentTrack = musicItems[index];
+                 navigator.mediaSession.metadata = new MediaMetadata({
+                     title: currentTrack.Name || 'Unknown Title',
+                     artist: currentTrack.Artists || 'Unknown Artist',
+                     album: currentTrack.Album || 'Bluey Season 1',
+                     artwork: [
+                         {
+                             src: `${EMBY_URL}/Items/${currentTrack.Id}/Images/Primary?api_key=${EMBY_API_TOKEN}`,
+                             sizes: '512x512',
+                             type: 'image/png',
+                         },
+                     ],
+                 });
+         
+                 // Define media control actions
+                 navigator.mediaSession.setActionHandler('play', () => audioPlayer.play());
+                 navigator.mediaSession.setActionHandler('pause', () => audioPlayer.pause());
+                 navigator.mediaSession.setActionHandler('nexttrack', playNextMusic);
+                 navigator.mediaSession.setActionHandler('previoustrack', () => {
+                     currentIndex = (currentIndex - 1 + musicItems.length) % musicItems.length;
+                     playMusic(currentIndex);
+                 });
+             }
+         }
+         
+         // Handle autoplay restrictions
+         function handleAutoplayError() {
+             console.log('Autoplay blocked. Please click the play button.');
+             if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
+                 safariPopup.style.display = 'flex'; // Show Safari autoplay popup
              }
          }
          
@@ -414,8 +438,7 @@
          // Initialize the music player by fetching data and displaying the list
          async function init() {
              musicItems = await fetchMusicData();
-             // Sort music items by IndexNumber to ensure correct order
-             musicItems.sort((a, b) => a.IndexNumber - b.IndexNumber);
+             musicItems.sort((a, b) => a.IndexNumber - b.IndexNumber); // Sort by IndexNumber for correct order
              displayMusicList(musicItems);
          }
          
@@ -425,6 +448,7 @@
          function closePopup() {
              safariPopup.style.display = 'none';
          }
+               
       </script>
    </body>
 </html>

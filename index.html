@@ -1,246 +1,271 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bitmovin-player@8/bitmovinplayer.js"></script>
-  <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home</title>
-  <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
-  <link href="//pages.bluey.cam/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: "Hello Headline", Arial, sans-serif !important;
-      background-color: #87c0e8 !important;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      display: none; /* Initially hide content */
-    }
-
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .logo {
-      width: 150px;
-      border-radius: 0px;
-    }
-
-    .nav {
-      display: flex;
-      list-style: none;
-    }
-
-    .nav li {
-      margin-left: 20px;
-    }
-
-    .nav a {
-      text-decoration: none;
-      color: #ffffff;
-      font-weight: bold;
-    }
-
-    p {
-      margin-bottom: 30px;
-      margin-top: 30px;
-      font-family: "Hello Headline", sans-serif;
-      color: white;
-      text-align: center;
-    }
-
-    myPlayer {
-      height: 100%;
-      width: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-
-    .button-container {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin: 20px;
-    }
-
-    .share-button {
-      display: inline-block;
-      width: 150px;
-      height: 50px;
-      padding: 15px;
-      background-color: #ffffff;
-      color: #000000;
-      text-decoration: none;
-      font-weight: bold;
-      border-radius: 10px;
-      font-family: "Hello Headline", sans-serif;
-      cursor: pointer;
-      text-align: center;
-    }
-
-   .player-wrapper {
-      width: 90%;
-      margin: 20px auto;
-      box-shadow: 0 0 30px rgba(0,0,0,0.7);
-    }
-    
-    #player {
-      width: 100%; /* Set width to 100% */
-      height: auto; /* Allow height to adjust */
-      background-color: #000;
-    }
-         
-    .bmpui-ui-watermark {
-      background-image: url("https://i.ibb.co/fQMFML5/489-DA151-BBA5799-AD54-E81869-D2-CE92-F.png");  
-      height: 3.5em;
-      width: 3.5em;
-      background-size: cover;
-    }
-    
-    @media (max-width: 768px) {
-      .header {
-        flex-direction: column;
-      }
-
-      .nav {
-        margin-top: 20px;
-      }
-
-      .main {
-        flex-direction: column;
-      }
-
-      .main-left,
-      .main-right {
-        width: 100%;
-      }
-
-      .main-right {
-        margin-top: 20px;
-      }
-    }
-
-    /* Loading Screen Styles */
-    .loading-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #87c0e8; 
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999; 
-    }
-
-    .loading-message {
-      color: #ffffff;
-      font-size: 24px;
-      font-family: "Hello Headline", sans-serif;
-      overflow: hidden; 
-    }
-
-    .loading-message span {
-      display: inline-block;
-      animation: loadingDots 1s infinite alternate;
-    }
-
-    @keyframes loadingDots {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-  </style>
-</head>
-<body>
-  <div class="loading-overlay">
-    <div class="loading-message">Loading<span>.</span><span>.</span><span>.</span></div>
-  </div>
-
-  <div class="container">
-    <div class="header">
-      <img src="/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
-      <ul class="nav">
-        <li>
-          <a href="/">Home</a>
-        </li>
-        <li>
-          <a href="/watch">Watch</a>
-        </li>
-        <li>
-          <a href="/music">Music</a>
-        </li>
-        <li>
-          <a href="/download">App</a>
-        </li>
-      </ul>
-    </div>
-    <p>There's nothing here...</p>
-
-    <div class="player-wrapper">
-      <div id="player"></div>
-    </div>
-
-    <div class="button-container">
-      <a class="share-button" href="/tvapp.html" onclick="loadPage('/tvapp.html')">TV App</a>
-      <!-- <a class="share-button" href="/signup.html" onclick="loadPage('/signup.html')">Bluey App Beta</a> -->
-      <a href="https://www.buymeacoffee.com/BlueyEmby"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a pavlova&emoji=🍰&slug=BlueyEmby&button_colour=404066&font_colour=FFFFFF&font_family=Comic&outline_colour=000000&coffee_colour=ffffff" /></a>
-    </div>
-
-  <script>
-    // Function to handle page navigation
-    function loadPage(url) {
-      window.location.href = url;
-    }
-
-    // Loading screen logic 
-    const loadingOverlay = document.querySelector('.loading-overlay');
-
-    function sendPing() {
-      fetch('https://tv.bluey.cam/iptv/channel/1.m3u8')
-        .then(() => {
-          // Ping successful - hide loading, show video, and reload
-          loadingOverlay.style.display = 'none'; 
-          document.querySelector('.container').style.display = 'block';
-          
-          // Reload the Bitmovin Player source
-          player.load(source);
-        })
-        .catch((error) => {
-          console.error('Ping error:', error);
-          // Ping failed - retry after a short delay
-          setTimeout(sendPing, 2000); // Retry every 2 seconds
-        });
-    }
-
-    sendPing();
-
-    // Bitmovin Player setup
-    var conf = {
-      key: '1a69b597-a4b2-4bf7-99ba-bd417397c111',
-    };
-
-    var source = {
-      title: 'Bluey & Friends Play Along Stream',
-      hls: 'https://tv.bluey.cam/iptv/session/1/hls.m3u8',
-      poster: 'https://cdn.iview.abc.net.au/thumbs/i/X0_66fc879b74b7b_3600.jpg',
-    };
-
-    var player = new bitmovin.player.Player(document.getElementById('player'), conf);
-    player.load(source);
-  </script>
-  </div> 
-</body>
+   <head>
+      <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/bitmovin-player@8/bitmovinplayer.js"></script>
+      <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Home</title>
+      <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
+      <link href="//pages.bluey.cam/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
+      <style>
+         * {
+         box-sizing: border-box;
+         margin: 0;
+         padding: 0;
+         }
+         body {
+         font-family: "Hello Headline", Arial, sans-serif !important;
+         background-color: #87c0e8 !important;
+         }
+         .container {
+         max-width: 1200px;
+         margin: 0 auto;
+         padding: 20px;
+         display: none; /* Initially hide content */
+         }
+         .header {
+         display: flex;
+         align-items: center;
+         justify-content: space-between;
+         }
+         .logo {
+         width: 150px;
+         border-radius: 0px;
+         }
+         .nav {
+         display: flex;
+         list-style: none;
+         }
+         .nav li {
+         margin-left: 20px;
+         }
+         .nav a {
+         text-decoration: none;
+         color: #ffffff;
+         font-weight: bold;
+         }
+         p {
+         margin-bottom: 30px;
+         margin-top: 30px;
+         font-family: "Hello Headline", sans-serif;
+         color: white;
+         text-align: center;
+         }
+         myPlayer {
+         height: 100%;
+         width: 100%;
+         position: absolute;
+         top: 0;
+         left: 0;
+         }
+         .button-container {
+         display: flex;
+         justify-content: center;
+         gap: 20px;
+         margin: 20px;
+         }
+         .share-button {
+         display: inline-block;
+         width: 150px;
+         height: 50px;
+         padding: 15px;
+         background-color: #ffffff;
+         color: #000000;
+         text-decoration: none;
+         font-weight: bold;
+         border-radius: 10px;
+         font-family: "Hello Headline", sans-serif;
+         cursor: pointer;
+         text-align: center;
+         }
+         .player-wrapper {
+         width: 90%;
+         margin: 20px auto;
+         box-shadow: 0 0 30px rgba(0,0,0,0.7);
+         }
+         #player {
+         width: 100%; /* Set width to 100% */
+         height: auto; /* Allow height to adjust */
+         background-color: #000;
+         }
+         .bmpui-ui-watermark {
+         background-image: url("https://i.ibb.co/fQMFML5/489-DA151-BBA5799-AD54-E81869-D2-CE92-F.png");  
+         height: 3.5em;
+         width: 3.5em;
+         background-size: cover;
+         }
+         @media (max-width: 768px) {
+         .header {
+         flex-direction: column;
+         }
+         .nav {
+         margin-top: 20px;
+         }
+         .main {
+         flex-direction: column;
+         }
+         .main-left,
+         .main-right {
+         width: 100%;
+         }
+         .main-right {
+         margin-top: 20px;
+         }
+         }
+         /* Loading Screen Styles */
+         .loading-overlay {
+         position: fixed;
+         top: 0;
+         left: 0;
+         right: 0;
+         bottom: 0;
+         background-color: #87c0e8; 
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         z-index: 9999; 
+         }
+         .loading-message {
+         color: #ffffff;
+         font-size: 24px;
+         font-family: "Hello Headline", sans-serif;
+         overflow: hidden; 
+         }
+         .loading-message span {
+         display: inline-block;
+         animation: loadingDots 1s infinite alternate;
+         }
+         @keyframes loadingDots {
+         from { opacity: 0; }
+         to   { opacity: 1; }
+         }
+      </style>
+   </head>
+   <body>
+      <div class="loading-overlay">
+         <div class="loading-message">Loading<span>.</span><span>.</span><span>.</span></div>
+      </div>
+      <div class="container">
+         <div class="header">
+            <img src="/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
+            <ul class="nav">
+               <li>
+                  <a href="/">Home</a>
+               </li>
+               <li>
+                  <a href="/watch">Watch</a>
+               </li>
+               <li>
+                  <a href="/music">Music</a>
+               </li>
+               <li>
+                  <a href="/download">App</a>
+               </li>
+            </ul>
+         </div>
+         <p>There's nothing here...</p>
+         <div class="player-wrapper">
+            <div id="player"></div>
+         </div>
+         <div class="button-container">
+            <a class="share-button" href="/tvapp.html" onclick="loadPage('/tvapp.html')">TV App</a>
+            <!-- <a class="share-button" href="/signup.html" onclick="loadPage('/signup.html')">Bluey App Beta</a> -->
+            <a href="https://www.buymeacoffee.com/BlueyEmby"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a pavlova&emoji=🍰&slug=BlueyEmby&button_colour=404066&font_colour=FFFFFF&font_family=Comic&outline_colour=000000&coffee_colour=ffffff" /></a>
+         </div>
+         <script>
+            // Function to handle page navigation
+            function loadPage(url) {
+              window.location.href = url;
+            }
+            
+            // Loading screen logic 
+            const loadingOverlay = document.querySelector('.loading-overlay');
+            
+            function sendPing() {
+              fetch('https://tv.bluey.cam/iptv/channel/1.m3u8')
+                .then(() => {
+                  // Ping successful - hide loading, show video, and reload
+                  loadingOverlay.style.display = 'none'; 
+                  document.querySelector('.container').style.display = 'block';
+                  
+                  // Reload the Bitmovin Player source
+                  player.load(source);
+                })
+                .catch((error) => {
+                  console.error('Ping error:', error);
+                  // Ping failed - retry after a short delay
+                  setTimeout(sendPing, 2000); // Retry every 2 seconds
+                });
+            }
+            
+            sendPing();
+            
+            // Bitmovin Player setup
+            var conf = {
+              key: '1a69b597-a4b2-4bf7-99ba-bd417397c111',
+            };
+            
+            var source = {
+              title: 'Bluey & Friends Play Along Stream',
+              hls: 'https://tv.bluey.cam/iptv/session/1/hls.m3u8',
+              poster: 'https://cdn.iview.abc.net.au/thumbs/i/X0_66fc879b74b7b_3600.jpg',
+            };
+            
+            var player = new bitmovin.player.Player(document.getElementById('player'), conf);
+            player.load(source);
+            
+            // Media Session API Integration
+            if ('mediaSession' in navigator) {
+              navigator.mediaSession.metadata = new MediaMetadata({
+                title: source.title,
+                artist: 'Bluey',
+                album: 'Bluey',
+                artwork: [
+                  { src: source.poster, sizes: '1920x1080', type: 'image/jpeg' },
+                ]
+              });
+            
+              // Media Session controls
+              navigator.mediaSession.setActionHandler('play', () => {
+                player.play();
+              });
+            
+              navigator.mediaSession.setActionHandler('pause', () => {
+                player.pause();
+              });
+            
+              navigator.mediaSession.setActionHandler('seekbackward', (details) => {
+                const offset = details.seekOffset || 10; // Default seek offset is 10 seconds
+                player.seek(player.getCurrentTime() - offset);
+              });
+            
+              navigator.mediaSession.setActionHandler('seekforward', (details) => {
+                const offset = details.seekOffset || 10; // Default seek offset is 10 seconds
+                player.seek(player.getCurrentTime() + offset);
+              });
+            
+              navigator.mediaSession.setActionHandler('previoustrack', () => {
+                console.log('Previous track not implemented');
+              });
+            
+              navigator.mediaSession.setActionHandler('nexttrack', () => {
+                console.log('Next track not implemented');
+              });
+            }
+            
+            // Sync Media Session playback state
+            player.on(bitmovin.player.PlayerEvent.Playing, () => {
+              if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = 'playing';
+              }
+            });
+            
+            player.on(bitmovin.player.PlayerEvent.Paused, () => {
+              if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = 'paused';
+              }
+            });
+         </script>
+      </div>
+   </body>
 </html>

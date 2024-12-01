@@ -274,9 +274,14 @@
          
          // Fetch music data from Emby server
          async function fetchMusicData() {
-             const response = await fetch(`${EMBY_URL}/Users/${EMBY_USER_ID}/Items?ParentId=${parentID}&Fields=BasicSyncInfo,CanDelete,PrimaryImageAspectRatio,SyncStatus&ImageTypeLimit=1&EnableTotalRecordCount=false&api_key=${EMBY_API_TOKEN}`);
-             const data = await response.json();
-             return data.Items;
+             try {
+                 const response = await fetch(`${EMBY_URL}/Users/${EMBY_USER_ID}/Items?ParentId=${parentID}&Fields=BasicSyncInfo,CanDelete,PrimaryImageAspectRatio,SyncStatus&ImageTypeLimit=1&EnableTotalRecordCount=false&api_key=${EMBY_API_TOKEN}`);
+                 const data = await response.json();
+                 return data.Items || [];
+             } catch (error) {
+                 console.error('Error fetching music data:', error);
+                 return [];
+             }
          }
          
          // Create HTML elements for each music item
@@ -324,7 +329,7 @@
              });
          }
          
-         // Play the selected music using hls.js
+         // Play the selected music using HLS.js
          function playMusic(index) {
              currentIndex = index;
              updateHighlight(); // Update the highlight when music changes
@@ -333,7 +338,7 @@
          
              loadingContainer.style.display = 'flex'; // Show loading icon
          
-             // Destroy previous hls instance if exists
+             // Destroy previous HLS instance if exists
              if (window.hls) {
                  window.hls.destroy();
              }
@@ -342,17 +347,17 @@
                  window.hls = new Hls();
                  window.hls.loadSource(musicUrl);
                  window.hls.attachMedia(audioPlayer);
-                 window.hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                 window.hls.on(Hls.Events.MANIFEST_PARSED, () => {
                      audioPlayer.play().catch(handleAutoplayError);
                      loadingContainer.style.display = 'none'; // Hide loading icon
                  });
-                 window.hls.on(Hls.Events.ERROR, function (event, data) {
+                 window.hls.on(Hls.Events.ERROR, (event, data) => {
                      console.error('HLS.js error:', data);
                      loadingContainer.style.display = 'none'; // Hide loading icon
                  });
              } else if (audioPlayer.canPlayType('application/vnd.apple.mpegurl')) {
                  audioPlayer.src = musicUrl;
-                 audioPlayer.addEventListener('loadedmetadata', function () {
+                 audioPlayer.addEventListener('loadedmetadata', () => {
                      audioPlayer.play().catch(handleAutoplayError);
                      loadingContainer.style.display = 'none'; // Hide loading icon
                  });
@@ -361,12 +366,13 @@
                  loadingContainer.style.display = 'none'; // Hide loading icon
              }
          
-             // Update Media Session API metadata
+             // Format and update Media Session API metadata
              if ('mediaSession' in navigator) {
                  const currentTrack = musicItems[index];
+                 const formattedArtists = (currentTrack.Artists || []).join(', '); // Format Artists with proper spacing
                  navigator.mediaSession.metadata = new MediaMetadata({
                      title: currentTrack.Name || 'Unknown Title',
-                     artist: currentTrack.Artists || 'Unknown Artist',
+                     artist: formattedArtists || 'Unknown Artist',
                      album: currentTrack.Album || 'Bluey Season 1',
                      artwork: [
                          {
@@ -377,7 +383,6 @@
                      ],
                  });
          
-                 // Define media control actions
                  navigator.mediaSession.setActionHandler('play', () => audioPlayer.play());
                  navigator.mediaSession.setActionHandler('pause', () => audioPlayer.pause());
                  navigator.mediaSession.setActionHandler('nexttrack', playNextMusic);
@@ -447,7 +452,7 @@
          // Close the Safari autoplay popup
          function closePopup() {
              safariPopup.style.display = 'none';
-         }
+         }    
                
       </script>
    </body>

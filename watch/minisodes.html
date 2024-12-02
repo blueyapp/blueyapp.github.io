@@ -479,7 +479,7 @@
                         const AudioBitRate = playbackInfo.MediaSources[0].MediaStreams[1].BitRate;
                         const epname = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
                         const progressive = `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`;
-                        const hls = `${serverUrl}/emby/videos/${episode.Id}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${PlaySessionId}&api_key=${apiKey}&VideoCodec=h264,h265,hevc&AudioCodec=mp3,aac&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}&AudioStreamIndex=${selectedAudioStreamIndex}`;
+                        const hls = `${serverUrl}/emby/videos/${episode.Id}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${PlaySessionId}&api_key=${apiKey}&VideoCodec=h264,h265,hevc&AudioCodec=mp3,aac&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}&AudioStreamIndex=${selectedAudioStreamIndex}&TranscodingMaxAudioChannels=2&SegmentContainer=m4s,ts&MinSegments=2&BreakOnNonKeyFrames=True&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&hevc-codectag=hvc1&TranscodeReasons=ContainerBitrateExceedsLimit`;
             
                         player.load({
                             title: epname,

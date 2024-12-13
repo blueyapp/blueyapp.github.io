@@ -325,7 +325,7 @@
               if ('mediaSession' in navigator) {
                   navigator.mediaSession.metadata = new MediaMetadata({
                       title: musicItem.Name || 'Unknown Title',
-                      artist: musicItem.AlbumArtist || 'Unknown Artist',
+                      artist: musicItem.Album || 'Unknown Artist',
                       album: musicItem.Album || 'Unknown Album',
                       artwork: [
                           {

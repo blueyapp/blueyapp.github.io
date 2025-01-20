@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Meta & Title -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Watch Movie</title>
+
+  <!-- Icons, Fonts, & Video.js/Bitmovin -->
+  <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
+  <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet" />
+  <script src="https://vjs.zencdn.net/7.15.4/video.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bitmovin-player@8/bitmovinplayer.js"></script>
+  <!-- Custom font -->
+  <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
+
+  <style>
+    /* Reset and general box sizing */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Body font & background */
+    body {
+      font-family: "Hello Headline", Arial, sans-serif !important;
+      background-color: #87c0e8 !important;
+      color: #ffffff;
+      text-align: center;
+      margin: 0;
+    }
+
+    /* Container for overall layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header Styles */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .logo {
+      width: 150px;
+      border-radius: 0px;
+    }
+    .nav {
+      display: flex;
+      list-style: none;
+    }
+    .nav li {
+      margin-left: 20px;
+    }
+    .nav a {
+      text-decoration: none;
+      color: #ffffff;
+      font-weight: bold;
+      font-family: "Hello Headline", Arial, sans-serif;
+    }
+
+    /* Player wrapper */
+    .player-wrapper {
+      width: 90%;
+      margin: 20px auto;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+    }
+    #player {
+      width: 100%;
+      height: auto;
+      background-color: #000;
+    }
+
+    /* Movie details: flex layout for poster & info */
+    .movie-details {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      flex-wrap: wrap; /* wrap on smaller screens */
+    }
+    .poster-container {
+      flex: 0 0 auto;
+      margin-right: 20px;
+    }
+    .info-container {
+      flex: 1;
+      text-align: left;
+      max-width: 600px;
+    }
+
+    /* Poster, title, and description */
+    .movie-poster {
+      max-width: 300px;
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+    .movie-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-family: "Hello Headline", Arial, sans-serif;
+    }
+    .movie-description {
+      font-size: 16px;
+      margin-bottom: 20px;
+      font-family: "Hello Headline", Arial, sans-serif;
+    }
+
+    /* Download button */
+    #download-button {
+      margin-top: 10px;
+      cursor: pointer;
+      color: #ffffff;
+      background-color: #e2793b;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-family: "Hello Headline", Arial, sans-serif;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+      }
+      .nav {
+        margin-top: 20px;
+      }
+      .movie-details {
+        flex-direction: column;
+        align-items: center;
+      }
+      .poster-container {
+        margin-right: 0;
+        margin-bottom: 20px;
+      }
+      .info-container {
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <div class="container">
+    <div class="header">
+      <img 
+        src="https://www.themoviedb.org/t/p/original/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" 
+        alt="Bluey" 
+        class="logo" 
+      />
+      <ul class="nav">
+        <li><a href="/">Home</a></li>
+        <li><a href="/watch">Watch</a></li>
+        <li><a href="/music">Music</a></li>
+        <li><a href="/audiobooks">Audio Books</a></li>
+        <li><a href="/download">App</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Player wrapper -->
+    <div class="player-wrapper">
+      <div id="player"></div>
+    </div>
+
+    <!-- Movie Details -->
+    <div class="movie-details">
+      <div class="poster-container">
+        <img id="movie-poster" alt="Movie Poster" class="movie-poster" />
+      </div>
+      <div class="info-container">
+        <h1 id="movie-title" class="movie-title"></h1>
+        <p id="movie-description" class="movie-description"></p>
+        <button id="download-button" onclick="downloadMovie()">Download</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    const serverUrl = "https://bluey.cam:443";
+    const apiKey = "9d5cf3331775456dbbabef7535c0f41e";
+    const movieId = "57207";
+    const bitmovinKey = "1a69b597-a4b2-4bf7-99ba-bd417397c111";
+    let selectedAudioStreamIndex = 1; // default to English audio
+
+    let movieMetadata = {}; // to store movie metadata
+    document.addEventListener("DOMContentLoaded", () => {
+      const conf = { key: bitmovinKey };
+      const player = new bitmovin.player.Player(
+        document.getElementById("player"),
+        conf
+      );
+
+      // Fetch and display metadata
+      fetchMovieMetadata().then(() => {
+        displayMovieDetails();
+        initializePlayer(player);
+      });
+    });
+
+    // Fetch movie metadata from Emby
+    function fetchMovieMetadata() {
+      return fetch(
+        `${serverUrl}/emby/Users/ba603d94a7c24b3b8c7e7ea2fedc9162/Items/${movieId}?fields=ShareLevel&ExcludeFields=VideoChapters,VideoMediaSources,MediaStreams&X-Emby-Token=${apiKey}`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          movieMetadata = data;
+        })
+        .catch((error) => console.error("Error retrieving movie metadata:", error));
+    }
+
+    // Display movie details
+    function displayMovieDetails() {
+      const moviePoster = document.getElementById("movie-poster");
+      const movieTitle = document.getElementById("movie-title");
+      const movieDescription = document.getElementById("movie-description");
+
+      moviePoster.src = `${serverUrl}/emby/Items/${movieMetadata.Id}/Images/Primary?X-Emby-Token=${apiKey}`;
+      movieTitle.textContent = movieMetadata.Name || "Movie Title";
+      movieDescription.textContent =
+        movieMetadata.Overview || "Movie description not available.";
+    }
+
+    // Initialize the Bitmovin player
+    function initializePlayer(player) {
+      fetch(
+        `${serverUrl}/emby/Items/${movieId}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources`
+      )
+        .then((response) => response.json())
+        .then((playbackInfo) => {
+          const mediaSourceId = playbackInfo.MediaSources[0].Id;
+          const playSessionId = playbackInfo.PlaySessionId;
+          const videoBitRate = playbackInfo.MediaSources[0].MediaStreams.find(
+            (stream) => stream.Type === "Video"
+          ).BitRate;
+          const audioBitRate = playbackInfo.MediaSources[0].MediaStreams.find(
+            (stream) => stream.Type === "Audio"
+          ).BitRate;
+
+          const hls = `${serverUrl}/emby/videos/${movieId}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${playSessionId}&X-Emby-Token=${apiKey}&VideoCodec=h264,h265,hevc&AudioCodec=mp3,aac&VideoBitrate=${videoBitRate}&AudioBitrate=${audioBitRate}&AudioStreamIndex=${selectedAudioStreamIndex}&TranscodingMaxAudioChannels=2&SegmentContainer=m4s,ts&MinSegments=2&BreakOnNonKeyFrames=True&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&hevc-codectag=hvc1&TranscodeReasons=ContainerBitrateExceedsLimit`;
+
+          player.load({
+            title: movieMetadata.Name,
+            hls: hls,
+            poster: `${serverUrl}/emby/Items/${movieMetadata.Id}/Images/Primary?X-Emby-Token=${apiKey}`,
+          }).then(() => {
+            // Optional: add a subtitle
+            const enSubtitle = {
+              id: "sub1",
+              lang: "en",
+              label: "English",
+              url: `${serverUrl}/emby/Videos/${movieMetadata.Id}/${mediaSourceId}/Subtitles/2/0/Stream.ass?api_key=${apiKey}`,
+              kind: "subtitle",
+            };
+            player.subtitles.add(enSubtitle);
+
+            // Start playback
+            player.play();
+
+            // ----- OPTIONAL: Media Session integration -----
+            if ("mediaSession" in navigator) {
+              navigator.mediaSession.metadata = new MediaMetadata({
+                title: movieMetadata.Name,
+                artist: "Movies",
+                album: "Movies",
+                artwork: [
+                  {
+                    src: `${serverUrl}/emby/Items/${movieMetadata.Id}/Images/Primary?api_key=${apiKey}`,
+                    sizes: "1920x1080",
+                    type: "image/png",
+                  },
+                ],
+              });
+
+              // Basic action handlers
+              navigator.mediaSession.setActionHandler("play", () => player.play());
+              navigator.mediaSession.setActionHandler("pause", () => player.pause());
+
+              // If there's no next or previous, you can omit or stub these:
+              navigator.mediaSession.setActionHandler("nexttrack", () => {
+                console.log("No next track for a single movie.");
+              });
+              navigator.mediaSession.setActionHandler("previoustrack", () => {
+                console.log("No previous track for a single movie.");
+              });
+            }
+          });
+        })
+        .catch((error) => console.error("Error retrieving playback info:", error));
+    }
+
+    // Download movie function
+    function downloadMovie() {
+      const downloadUrl = `${serverUrl}/emby/Items/${movieMetadata.Id}/Download?X-Emby-Token=${apiKey}`;
+      window.location.href = downloadUrl;
+    }
+  </script>
+</body>
+</html>

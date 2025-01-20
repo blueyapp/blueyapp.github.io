@@ -254,7 +254,7 @@
           player.load({
             title: movieMetadata.Name,
             hls: hls,
-            poster: `${serverUrl}/emby/Items/${movieMetadata.Id}/Images/Primary?X-Emby-Token=${apiKey}`,
+            poster: `${serverUrl}/emby/Items/${movieMetadata.Id}/Images/Thumb?X-Emby-Token=${apiKey}`,
           }).then(() => {
             // Optional: add a subtitle
             const enSubtitle = {

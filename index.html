@@ -6,7 +6,7 @@
       <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Home</title>
       <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
-      <link href="//pages.blueynet.org/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
+      <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
       <style>
          * {
          box-sizing: border-box;
@@ -173,7 +173,6 @@
          <div class="button-container">
             <a class="share-button" href="/tvapp.html" onclick="loadPage('/tvapp.html')">TV App</a>
             <!-- <a class="share-button" href="/signup.html" onclick="loadPage('/signup.html')">Bluey App Beta</a> -->
-            <a href="https://www.buymeacoffee.com/BlueyEmby"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a pavlova&emoji=🍰&slug=BlueyEmby&button_colour=404066&font_colour=FFFFFF&font_family=Comic&outline_colour=000000&coffee_colour=ffffff" /></a>
          </div>
          <script>
             // Function to handle page navigation
@@ -185,7 +184,7 @@
             const loadingOverlay = document.querySelector('.loading-overlay');
             
             function sendPing() {
-              fetch('https://tv.bluey.cam/iptv/channel/1.m3u8')
+              fetch('https://tv.blueynet.org/iptv/channel/1.m3u8')
                 .then(() => {
                   // Ping successful - hide loading, show video, and reload
                   loadingOverlay.style.display = 'none'; 
@@ -210,7 +209,7 @@
             
             var source = {
               title: 'Bluey & Friends Play Along Stream',
-              hls: 'https://tv.bluey.cam/iptv/session/1/hls.m3u8',
+              hls: 'https://tv.blueynet.org/iptv/session/1/hls.m3u8',
               poster: 'https://cdn.iview.abc.net.au/thumbs/i/X0_66fc879b74b7b_3600.jpg',
             };
             

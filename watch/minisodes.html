@@ -29,273 +29,280 @@
       <style>
          /* Global Styles */
          * {
-         box-sizing: border-box;
-         margin: 0;
-         padding: 0;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
          }
          body {
-         font-family: "Hello Headline", Arial, sans-serif !important;
-         background-color: #87c0e8 !important;
+            font-family: "Hello Headline", Arial, sans-serif !important;
+            background-color: #87c0e8 !important;
          }
          .container {
-         max-width: 1200px;
-         margin: 0 auto;
-         padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
          }
          .header {
-         display: flex;
-         align-items: center;
-         justify-content: space-between;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
          }
          .logo {
-         width: 150px;
-         border-radius: 0px;
+            width: 150px;
+            border-radius: 0px;
          }
          .nav {
-         display: flex;
-         list-style: none;
+            display: flex;
+            list-style: none;
          }
          .nav li {
-         margin-left: 20px;
+            margin-left: 20px;
          }
          .nav a {
-         text-decoration: none;
-         color: #ffffff;
-         font-weight: bold;
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: bold;
          }
          /* New Flex Container for Main Content */
          .main {
-         display: flex;
-         gap: 20px;
-         margin-top: 30px;
+            display: flex;
+            gap: 45px;
+            margin-top: 30px;
          }
          .main-left, .main-right {
-         flex: 1;
+            flex: 1;
          }
          /* Player Wrapper */
          .player-wrapper {
-         display: none; /* Hidden by default, shown when playing */
-         width: 100%;
-         margin: 0 auto;
-         box-shadow: 0 0 30px rgba(0,0,0,0.7);
+            display: none; /* Hidden by default, shown when playing */
+            width: 100%;
+            margin: 0 auto;
+            box-shadow: 0 0 30px rgba(0,0,0,0.7);
          }
          #player {
-         width: 100%;
-         height: auto;
-         background-color: #000;
+            width: 100%;
+            height: auto;
+            background-color: #000;
          }
          #content {
-         margin-top: 10px;
-         position: relative;
+            margin-top: 10px;
+            position: relative;
          }
          #seasons-container {
-         display: flex;
-         margin: 0 auto;
-         justify-content: space-between;
-         padding: 10px 0;
-         background-color: #87c0e8;
-         text-align: center;
-         max-width: 700px;
-         flex-wrap: wrap;
+            display: flex;
+            margin: 0 auto;
+            justify-content: space-between;
+            padding: 10px 0;
+            background-color: #87c0e8;
+            text-align: center;
+            max-width: 700px;
+            flex-wrap: wrap;
          }
          .season-selector__button {
-         margin: 5px;
-         cursor: pointer;
-         color: #ffffff;
-         border: none;
-         background-color: transparent;
-         padding: 10px 10px;
-         border-radius: 5px;
-         font-family: 'Hello Headline', sans-serif;
+            margin: 5px;
+            cursor: pointer;
+            color: #ffffff;
+            border: none;
+            background-color: transparent;
+            padding: 10px 10px;
+            border-radius: 5px;
+            font-family: 'Hello Headline', sans-serif;
          }
          .season-selector__button.selected {
-         color: #000000;
-         background-color: #ffffff;
+            color: #000000;
+            background-color: #ffffff;
          }
          #info-button {
-         margin: 5px;
-         cursor: pointer;
-         color: #ffffff;
-         background-color: #edcc6f;
-         padding: 10px 10px;
-         border: none;
-         border-radius: 5px;
-         font-family: 'Hello Headline', sans-serif;
+            margin: 5px;
+            cursor: pointer;
+            color: #ffffff;
+            background-color: #edcc6f;
+            padding: 10px 10px;
+            border: none;
+            border-radius: 5px;
+            font-family: 'Hello Headline', sans-serif;
          }
          #episodes {
-         overflow-y: scroll;
-         scrollbar-width: thin;
-         scrollbar-color: transparent transparent;
-         max-height: 500px;
-         max-width: 700px;
-         padding: 5px 0;
-         background-color: #87c0e8;
-         margin: 0 auto;
+            overflow-y: scroll;
+            scrollbar-width: thin;
+            scrollbar-color: transparent transparent;
+            max-height: 500px;
+            max-width: 700px;
+            padding: 5px 0;
+            background-color: #87c0e8;
+            margin: 0 auto;
          }
          #episodes::-webkit-scrollbar {
-         width: 6px;
+            width: 6px;
          }
          #episodes::-webkit-scrollbar-thumb {
-         background-color: transparent;
+            background-color: transparent;
          }
          #episodes li {
-         margin: 5px;
-         list-style-type: none;
-         cursor: pointer;
-         border: 1px solid #dee2e6;
-         border-radius: 5px;
-         padding: 10px;
-         color: #fff;
-         background-color: #404066;
-         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-         display: flex;
-         align-items: flex-start;
+            margin: 5px;
+            list-style-type: none;
+            cursor: pointer;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            color: #fff;
+            background-color: #404066;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: flex-start;
          }
          #episodes img {
-         margin-right: 15px;
-         display: block;
-         width: 100px;
-         height: auto;
-         max-width: 100%;
-         max-height: 90px;
-         object-fit: cover;
+            margin-right: 15px;
+            display: block;
+            width: 100px;
+            height: auto;
+            max-width: 100%;
+            max-height: 90px;
+            object-fit: cover;
          }
          #episodes li div {
-         flex: 1;
-         text-align: left;
+            flex: 1;
+            text-align: left;
          }
          #episodes h2 {
-         font-size: 20px;
-         font-weight: bold;
-         margin: 0;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0;
          }
          #episodes p {
-         font-size: 12px;
-         margin: 0;
+            font-size: 12px;
+            margin: 0;
          }
          #episodes li.selected {
-         background-color: #ffffff;
-         color: #000000;
+            background-color: #ffffff;
+            color: #000000;
          }
          .overlay {
-         display: none;
-         position: absolute;
-         top: 50%;
-         left: 50%;
-         transform: translate(-50%, -50%);
-         width: 100%;
-         height: 100%;
-         background-color: rgba(0, 0, 0, 0.8);
-         z-index: 1;
-         overflow: hidden;
-         border-radius: 10px;
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1;
+            overflow: hidden;
+            border-radius: 10px;
          }
          .overlay-content {
-         text-align: left;
-         color: #fff;
-         padding: 20px;
-         display: flex;
-         align-items: center;
+            text-align: left;
+            color: #fff;
+            padding: 20px;
+            display: flex;
+            align-items: center;
          }
          .overlay img {
-         max-width: 50%;
-         margin-right: 15px;
-         height: auto;
-         max-height: 200px;
-         border-radius: 5px;
+            max-width: 50%;
+            margin-right: 15px;
+            height: auto;
+            max-height: 200px;
+            border-radius: 5px;
          }
          .close-overlay {
-         position: absolute;
-         top: 10px;
-         right: 10px;
-         cursor: pointer;
-         color: #fff;
-         font-size: 20px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 20px;
          }
          .overlay-content-text {
-         flex: 1;
+            flex: 1;
          }
          #download-button {
-         margin-top: 10px;
-         cursor: pointer;
-         color: #ffffff;
-         background-color: #e2793b;
-         padding: 10px 20px;
-         border: none;
-         border-radius: 5px;
-         font-family: 'Hello Headline', sans-serif;
+            margin-top: 10px;
+            cursor: pointer;
+            color: #ffffff;
+            background-color: #e2793b;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-family: 'Hello Headline', sans-serif;
          }
          .bmpui-ui-watermark {
-         display: none;
+            display: none;
          }
          .donate {
-         align-items: center;
+            align-items: center;
          }
          /* Language Dropdown Styles */
          #language-select {
-         margin: 5px;
-         cursor: pointer;
-         color: #ffffff;
-         background-color: #404066;
-         padding: 10px;
-         border: none;
-         border-radius: 5px;
-         font-family: 'Hello Headline', sans-serif;
-         appearance: none;
-         -webkit-appearance: none;
-         -moz-appearance: none;
+            margin: 5px;
+            cursor: pointer;
+            color: #ffffff;
+            background-color: #404066;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-family: 'Hello Headline', sans-serif;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
          }
          #language-select option {
-         color: #000000;
-         background-color: #ffffff;
+            color: #000000;
+            background-color: #ffffff;
          }
          /* Media Query for Small Screens */
-         @media (max-width: 768px) {
-         .header {
-         flex-direction: column;
+         @media (orientation: portrait) {
+            .header {
+               flex-direction: column;
+            }
+            .nav {
+               margin-top: 20px;
+            }
+            .main {
+               flex-direction: column;
+               gap: 20px;
+            }
+            .main-left,
+            .main-right {
+               width: 100%;
+            }
+            .overlay-content {
+               text-align: center;
+               color: #fff;
+               padding: 20px;
+               display: flex;
+               flex-direction: column;
+               align-items: center;
+            }
+            .overlay-content-text {
+               flex: 1;
+               padding: 20px;
+            }
+            #download-button {
+               margin-top: 10px;
+               cursor: pointer;
+               color: #ffffff;
+               background-color: #e2793b;
+               padding: 10px 20px;
+               border: none;
+               border-radius: 5px;
+               font-family: 'Hello Headline', sans-serif;
+            }
+            #seasons-container {
+               flex-direction: column;
+               align-items: center;
+            }
          }
-         .nav {
-         margin-top: 20px;
-         }
-         .main {
-         flex-direction: column;
-         }
-         .main-left,
-         .main-right {
-         width: 100%;
-         }
-         .overlay-content {
-         text-align: center;
-         color: #fff;
-         padding: 20px;
-         display: flex;
-         flex-direction: column;
-         align-items: center;
-         }
-         .overlay-content-text {
-         flex: 1;
-         padding: 20px;
-         }
-         #download-button {
-         margin-top: 10px;
-         cursor: pointer;
-         color: #ffffff;
-         background-color: #e2793b;
-         padding: 10px 20px;
-         border: none;
-         border-radius: 5px;
-         font-family: 'Hello Headline', sans-serif;
-         }
-         #seasons-container {
-         flex-direction: column;
-         align-items: center;
-         }
-         }
-         /* Landscape Only: Push the player down 20px */
+         /* Landscape Only: Push the player down 20px and hide overlay and info button */
          @media (orientation: landscape) {
-         .player-wrapper {
-         margin-top: 20px;
-         }
+            .player-wrapper {
+               margin-top: 25px;
+            }
+            .overlay {
+               display: none !important;
+            }
+            #info-button {
+               display: none;
+            }
          }
       </style>
    </head>
@@ -314,13 +321,15 @@
          </div>
          <!-- Main content with two columns -->
          <div class="main">
-            <!-- Left column: Player -->
+            <!-- Left column: Player and Landscape Description -->
             <div class="main-left">
                <div class="player-wrapper">
                   <div id="player"></div>
                </div>
+               <!-- Landscape description container (will be shown only in landscape) -->
+               <div id="landscape-description" style="display: none; margin-top: 10px; background-color: rgba(0,0,0,0.8); color: #fff; padding: 10px; border-radius: 10px;"></div>
             </div>
-            <!-- Right column: Seasons, Episodes, Overlay -->
+            <!-- Right column: Seasons, Episodes, and Overlay (for portrait only) -->
             <div class="main-right">
                <div id="content">
                   <div id="seasons-container">
@@ -524,19 +533,44 @@
                renderOverlay(episode);
             }
             
+            // Updates the episode description based on the current orientation.
             function renderOverlay(episode) {
-               const overlay = document.getElementById('overlay');
-               const overlayImage = document.getElementById('overlay-image');
-               const overlayTitle = document.getElementById('overlay-title');
-               const overlayDescription = document.getElementById('overlay-description');
-               const overlayEpisodeNumber = document.getElementById('overlay-episode-number');
+               if (window.matchMedia("(orientation: portrait)").matches) {
+                  const overlay = document.getElementById('overlay');
+                  const overlayImage = document.getElementById('overlay-image');
+                  const overlayTitle = document.getElementById('overlay-title');
+                  const overlayDescription = document.getElementById('overlay-description');
+                  const overlayEpisodeNumber = document.getElementById('overlay-episode-number');
             
-               overlayImage.src = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
-               overlayEpisodeNumber.innerText = `S${episode.ParentIndexNumber}E${episode.IndexNumber}`;
-               overlayTitle.innerText = episode.Name;
-               overlayDescription.innerText = episode.Overview;
+                  overlayImage.src = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
+                  overlayEpisodeNumber.innerText = `S${episode.ParentIndexNumber}E${episode.IndexNumber}`;
+                  overlayTitle.innerText = episode.Name;
+                  overlayDescription.innerText = episode.Overview;
             
-               overlay.style.display = 'block';
+                  overlay.style.display = 'block';
+            
+                  // Hide the landscape description container if it was visible
+                  const descContainer = document.getElementById('landscape-description');
+                  if(descContainer) {
+                     descContainer.style.display = 'none';
+                  }
+               } else {
+                  // In landscape mode, display the description below the video player with a download button
+                  const descContainer = document.getElementById('landscape-description');
+                  descContainer.innerHTML = `
+                     <img src="${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="Episode Thumbnail" style="width:100px; height:auto; float:left; margin-right:10px;">
+                     <div style="overflow: hidden;">
+                        <h2>S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}</h2>
+                        <p>${episode.Overview}</p>
+                        <button id="download-button-landscape" onclick="downloadEpisode()" style="cursor:pointer; color:#ffffff; background-color:#e2793b; padding:10px 20px; border:none; border-radius:5px; font-family:'Hello Headline', sans-serif;">Download</button>
+                     </div>
+                     <div style="clear: both;"></div>
+                  `;
+                  descContainer.style.display = 'block';
+            
+                  // Ensure the overlay is hidden if it was open
+                  document.getElementById('overlay').style.display = 'none';
+               }
             }
             
             function closeOverlay() {
@@ -560,6 +594,20 @@
                   playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
                }
             }
+            
+            // Optional: Update UI on orientation change
+            window.addEventListener("orientationchange", function() {
+               if(window.matchMedia("(orientation: landscape)").matches) {
+                  document.getElementById('info-button').style.display = 'none';
+                  if(episodes[currentEpisodeIndex]) {
+                     renderOverlay(episodes[currentEpisodeIndex]);
+                  }
+               } else {
+                  document.getElementById('info-button').style.display = 'block';
+                  const descContainer = document.getElementById('landscape-description');
+                  if(descContainer) descContainer.style.display = 'none';
+               }
+            });
          </script>
       </div>
    </body>

@@ -66,7 +66,7 @@
          /* New Flex Container for Main Content */
          .main {
             display: flex;
-            gap: 20px;
+            gap: 45px;
             margin-top: 30px;
          }
          .main-left, .main-right {
@@ -250,7 +250,7 @@
             background-color: #ffffff;
          }
          /* Media Query for Small Screens */
-         @media (max-width: 768px) {
+         @media (orientation: portrait) {
             .header {
                flex-direction: column;
             }
@@ -259,6 +259,7 @@
             }
             .main {
                flex-direction: column;
+               gap: 20px;
             }
             .main-left,
             .main-right {
@@ -291,10 +292,16 @@
                align-items: center;
             }
          }
-         /* Landscape Only: Push the player down 20px */
+         /* Landscape Only: Push the player down 20px and hide overlay and info button */
          @media (orientation: landscape) {
             .player-wrapper {
-               margin-top: 20px;
+               margin-top: 25px;
+            }
+            .overlay {
+               display: none !important;
+            }
+            #info-button {
+               display: none;
             }
          }
       </style>
@@ -314,13 +321,15 @@
          </div>
          <!-- Main content with two columns -->
          <div class="main">
-            <!-- Left column: Player -->
+            <!-- Left column: Player and Landscape Description -->
             <div class="main-left">
                <div class="player-wrapper">
                   <div id="player"></div>
                </div>
+               <!-- Landscape description container (will be shown only in landscape) -->
+               <div id="landscape-description" style="display: none; margin-top: 10px; background-color: rgba(0,0,0,0.8); color: #fff; padding: 10px; border-radius: 10px;"></div>
             </div>
-            <!-- Right column: Seasons, Episodes, Overlay -->
+            <!-- Right column: Seasons, Episodes, and Overlay (for portrait only) -->
             <div class="main-right">
                <div id="content">
                   <div id="seasons-container">
@@ -524,19 +533,44 @@
                renderOverlay(episode);
             }
             
+            // Updates the episode description based on the current orientation.
             function renderOverlay(episode) {
-               const overlay = document.getElementById('overlay');
-               const overlayImage = document.getElementById('overlay-image');
-               const overlayTitle = document.getElementById('overlay-title');
-               const overlayDescription = document.getElementById('overlay-description');
-               const overlayEpisodeNumber = document.getElementById('overlay-episode-number');
+               if (window.matchMedia("(orientation: portrait)").matches) {
+                  const overlay = document.getElementById('overlay');
+                  const overlayImage = document.getElementById('overlay-image');
+                  const overlayTitle = document.getElementById('overlay-title');
+                  const overlayDescription = document.getElementById('overlay-description');
+                  const overlayEpisodeNumber = document.getElementById('overlay-episode-number');
             
-               overlayImage.src = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
-               overlayEpisodeNumber.innerText = `S${episode.ParentIndexNumber}E${episode.IndexNumber}`;
-               overlayTitle.innerText = episode.Name;
-               overlayDescription.innerText = episode.Overview;
+                  overlayImage.src = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
+                  overlayEpisodeNumber.innerText = `S${episode.ParentIndexNumber}E${episode.IndexNumber}`;
+                  overlayTitle.innerText = episode.Name;
+                  overlayDescription.innerText = episode.Overview;
             
-               overlay.style.display = 'block';
+                  overlay.style.display = 'block';
+            
+                  // Hide the landscape description container if it was visible
+                  const descContainer = document.getElementById('landscape-description');
+                  if(descContainer) {
+                     descContainer.style.display = 'none';
+                  }
+               } else {
+                  // In landscape mode, display the description below the video player with a download button
+                  const descContainer = document.getElementById('landscape-description');
+                  descContainer.innerHTML = `
+                     <img src="${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="Episode Thumbnail" style="width:100px; height:auto; float:left; margin-right:10px;">
+                     <div style="overflow: hidden;">
+                        <h2>S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}</h2>
+                        <p>${episode.Overview}</p>
+                        <button id="download-button-landscape" onclick="downloadEpisode()" style="cursor:pointer; color:#ffffff; background-color:#e2793b; padding:10px 20px; border:none; border-radius:5px; font-family:'Hello Headline', sans-serif;">Download</button>
+                     </div>
+                     <div style="clear: both;"></div>
+                  `;
+                  descContainer.style.display = 'block';
+            
+                  // Ensure the overlay is hidden if it was open
+                  document.getElementById('overlay').style.display = 'none';
+               }
             }
             
             function closeOverlay() {
@@ -560,6 +594,20 @@
                   playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
                }
             }
+            
+            // Optional: Update UI on orientation change
+            window.addEventListener("orientationchange", function() {
+               if(window.matchMedia("(orientation: landscape)").matches) {
+                  document.getElementById('info-button').style.display = 'none';
+                  if(episodes[currentEpisodeIndex]) {
+                     renderOverlay(episodes[currentEpisodeIndex]);
+                  }
+               } else {
+                  document.getElementById('info-button').style.display = 'block';
+                  const descContainer = document.getElementById('landscape-description');
+                  if(descContainer) descContainer.style.display = 'none';
+               }
+            });
          </script>
       </div>
    </body>

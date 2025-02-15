@@ -533,9 +533,10 @@
                renderOverlay(episode);
             }
             
-            // Updates the episode description based on the current orientation.
+            // Updates the episode description based on current orientation.
             function renderOverlay(episode) {
-               if (window.matchMedia("(orientation: portrait)").matches) {
+               if (window.innerHeight > window.innerWidth) {
+                  // Portrait mode: Show overlay with episode details
                   const overlay = document.getElementById('overlay');
                   const overlayImage = document.getElementById('overlay-image');
                   const overlayTitle = document.getElementById('overlay-title');
@@ -549,13 +550,13 @@
             
                   overlay.style.display = 'block';
             
-                  // Hide the landscape description container if it was visible
+                  // Hide the landscape description container if visible
                   const descContainer = document.getElementById('landscape-description');
-                  if(descContainer) {
+                  if (descContainer) {
                      descContainer.style.display = 'none';
                   }
                } else {
-                  // In landscape mode, display the description below the video player with a download button
+                  // Landscape mode: Show description below the player with a download button
                   const descContainer = document.getElementById('landscape-description');
                   descContainer.innerHTML = `
                      <img src="${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="Episode Thumbnail" style="width:100px; height:auto; float:left; margin-right:10px;">
@@ -568,7 +569,7 @@
                   `;
                   descContainer.style.display = 'block';
             
-                  // Ensure the overlay is hidden if it was open
+                  // Hide the overlay if open
                   document.getElementById('overlay').style.display = 'none';
                }
             }
@@ -595,19 +596,32 @@
                }
             }
             
-            // Optional: Update UI on orientation change
-            window.addEventListener("orientationchange", function() {
-               if(window.matchMedia("(orientation: landscape)").matches) {
-                  document.getElementById('info-button').style.display = 'none';
-                  if(episodes[currentEpisodeIndex]) {
-                     renderOverlay(episodes[currentEpisodeIndex]);
+            // Function to update UI based on current orientation using window dimensions.
+            function updateOrientationUI() {
+               const infoButton = document.getElementById('info-button');
+               const landscapeDesc = document.getElementById('landscape-description');
+            
+               if (window.innerHeight > window.innerWidth) {
+                  // Portrait mode
+                  infoButton.style.display = 'block';
+                  if (landscapeDesc) {
+                     landscapeDesc.style.display = 'none';
                   }
                } else {
-                  document.getElementById('info-button').style.display = 'block';
-                  const descContainer = document.getElementById('landscape-description');
-                  if(descContainer) descContainer.style.display = 'none';
+                  // Landscape mode
+                  infoButton.style.display = 'none';
+                  // If an episode is playing, update the overlay for landscape mode.
+                  if (episodes[currentEpisodeIndex]) {
+                     renderOverlay(episodes[currentEpisodeIndex]);
+                  }
                }
-            });
+            }
+            
+            // Update orientation on window resize
+            window.addEventListener('resize', updateOrientationUI);
+            
+            // Also update on initial load
+            document.addEventListener('DOMContentLoaded', updateOrientationUI);
          </script>
       </div>
    </body>

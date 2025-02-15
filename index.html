@@ -139,6 +139,30 @@
          from { opacity: 0; }
          to   { opacity: 1; }
          }
+         /* EPG Table Styles */
+         .epg-container {
+         margin-top: 20px;
+         background-color: #ffffff;
+         color: #000;
+         padding: 15px;
+         border-radius: 10px;
+         max-height: 300px;  /* Ensures a fixed height */
+         overflow-y: auto;   /* Scroll if content exceeds */
+         }
+         .epg-container h2 {
+         text-align: center;
+         margin-bottom: 15px;
+         font-family: "Hello Headline", sans-serif;
+         }
+         .epg-container table {
+         width: 100%;
+         border-collapse: collapse;
+         }
+         .epg-container th, .epg-container td {
+         padding: 8px;
+         text-align: left;
+         border-bottom: 1px solid #ddd;
+         }
       </style>
    </head>
    <body>
@@ -174,6 +198,21 @@
             <a class="share-button" href="/tvapp.html" onclick="loadPage('/tvapp.html')">TV App</a>
             <!-- <a class="share-button" href="/signup.html" onclick="loadPage('/signup.html')">Bluey App Beta</a> -->
          </div>
+         <!-- EPG Section -->
+         <div class="epg-container">
+            <h2>EPG</h2>
+            <table id="epgTable">
+               <thead>
+                  <tr>
+                     <th>Start Time</th>
+                     <th>Episode</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <!-- EPG rows will be injected here -->
+               </tbody>
+            </table>
+         </div>
          <script>
             // Function to handle page navigation
             function loadPage(url) {
@@ -186,7 +225,7 @@
             function sendPing() {
               fetch('https://tv.blueynet.org/iptv/channel/1.m3u8')
                 .then(() => {
-                  // Ping successful - hide loading, show video, and reload
+                  // Ping successful - hide loading, show content, and (re)load the player source
                   loadingOverlay.style.display = 'none'; 
                   document.querySelector('.container').style.display = 'block';
                   
@@ -227,7 +266,7 @@
                 ]
               });
             
-              // Media Session controls
+              // Define media session controls
               navigator.mediaSession.setActionHandler('play', () => {
                 player.play();
               });
@@ -237,12 +276,12 @@
               });
             
               navigator.mediaSession.setActionHandler('seekbackward', (details) => {
-                const offset = details.seekOffset || 10; // Default seek offset is 10 seconds
+                const offset = details.seekOffset || 10; // Default to 10 seconds
                 player.seek(player.getCurrentTime() - offset);
               });
             
               navigator.mediaSession.setActionHandler('seekforward', (details) => {
-                const offset = details.seekOffset || 10; // Default seek offset is 10 seconds
+                const offset = details.seekOffset || 10;
                 player.seek(player.getCurrentTime() + offset);
               });
             
@@ -255,7 +294,7 @@
               });
             }
             
-            // Sync Media Session playback state
+            // Sync Media Session playback state with the Bitmovin Player
             player.on(bitmovin.player.PlayerEvent.Playing, () => {
               if ('mediaSession' in navigator) {
                 navigator.mediaSession.playbackState = 'playing';
@@ -267,6 +306,137 @@
                 navigator.mediaSession.playbackState = 'paused';
               }
             });
+            
+            // ------------------------------
+            // EPG Fetch, Parse, and Update
+            // ------------------------------
+            
+            // Global array to store parsed programmes
+            let programmeList = [];
+            
+            // Helper function to parse XMLTV time (e.g. "20250215120054 +0000") into a Date object
+            function parseProgrammeTime(timeStr) {
+               let year = timeStr.substring(0,4);
+               let month = timeStr.substring(4,6);
+               let day = timeStr.substring(6,8);
+               let hour = timeStr.substring(8,10);
+               let minute = timeStr.substring(10,12);
+               let second = timeStr.substring(12,14);
+               let tzSign = timeStr.substring(15,16);
+               let tzHour = timeStr.substring(16,18);
+               let tzMinute = timeStr.substring(18,20);
+               // Build a valid ISO string: "YYYY-MM-DDTHH:MM:SS±HH:MM"
+               let isoString = `${year}-${month}-${day}T${hour}:${minute}:${second}${tzSign}${tzHour}:${tzMinute}`;
+               return new Date(isoString);
+            }
+            
+            // Fetch the XMLTV feed and parse programmes for channel "1.etv"
+            fetch('https://tv.blueynet.org/iptv/xmltv.xml')
+              .then(response => response.text())
+              .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
+              .then(data => {
+                  const programmes = data.querySelectorAll("programme[channel='1.etv']");
+                  programmes.forEach(programme => {
+                     let startStr = programme.getAttribute("start");
+                     let stopStr  = programme.getAttribute("stop");
+                     let startDate = parseProgrammeTime(startStr);
+                     let stopDate  = parseProgrammeTime(stopStr);
+                     
+                     // Get onscreen episode number and subtitle (or title as fallback)
+                     const episodeNumEl = programme.querySelector('episode-num[system="onscreen"]');
+                     let episodeNumber = episodeNumEl ? episodeNumEl.textContent.trim() : "";
+                     const subTitleEl = programme.querySelector("sub-title");
+                     let episodeName = subTitleEl 
+                       ? subTitleEl.textContent.trim() 
+                       : (programme.querySelector("title")?.textContent.trim() || "");
+                     
+                     // Format the episode as "S01E01: Episode Name" (assuming your XML provides it that way)
+                     programmeList.push({
+                        start: startDate,
+                        stop: stopDate,
+                        episode: episodeNumber + ": " + episodeName
+                     });
+                  });
+                  // Sort the programmes by start time
+                  programmeList.sort((a, b) => a.start - b.start);
+                  
+                  // Initial EPG update and subsequent updates every 30 seconds
+                  updateEPG();
+                  setInterval(updateEPG, 30000);
+              })
+              .catch(error => {
+                  console.error("Error fetching EPG:", error);
+              });
+            
+            // Function to update the EPG table and Media Session metadata based on current time
+            function updateEPG() {
+               const now = new Date();
+               let currentIndex = -1;
+               let currentProgramme = null;
+               
+               // Find the programme that is currently playing
+               for (let i = 0; i < programmeList.length; i++) {
+                  if (now >= programmeList[i].start && now < programmeList[i].stop) {
+                     currentIndex = i;
+                     currentProgramme = programmeList[i];
+                     break;
+                  }
+               }
+               // If none is playing, select the next upcoming programme
+               if (currentIndex === -1) {
+                  for (let i = 0; i < programmeList.length; i++) {
+                     if (programmeList[i].start > now) {
+                        currentIndex = i;
+                        break;
+                     }
+                  }
+                  // If still not found (i.e. schedule passed), show the last 5 programmes
+                  if (currentIndex === -1) {
+                     currentIndex = Math.max(0, programmeList.length - 5);
+                  }
+               }
+               
+               // Slice up to 5 episodes from the current index for display
+               const displayList = programmeList.slice(currentIndex, currentIndex + 5);
+               const tbody = document.querySelector('#epgTable tbody');
+               tbody.innerHTML = ""; // Clear previous entries
+               
+               displayList.forEach(prog => {
+                  // Format the start time using the user's locale
+                  const options = { 
+                     year: 'numeric', month: '2-digit', day: '2-digit',
+                     hour: '2-digit', minute: '2-digit'
+                  };
+                  let formattedStart = prog.start.toLocaleString(undefined, options);
+                  
+                  let row = document.createElement("tr");
+                  // Highlight the currently playing programme
+                  if (now >= prog.start && now < prog.stop) {
+                     row.style.backgroundColor = "#d1ffd1";
+                  }
+                  
+                  let tdStart = document.createElement("td");
+                  tdStart.textContent = formattedStart;
+                  let tdEpisode = document.createElement("td");
+                  tdEpisode.textContent = prog.episode;
+                  
+                  row.appendChild(tdStart);
+                  row.appendChild(tdEpisode);
+                  tbody.appendChild(row);
+               });
+               
+               // Update the native player's Media Session metadata with the current episode title
+               if (currentProgramme && 'mediaSession' in navigator) {
+                  navigator.mediaSession.metadata = new MediaMetadata({
+                     title: currentProgramme.episode, // e.g., "S01E01: Episode Name"
+                     artist: 'Bluey & Friends Play Along Stream',
+                     album: 'Bluey',
+                     artwork: [
+                        { src: source.poster, sizes: '1920x1080', type: 'image/jpeg' }
+                     ]
+                  });
+               }
+            }
          </script>
       </div>
    </body>

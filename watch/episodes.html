@@ -1,316 +1,310 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>Watch Bluey!</title>
-      <meta name="title" content="Watch Bluey!">
-      <meta name="description" content="Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures, developing her imagination as well as her mental, physical and emotional resilience.">
-      <meta name="keywords" content="bluey, bluey, bluey">
-      <meta name="robots" content="index, follow">
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-      <meta name="language" content="English">
-      <meta name="author" content="Bluey Heeler">
+      <meta name="title" content="Watch Bluey!" />
+      <meta name="description" content="Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures, developing her imagination as well as her mental, physical and emotional resilience." />
+      <meta name="keywords" content="bluey, bluey, bluey" />
+      <meta name="robots" content="index, follow" />
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+      <meta name="language" content="English" />
+      <meta name="author" content="Bluey Heeler" />
       <!-- Meta tags for social share preview -->
-      <meta property="og:title" content="Watch Bluey!">
-      <meta property="og:description" content="Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures, developing her imagination as well as her mental, physical and emotional resilience.">
-      <meta property="og:image" content="https://cdn.iview.abc.net.au/thumbs/1200/ch/CH2003Q_66399c133e743_1920.jpg">
-      <!-- URL to your image -->
-      <meta property="og:url" content="https://pages.blueynet.org/watch/episodes">
-      <!-- URL of your page -->
-      <meta name="twitter:card" content="summary_large_image">
-      <meta name="twitter:title" content="Watch Bluey!">
-      <meta name="twitter:description" content="Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures, developing her imagination as well as her mental, physical and emotional resilience.">
-      <meta name="twitter:image" content="https://cdn.iview.abc.net.au/thumbs/1200/ch/CH2003Q_66399c133e743_1920.jpg">
-      <!-- URL to your image -->
-      <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
-      <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
-      <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
+      <meta property="og:title" content="Watch Bluey!" />
+      <meta property="og:description" content="Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures, developing her imagination as well as her mental, physical and emotional resilience." />
+      <meta property="og:image" content="https://cdn.iview.abc.net.au/thumbs/1200/ch/CH2003Q_66399c133e743_1920.jpg" />
+      <meta property="og:url" content="https://pages.blueynet.org/watch/episodes" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content="Watch Bluey!" />
+      <meta name="twitter:description" content="Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures, developing her imagination as well as her mental, physical and emotional resilience." />
+      <meta name="twitter:image" content="https://cdn.iview.abc.net.au/thumbs/1200/ch/CH2003Q_66399c133e743_1920.jpg" />
+      <link rel="icon" href="/bluey-star.ico" type="image/x-icon" />
+      <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet" />
+      <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css" />
       <style>
          /* Global Styles */
          * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+         box-sizing: border-box;
+         margin: 0;
+         padding: 0;
          }
          body {
-            font-family: "Hello Headline", Arial, sans-serif !important;
-            background-color: #87c0e8 !important;
+         font-family: "Hello Headline", Arial, sans-serif !important;
+         background-color: #87c0e8 !important;
          }
          .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+         max-width: 1200px;
+         margin: 0 auto;
+         padding: 20px;
          }
          .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+         display: flex;
+         align-items: center;
+         justify-content: space-between;
          }
          .logo {
-            width: 150px;
-            border-radius: 0px;
+         width: 150px;
+         border-radius: 0px;
          }
          .nav {
-            display: flex;
-            list-style: none;
+         display: flex;
+         list-style: none;
          }
          .nav li {
-            margin-left: 20px;
+         margin-left: 20px;
          }
          .nav a {
-            text-decoration: none;
-            color: #ffffff;
-            font-weight: bold;
+         text-decoration: none;
+         color: #ffffff;
+         font-weight: bold;
          }
-         /* New Flex Container for Main Content */
          .main {
-            display: flex;
-            gap: 45px;
-            margin-top: 30px;
+         display: flex;
+         gap: 45px;
+         margin-top: 30px;
          }
-         .main-left, .main-right {
-            flex: 1;
+         .main-left,
+         .main-right {
+         flex: 1;
          }
-         /* Player Wrapper */
          .player-wrapper {
-            display: none; /* Hidden by default, shown when playing */
-            width: 100%;
-            margin: 0 auto;
-            box-shadow: 0 0 30px rgba(0,0,0,0.7);
+         display: none;
+         width: 100%;
+         margin: 0 auto;
+         box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
          }
          #player {
-            width: 100%;
-            height: auto;
-            background-color: #000;
+         width: 100%;
+         height: auto;
+         background-color: #000;
          }
          #content {
-            margin-top: 10px;
-            position: relative;
+         margin-top: 10px;
+         position: relative;
          }
          #seasons-container {
-            display: flex;
-            margin: 0 auto;
-            justify-content: space-between;
-            padding: 10px 0;
-            background-color: #87c0e8;
-            text-align: center;
-            max-width: 700px;
-            flex-wrap: wrap;
+         display: flex;
+         margin: 0 auto;
+         justify-content: space-between;
+         padding: 10px 0;
+         background-color: #87c0e8;
+         text-align: center;
+         max-width: 700px;
+         flex-wrap: wrap;
          }
          .season-selector__button {
-            margin: 5px;
-            cursor: pointer;
-            color: #ffffff;
-            border: none;
-            background-color: transparent;
-            padding: 10px 10px;
-            border-radius: 5px;
-            font-family: 'Hello Headline', sans-serif;
+         margin: 5px;
+         cursor: pointer;
+         color: #ffffff;
+         border: none;
+         background-color: transparent;
+         padding: 10px 10px;
+         border-radius: 5px;
+         font-family: 'Hello Headline', sans-serif;
          }
          .season-selector__button.selected {
-            color: #000000;
-            background-color: #ffffff;
+         color: #000000;
+         background-color: #ffffff;
          }
          #info-button {
-            margin: 5px;
-            cursor: pointer;
-            color: #ffffff;
-            background-color: #edcc6f;
-            padding: 10px 10px;
-            border: none;
-            border-radius: 5px;
-            font-family: 'Hello Headline', sans-serif;
+         margin: 5px;
+         cursor: pointer;
+         color: #ffffff;
+         background-color: #edcc6f;
+         padding: 10px 10px;
+         border: none;
+         border-radius: 5px;
+         font-family: 'Hello Headline', sans-serif;
          }
          #episodes {
-            overflow-y: scroll;
-            scrollbar-width: thin;
-            scrollbar-color: transparent transparent;
-            max-height: 500px;
-            max-width: 700px;
-            padding: 5px 0;
-            background-color: #87c0e8;
-            margin: 0 auto;
+         overflow-y: scroll;
+         scrollbar-width: thin;
+         scrollbar-color: transparent transparent;
+         max-height: 500px;
+         max-width: 700px;
+         padding: 5px 0;
+         background-color: #87c0e8;
+         margin: 0 auto;
          }
          #episodes::-webkit-scrollbar {
-            width: 6px;
+         width: 6px;
          }
          #episodes::-webkit-scrollbar-thumb {
-            background-color: transparent;
+         background-color: transparent;
          }
          #episodes li {
-            margin: 5px;
-            list-style-type: none;
-            cursor: pointer;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            padding: 10px;
-            color: #fff;
-            background-color: #404066;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: flex-start;
+         margin: 5px;
+         list-style-type: none;
+         cursor: pointer;
+         border: 1px solid #dee2e6;
+         border-radius: 5px;
+         padding: 10px;
+         color: #fff;
+         background-color: #404066;
+         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+         display: flex;
+         align-items: flex-start;
          }
          #episodes img {
-            margin-right: 15px;
-            display: block;
-            width: 100px;
-            height: auto;
-            max-width: 100%;
-            max-height: 90px;
-            object-fit: cover;
+         margin-right: 15px;
+         display: block;
+         width: 100px;
+         height: auto;
+         max-width: 100%;
+         max-height: 90px;
+         object-fit: cover;
          }
          #episodes li div {
-            flex: 1;
-            text-align: left;
+         flex: 1;
+         text-align: left;
          }
          #episodes h2 {
-            font-size: 20px;
-            font-weight: bold;
-            margin: 0;
+         font-size: 20px;
+         font-weight: bold;
+         margin: 0;
          }
          #episodes p {
-            font-size: 12px;
-            margin: 0;
+         font-size: 12px;
+         margin: 0;
          }
+         /* Only add the "selected" class when an episode has been clicked. */
          #episodes li.selected {
-            background-color: #ffffff;
-            color: #000000;
+         background-color: #ffffff;
+         color: #000000;
          }
          .overlay {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 1;
-            overflow: hidden;
-            border-radius: 10px;
+         display: none;
+         position: absolute;
+         top: 50%;
+         left: 50%;
+         transform: translate(-50%, -50%);
+         width: 100%;
+         height: 100%;
+         background-color: rgba(0, 0, 0, 0.8);
+         z-index: 1;
+         overflow: hidden;
+         border-radius: 10px;
          }
          .overlay-content {
-            text-align: left;
-            color: #fff;
-            padding: 20px;
-            display: flex;
-            align-items: center;
+         text-align: left;
+         color: #fff;
+         padding: 20px;
+         display: flex;
+         align-items: center;
          }
          .overlay img {
-            max-width: 50%;
-            margin-right: 15px;
-            height: auto;
-            max-height: 200px;
-            border-radius: 5px;
+         max-width: 50%;
+         margin-right: 15px;
+         height: auto;
+         max-height: 200px;
+         border-radius: 5px;
          }
          .close-overlay {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            cursor: pointer;
-            color: #fff;
-            font-size: 20px;
+         position: absolute;
+         top: 10px;
+         right: 10px;
+         cursor: pointer;
+         color: #fff;
+         font-size: 20px;
          }
          .overlay-content-text {
-            flex: 1;
+         flex: 1;
          }
          #download-button {
-            margin-top: 10px;
-            cursor: pointer;
-            color: #ffffff;
-            background-color: #e2793b;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-family: 'Hello Headline', sans-serif;
+         margin-top: 10px;
+         cursor: pointer;
+         color: #ffffff;
+         background-color: #e2793b;
+         padding: 10px 20px;
+         border: none;
+         border-radius: 5px;
+         font-family: 'Hello Headline', sans-serif;
          }
          .bmpui-ui-watermark {
-            display: none;
+         display: none;
          }
          .donate {
-            align-items: center;
+         align-items: center;
          }
-         /* Language Dropdown Styles */
          #language-select {
-            margin: 5px;
-            cursor: pointer;
-            color: #ffffff;
-            background-color: #404066;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            font-family: 'Hello Headline', sans-serif;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
+         margin: 5px;
+         cursor: pointer;
+         color: #ffffff;
+         background-color: #404066;
+         padding: 10px;
+         border: none;
+         border-radius: 5px;
+         font-family: 'Hello Headline', sans-serif;
+         appearance: none;
+         -webkit-appearance: none;
+         -moz-appearance: none;
          }
          #language-select option {
-            color: #000000;
-            background-color: #ffffff;
+         color: #000000;
+         background-color: #ffffff;
          }
-         /* Media Query for Small Screens */
          @media (orientation: portrait) {
-            .header {
-               flex-direction: column;
-            }
-            .nav {
-               margin-top: 20px;
-            }
-            .main {
-               flex-direction: column;
-               gap: 20px;
-            }
-            .main-left,
-            .main-right {
-               width: 100%;
-            }
-            .overlay-content {
-               text-align: center;
-               color: #fff;
-               padding: 20px;
-               display: flex;
-               flex-direction: column;
-               align-items: center;
-            }
-            .overlay-content-text {
-               flex: 1;
-               padding: 20px;
-            }
-            #download-button {
-               margin-top: 10px;
-               cursor: pointer;
-               color: #ffffff;
-               background-color: #e2793b;
-               padding: 10px 20px;
-               border: none;
-               border-radius: 5px;
-               font-family: 'Hello Headline', sans-serif;
-            }
-            #seasons-container {
-               flex-direction: column;
-               align-items: center;
-            }
+         .header {
+         flex-direction: column;
          }
-         /* Landscape Only: Push the player down 20px and hide overlay and info button */
+         .nav {
+         margin-top: 20px;
+         }
+         .main {
+         flex-direction: column;
+         gap: 20px;
+         }
+         .main-left,
+         .main-right {
+         width: 100%;
+         }
+         .overlay-content {
+         text-align: center;
+         color: #fff;
+         padding: 20px;
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         }
+         .overlay-content-text {
+         flex: 1;
+         padding: 20px;
+         }
+         #download-button {
+         margin-top: 10px;
+         cursor: pointer;
+         color: #ffffff;
+         background-color: #e2793b;
+         padding: 10px 20px;
+         border: none;
+         border-radius: 5px;
+         font-family: 'Hello Headline', sans-serif;
+         }
+         #seasons-container {
+         flex-direction: column;
+         align-items: center;
+         }
+         }
          @media (orientation: landscape) {
-            .player-wrapper {
-               margin-top: 25px;
-            }
-            .overlay {
-               display: none !important;
-            }
-            #info-button {
-               display: none;
-            }
+         .player-wrapper {
+         margin-top: 25px;
+         }
+         .overlay {
+         display: none !important;
+         }
+         #info-button {
+         display: none;
+         }
          }
       </style>
    </head>
    <body>
       <div class="container">
-         <!-- Header content -->
+         <!-- Header -->
          <div class="header">
-            <img src="/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
+            <img src="/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo" />
             <ul class="nav">
                <li><a href="/">Home</a></li>
                <li><a href="/watch">Watch</a></li>
@@ -319,22 +313,20 @@
                <li><a href="/download">App</a></li>
             </ul>
          </div>
-         <!-- Main content with two columns -->
+         <!-- Main Content -->
          <div class="main">
-            <!-- Left column: Player and Landscape Description -->
+            <!-- Left: Player & Landscape Description -->
             <div class="main-left">
                <div class="player-wrapper">
                   <div id="player"></div>
                </div>
-               <!-- Landscape description container (will be shown only in landscape) -->
                <div id="landscape-description" style="display: none; margin-top: 10px; background-color: rgba(0,0,0,0.8); color: #fff; padding: 10px; border-radius: 10px;"></div>
             </div>
-            <!-- Right column: Seasons, Episodes, and Overlay (for portrait only) -->
+            <!-- Right: Seasons, Episodes & Overlay -->
             <div class="main-right">
                <div id="content">
                   <div id="seasons-container">
                      <div id="seasons"></div>
-                     <!-- Language dropdown -->
                      <select id="language-select" onchange="setLanguage(this.value)">
                         <option value="1" selected>English</option>
                         <option value="3">Malay</option>
@@ -343,9 +335,8 @@
                   </div>
                   <ul id="episodes"></ul>
                   <div class="overlay" id="overlay">
-                     <!-- Overlay content -->
                      <div class="overlay-content">
-                        <img id="overlay-image" alt="Episode Thumbnail">
+                        <img id="overlay-image" alt="Episode Thumbnail" />
                         <div class="overlay-content-text">
                            <h2 id="overlay-episode-number"></h2>
                            <h2 id="overlay-title"></h2>
@@ -362,77 +353,130 @@
          <script src="https://cdn.jsdelivr.net/npm/bitmovin-player@8/bitmovinplayer.js"></script>
          <script>
             const serverUrl = "https://blueynet.org:443";
-            const apiKey = "6b2548952ea2439ea800b8cd3f1072d1"; // Replace with your actual API key
+            const apiKey = "6b2548952ea2439ea800b8cd3f1072d1"; // Your API key
             const itemId = "11";
+            
             let selectedSeason = null;
             let episodes = [];
-            let currentEpisodeIndex = 0;
+            // Set to -1 so no episode is highlighted until a user clicks one.
+            let currentEpisodeIndex = -1;
             let selectedAudioStreamIndex = 1; // default to English
             
-            // Declare the player variable globally
+            // Cache episodes by season Id.
+            let episodesCache = {};
+            
+            // Global seasons list and tracking.
+            let seasonsList = [];    // Array of season objects.
+            let currentSeason = null; // Currently selected season.
+            let currentSeasonIndex = -1; // Index in seasonsList.
+            
+            // Player instance.
             let player = null;
             
             document.addEventListener("DOMContentLoaded", () => {
                fetchSeasons();
             
-               // Initialize the player once
                const conf = {
-                  key: '1a69b597-a4b2-4bf7-99ba-bd417397c111', // Replace with your actual Bitmovin player key
+                  key: '1a69b597-a4b2-4bf7-99ba-bd417397c111', // Your Bitmovin player key.
                };
                player = new bitmovin.player.Player(document.getElementById('player'), conf);
             
-               // Attach the PlaybackFinished listener once
+               // PlaybackFinished: if an episode finishes and one is playing, auto-advance.
                player.on(bitmovin.player.PlayerEvent.PlaybackFinished, () => {
-                  if (currentEpisodeIndex + 1 < episodes.length) {
+                  if (currentEpisodeIndex >= 0 && currentEpisodeIndex + 1 < episodes.length) {
                      currentEpisodeIndex++;
                      playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+                  } else if (currentEpisodeIndex >= 0 && currentSeasonIndex < seasonsList.length - 1) {
+                     // End of season reached: advance to next season.
+                     currentSeasonIndex++;
+                     currentSeason = seasonsList[currentSeasonIndex];
+                     // Update season button highlighting.
+                     document.querySelectorAll('.season-selector__button').forEach(btn => btn.classList.remove('selected'));
+                     const nextSeasonButton = document.querySelector(`.season-selector__button[data-season-id="${currentSeason.Id}"]`);
+                     if (nextSeasonButton) nextSeasonButton.classList.add("selected");
+                     if (episodesCache[currentSeason.Id]) {
+                        episodes = episodesCache[currentSeason.Id];
+                        renderEpisodes(episodes);
+                        currentEpisodeIndex = 0;
+                        playEpisode(episodes[0], 0);
+                     } else {
+                        fetchEpisodes(currentSeason);
+                     }
                   }
                });
             });
+            
+            // Prefetch episodes for a season.
+            function prefetchEpisodes(season) {
+               if (!episodesCache[season.Id]) {
+                  fetch(`${serverUrl}/emby/Shows/${itemId}/Episodes?SeasonId=${season.Id}&api_key=${apiKey}&Fields=Overview`)
+                     .then(response => response.json())
+                     .then(data => {
+                        episodesCache[season.Id] = data.Items;
+                     })
+                     .catch(error => console.error("Error prefetching episodes:", error));
+               }
+            }
             
             function fetchSeasons() {
                fetch(`${serverUrl}/emby/Shows/${itemId}/Seasons?api_key=${apiKey}`)
                   .then(response => response.json())
                   .then(seasons => {
                      const seasonsContainer = document.getElementById('seasons');
-                     seasons.Items.forEach(season => {
+                     // Filter seasons by SeriesId.
+                     seasonsList = seasons.Items.filter(season => season.SeriesId === itemId);
+                     seasonsList.forEach((season, i) => {
+                        prefetchEpisodes(season);
+            
                         const seasonBtn = document.createElement("button");
                         seasonBtn.classList.add("season-selector__button");
                         seasonBtn.innerText = `Season ${season.IndexNumber}`;
+                        seasonBtn.setAttribute("data-season-id", season.Id);
                         seasonBtn.addEventListener("click", () => {
-                           handleSeasonClick(seasonBtn, season);
-                           fetchEpisodes(season);
+                           handleSeasonClick(seasonBtn, season, i);
+                           if (episodesCache[season.Id]) {
+                              episodes = episodesCache[season.Id];
+                              renderEpisodes(episodes);
+                           } else {
+                              fetchEpisodes(season);
+                           }
                         });
                         seasonsContainer.appendChild(seasonBtn);
                      });
+                     // Do not auto-select any season.
                   })
                   .catch(error => console.error("Error retrieving seasons:", error));
             }
             
-            function handleSeasonClick(button, season) {
-               if (selectedSeason) {
-                  selectedSeason.classList.remove("selected");
-               }
-               selectedSeason = button;
-               selectedSeason.classList.add("selected");
-            
-               currentEpisodeIndex = 0; // Reset current episode index when changing season
-               fetchEpisodes(season);
-            }
-            
+            // Fallback fetch for episodes.
             function fetchEpisodes(season) {
                fetch(`${serverUrl}/emby/Shows/${itemId}/Episodes?SeasonId=${season.Id}&api_key=${apiKey}&Fields=Overview`)
                   .then(response => response.json())
                   .then(data => {
+                     episodesCache[season.Id] = data.Items;
                      episodes = data.Items;
                      renderEpisodes(episodes);
                   })
                   .catch(error => console.error("Error retrieving episodes:", error));
             }
             
+            function handleSeasonClick(button, season, seasonIndex) {
+               // Remove highlight from any previously selected season.
+               if (selectedSeason) {
+                  selectedSeason.classList.remove("selected");
+               }
+               selectedSeason = button;
+               selectedSeason.classList.add("selected");
+            
+               currentSeason = season;
+               currentSeasonIndex = seasonIndex;
+               // Reset episode index so that no episode is highlighted.
+               currentEpisodeIndex = -1;
+            }
+            
             function renderEpisodes(episodes) {
                const episodeList = document.getElementById('episodes');
-               episodeList.innerHTML = ''; // Clear the list
+               episodeList.innerHTML = '';
                episodes.forEach((episode, index) => {
                   const episodeItem = document.createElement("li");
                   episodeItem.innerHTML = `
@@ -443,13 +487,13 @@
                      </div>
                   `;
                   episodeItem.addEventListener("click", () => {
+                     currentEpisodeIndex = index;
                      playEpisode(episode, index);
                   });
-            
-                  if (currentEpisodeIndex === index) {
+                  // Only add "selected" if an episode has been chosen.
+                  if (currentEpisodeIndex >= 0 && currentEpisodeIndex === index) {
                      episodeItem.classList.add("selected");
                   }
-            
                   episodeList.appendChild(episodeItem);
                });
             }
@@ -467,26 +511,56 @@
                      artist: "Bluey",
                      album: `Season ${episode.ParentIndexNumber}`,
                      artwork: [
-                        { src: `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`, sizes: '1920x1080', type: 'image/png' },
+                        { src: `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`, sizes: '1920x1080', type: 'image/png' }
                      ]
                   });
-            
-                  navigator.mediaSession.setActionHandler('play', () => player.play());
-                  navigator.mediaSession.setActionHandler('pause', () => player.pause());
+                  // Media Session nexttrack handler.
                   navigator.mediaSession.setActionHandler('nexttrack', () => {
                      if (currentEpisodeIndex + 1 < episodes.length) {
                         currentEpisodeIndex++;
                         playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+                     } else if (currentSeasonIndex < seasonsList.length - 1) {
+                        // Advance to next season.
+                        currentSeasonIndex++;
+                        currentSeason = seasonsList[currentSeasonIndex];
+                        document.querySelectorAll('.season-selector__button').forEach(btn => btn.classList.remove('selected'));
+                        const nextSeasonButton = document.querySelector(`.season-selector__button[data-season-id="${currentSeason.Id}"]`);
+                        if (nextSeasonButton) nextSeasonButton.classList.add("selected");
+                        if (episodesCache[currentSeason.Id]) {
+                           episodes = episodesCache[currentSeason.Id];
+                           renderEpisodes(episodes);
+                           currentEpisodeIndex = 0;
+                           playEpisode(episodes[0], 0);
+                        } else {
+                           fetchEpisodes(currentSeason);
+                        }
                      }
                   });
+                  // Media Session previoustrack handler.
                   navigator.mediaSession.setActionHandler('previoustrack', () => {
                      if (currentEpisodeIndex > 0) {
                         currentEpisodeIndex--;
                         playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+                     } else if (currentSeasonIndex > 0) {
+                        // Go to previous season and play its last episode.
+                        currentSeasonIndex--;
+                        currentSeason = seasonsList[currentSeasonIndex];
+                        document.querySelectorAll('.season-selector__button').forEach(btn => btn.classList.remove('selected'));
+                        const prevSeasonButton = document.querySelector(`.season-selector__button[data-season-id="${currentSeason.Id}"]`);
+                        if (prevSeasonButton) prevSeasonButton.classList.add("selected");
+                        if (episodesCache[currentSeason.Id]) {
+                           episodes = episodesCache[currentSeason.Id];
+                           renderEpisodes(episodes);
+                           currentEpisodeIndex = episodes.length - 1;
+                           playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+                        } else {
+                           fetchEpisodes(currentSeason);
+                        }
                      }
                   });
                }
             
+               // Fetch playback info and load the video.
                fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources`)
                   .then(response => response.json())
                   .then(playbackInfo => {
@@ -502,7 +576,7 @@
                         title: epname,
                         hls: hls,
                         progressive: progressive,
-                        poster: `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`,
+                        poster: `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`
                      }).then(() => {
                         const enSubtitle = {
                            id: "sub1",
@@ -518,25 +592,17 @@
                   })
                   .catch(error => console.error("Error retrieving playback info:", error));
             
-               currentEpisodeIndex = index;
-            
+               // Update episode list highlighting.
                const prevSelected = document.querySelector("#episodes li.selected");
-               if (prevSelected) {
-                  prevSelected.classList.remove("selected");
-               }
-            
+               if (prevSelected) prevSelected.classList.remove("selected");
                const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
-               if (selectedEpisodeItem) {
-                  selectedEpisodeItem.classList.add("selected");
-               }
+               if (selectedEpisodeItem) selectedEpisodeItem.classList.add("selected");
             
                renderOverlay(episode);
             }
             
-            // Updates the episode description based on current orientation.
             function renderOverlay(episode) {
                if (window.innerHeight > window.innerWidth) {
-                  // Portrait mode: Show overlay with episode details
                   const overlay = document.getElementById('overlay');
                   const overlayImage = document.getElementById('overlay-image');
                   const overlayTitle = document.getElementById('overlay-title');
@@ -547,16 +613,11 @@
                   overlayEpisodeNumber.innerText = `S${episode.ParentIndexNumber}E${episode.IndexNumber}`;
                   overlayTitle.innerText = episode.Name;
                   overlayDescription.innerText = episode.Overview;
-            
                   overlay.style.display = 'block';
             
-                  // Hide the landscape description container if visible
                   const descContainer = document.getElementById('landscape-description');
-                  if (descContainer) {
-                     descContainer.style.display = 'none';
-                  }
+                  if (descContainer) descContainer.style.display = 'none';
                } else {
-                  // Landscape mode: Show description below the player with a download button
                   const descContainer = document.getElementById('landscape-description');
                   descContainer.innerHTML = `
                      <img src="${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="Episode Thumbnail" style="width:100px; height:auto; float:left; margin-right:10px;">
@@ -568,8 +629,6 @@
                      <div style="clear: both;"></div>
                   `;
                   descContainer.style.display = 'block';
-            
-                  // Hide the overlay if open
                   document.getElementById('overlay').style.display = 'none';
                }
             }
@@ -579,48 +638,42 @@
             }
             
             function showInfo() {
-               const selectedEpisode = episodes[currentEpisodeIndex];
-               renderOverlay(selectedEpisode);
+               if (currentEpisodeIndex >= 0 && episodes[currentEpisodeIndex]) {
+                  renderOverlay(episodes[currentEpisodeIndex]);
+               }
             }
             
             function downloadEpisode() {
-               const episode = episodes[currentEpisodeIndex];
-               const downloadUrl = `${serverUrl}/emby/Items/${episode.Id}/Download?api_key=${apiKey}`;
-               window.location.href = downloadUrl;
+               if (currentEpisodeIndex >= 0 && episodes[currentEpisodeIndex]) {
+                  const episode = episodes[currentEpisodeIndex];
+                  const downloadUrl = `${serverUrl}/emby/Items/${episode.Id}/Download?api_key=${apiKey}`;
+                  window.location.href = downloadUrl;
+               }
             }
             
             function setLanguage(value) {
                selectedAudioStreamIndex = value;
-               if (episodes.length > 0) {
+               if (episodes.length > 0 && currentEpisodeIndex >= 0) {
                   playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
                }
             }
             
-            // Function to update UI based on current orientation using window dimensions.
             function updateOrientationUI() {
                const infoButton = document.getElementById('info-button');
                const landscapeDesc = document.getElementById('landscape-description');
             
                if (window.innerHeight > window.innerWidth) {
-                  // Portrait mode
                   infoButton.style.display = 'block';
-                  if (landscapeDesc) {
-                     landscapeDesc.style.display = 'none';
-                  }
+                  if (landscapeDesc) landscapeDesc.style.display = 'none';
                } else {
-                  // Landscape mode
                   infoButton.style.display = 'none';
-                  // If an episode is playing, update the overlay for landscape mode.
-                  if (episodes[currentEpisodeIndex]) {
+                  if (currentEpisodeIndex >= 0 && episodes[currentEpisodeIndex]) {
                      renderOverlay(episodes[currentEpisodeIndex]);
                   }
                }
             }
             
-            // Update orientation on window resize
             window.addEventListener('resize', updateOrientationUI);
-            
-            // Also update on initial load
             document.addEventListener('DOMContentLoaded', updateOrientationUI);
          </script>
       </div>

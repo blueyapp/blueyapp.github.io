@@ -387,7 +387,13 @@
             document.addEventListener("DOMContentLoaded", () => {
               fetchSeasons();
             
-              const conf = { key: '1a69b597-a4b2-4bf7-99ba-bd417397c111' };
+              // Player configuration with built-in casting enabled.
+              const conf = { 
+                key: '1a69b597-a4b2-4bf7-99ba-bd417397c111',
+                cast: {
+                  enable: true
+                }
+              };
               player = new bitmovin.player.Player(document.getElementById('player'), conf);
             
               // Listen for general error events. If an error occurs and the current language isn't English,
@@ -397,20 +403,15 @@
                 if (!fallbackTriggered && selectedAudioStreamIndex != 1) {
                   console.log("Scheduling fallback in 5000ms...");
                   setTimeout(() => {
-                    // Trigger fallback only if not already triggered.
                     fallbackTriggered = true;
                     if (episodes && currentEpisodeIndex >= 0) {
                       fallbackEpisodeId = episodes[currentEpisodeIndex].Id;
                     }
-                    // Backup the user's preferred language (if not English)
                     if (userPreferredLanguage != 1) {
                       userPreferredLanguageBackup = userPreferredLanguage;
                     }
-                    // Save current playback time.
                     fallbackPosition = player.getCurrentTime();
-                    // Unload the player to cancel any buffered segments.
                     player.unload().then(() => {
-                      // Force language to English.
                       selectedAudioStreamIndex = 1;
                       document.getElementById('language-select').value = "1";
                       console.log("Executing fallback: Changing language to English and resuming playback.");

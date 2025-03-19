@@ -212,6 +212,9 @@
          .overlay-content-text {
          flex: 1;
          }
+         #overlay-title {
+         margin-bottom: 10px;
+         }
          #download-button {
          margin-top: 10px;
          cursor: pointer;
@@ -676,11 +679,11 @@
               } else {
                 const descContainer = document.getElementById('landscape-description');
                 descContainer.innerHTML = `
-                  <img src="${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="Episode Thumbnail" style="width:100px; height:auto; float:left; margin-right:10px;">
+                  <img src="${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="Episode Thumbnail" style="width:120px; height:auto; float:left; margin-right:15px;">
                   <div style="overflow: hidden;">
-                    <h2>S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}</h2>
+                    <h2 style="margin-bottom:10px;">S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}</h2>
                     <p>${episode.Overview}</p>
-                    <button id="download-button-landscape" onclick="downloadEpisode()" style="cursor:pointer; color:#ffffff; background-color:#e2793b; padding:10px 20px; border:none; border-radius:5px; font-family:'Hello Headline', sans-serif;">Download</button>
+                    <button id="download-button-landscape" onclick="downloadEpisode()" style="cursor:pointer; color:#ffffff; background-color:#e2793b; padding:10px 20px; border:none; border-radius:5px; font-family:'Hello Headline', sans-serif; margin-top:10px;">Download</button>
                   </div>
                   <div style="clear: both;"></div>
                 `;

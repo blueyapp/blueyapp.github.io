@@ -215,6 +215,9 @@
          .overlay-content-text {
          flex: 1;
          }
+         #overlay-title {
+         margin-bottom: 10px;
+         }
          #download-button {
          margin-top: 10px;
          cursor: pointer;
@@ -386,7 +389,19 @@
             document.addEventListener("DOMContentLoaded", () => {
               fetchSeasons();
             
-              const conf = { key: '1a69b597-a4b2-4bf7-99ba-bd417397c111' };
+              // Player configuration with built-in casting enabled and custom Chromecast receiver styling.
+              const conf = { 
+                key: '1a69b597-a4b2-4bf7-99ba-bd417397c111',
+                cast: {
+                  enable: true
+                },
+                remotecontrol: {
+                  type: 'googlecast',
+                  customReceiverConfig: {
+                    receiverStylesheetUrl: 'https://pages.blueynet.org/minisodes-chromecast.css'
+                  }
+                }
+              };
               player = new bitmovin.player.Player(document.getElementById('player'), conf);
             
               // Listen for general error events. If an error occurs and the current language isn't English,
@@ -396,20 +411,15 @@
                 if (!fallbackTriggered && selectedAudioStreamIndex != 1) {
                   console.log("Scheduling fallback in 5000ms...");
                   setTimeout(() => {
-                    // Trigger fallback only if not already triggered.
                     fallbackTriggered = true;
                     if (episodes && currentEpisodeIndex >= 0) {
                       fallbackEpisodeId = episodes[currentEpisodeIndex].Id;
                     }
-                    // Backup the user's preferred language (if not English)
                     if (userPreferredLanguage != 1) {
                       userPreferredLanguageBackup = userPreferredLanguage;
                     }
-                    // Save current playback time.
                     fallbackPosition = player.getCurrentTime();
-                    // Unload the player to cancel any buffered segments.
                     player.unload().then(() => {
-                      // Force language to English.
                       selectedAudioStreamIndex = 1;
                       document.getElementById('language-select').value = "1";
                       console.log("Executing fallback: Changing language to English and resuming playback.");
@@ -562,7 +572,7 @@
               if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
                   title: `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`,
-                  artist: "Bluey",
+                  artist: "Bluey Minisodes",
                   album: `Season ${episode.ParentIndexNumber}`,
                   artwork: [
                     { src: `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`, sizes: '1920x1080', type: 'image/png' }
@@ -678,11 +688,11 @@
               } else {
                 const descContainer = document.getElementById('landscape-description');
                 descContainer.innerHTML = `
-                  <img src="${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="Episode Thumbnail" style="width:100px; height:auto; float:left; margin-right:10px;">
+                  <img src="${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="Episode Thumbnail" style="width:120px; height:auto; float:left; margin-right:15px;">
                   <div style="overflow: hidden;">
-                    <h2>S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}</h2>
+                    <h2 style="margin-bottom:10px;">S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}</h2>
                     <p>${episode.Overview}</p>
-                    <button id="download-button-landscape" onclick="downloadEpisode()" style="cursor:pointer; color:#ffffff; background-color:#e2793b; padding:10px 20px; border:none; border-radius:5px; font-family:'Hello Headline', sans-serif;">Download</button>
+                    <button id="download-button-landscape" onclick="downloadEpisode()" style="cursor:pointer; color:#ffffff; background-color:#e2793b; padding:10px 20px; border:none; border-radius:5px; font-family:'Hello Headline', sans-serif; margin-top:10px;">Download</button>
                   </div>
                   <div style="clear: both;"></div>
                 `;

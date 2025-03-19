@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>     
-      <meta charset="UTF-8">    
-      <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-      <title>Listen to Bluey Music</title>    
-      <meta name="title" content="Bluey Album">     
-      <meta name="description" content="Listen to all album from Bluey.">   
-      <meta name="keywords" content="bluey, bluey, bluey">  
-      <meta name="robots" content="index, follow">     
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">   
-      <meta name="language" content="English">   
-      <meta name="author" content="Bluey Heeler">    
-            <!-- Meta tags for social share preview -->       
-      <meta property="og:title" content="Bluey Album">     
-      <meta property="og:description" content="Listen to all album from Bluey.">     
-      <meta property="og:image" content="https://cdn.iview.abc.net.au/thumbs/1200/ch/CH2003Q_66399c133e743_1920.jpg"> 
-            <!-- URL to your image -->      
-      <meta property="og:url" content="https://pages.bluey.cam/music">
-            <!-- URL of your page -->      
-      <meta name="twitter:card" content="summary_large_image">    
-      <meta name="twitter:title" content="Bluey Album"> 
-      <meta name="twitter:description" content="Listen to all album from Bluey.">     
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Listen to Bluey Music</title>
+      <meta name="title" content="Bluey Album">
+      <meta name="description" content="Listen to all album from Bluey.">
+      <meta name="keywords" content="bluey, bluey, bluey">
+      <meta name="robots" content="index, follow">
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <meta name="language" content="English">
+      <meta name="author" content="Bluey Heeler">
+      <!-- Meta tags for social share preview -->       
+      <meta property="og:title" content="Bluey Album">
+      <meta property="og:description" content="Listen to all album from Bluey.">
+      <meta property="og:image" content="https://cdn.iview.abc.net.au/thumbs/1200/ch/CH2003Q_66399c133e743_1920.jpg">
+      <!-- URL to your image -->      
+      <meta property="og:url" content="https://pages.blueynet.org/music">
+      <!-- URL of your page -->      
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:title" content="Bluey Album">
+      <meta name="twitter:description" content="Listen to all album from Bluey.">
       <meta name="twitter:image" content="https://cdn.iview.abc.net.au/thumbs/1200/ch/CH2003Q_66399c133e743_1920.jpg">
-            <!-- URL to your image -->      
+      <!-- URL to your image -->      
       <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
       <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
       <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
@@ -124,12 +124,13 @@
          background-color: #87c0e8;
          border: none;
          color: white;
-         padding: 10px 20px;
+         padding: 16px 20px;
          text-decoration: none;
          display: inline-block;
          font-size: 16px;
-         border-radius: 5px;
+         border-radius: 10px;
          cursor: pointer;
+         vertical-align: bottom;
          transition: background-color 0.3s ease, transform 0.3s ease;
          }
          .series-option-content button.dolby-button {
@@ -143,6 +144,8 @@
          font-size: 0px;
          border-radius: 10px;
          cursor: pointer;
+         vertical-align: bottom;
+         margin-top: 10px;
          transition: background-color 0.3s ease, transform 0.3s ease;
          }
          .series-option-content button:hover {
@@ -165,6 +168,9 @@
          height: 50px;
          object-fit: cover;
          display: block;
+         }
+         .dolby-logo {
+         vertical-align: bottom;
          }
          @media (max-width: 768px) {
          .header {
@@ -245,8 +251,8 @@
                   <p>Bluey The Album features 17 songs, all original compositions from Season 1 including music from fan favourite episodes such as ‘Keepy Uppy’, ‘Here Come The Grannies!’, ‘Pool’ and ‘The Creek’.</p>
                   <button onclick="location.href='/music/bluey-the-album'">Listen Bluey The Album</button>
                   <button onclick="location.href='/music/dolby/bluey-the-album'" class="dolby-button">
-                                  <img src="https://games.dolby.com/globalassets/games-2.0/logos/dolby-atmos-horiz-white-logo-720x405.gif" alt="Dolby Atmos Logo" class="dolby-logo">
-                                </button>
+                  <img src="https://games.dolby.com/globalassets/games-2.0/logos/dolby-atmos-horiz-white-logo-720x405.gif" alt="Dolby Atmos Logo" class="dolby-logo">
+                  </button>
                </div>
             </div>
             <div class="series-option">
@@ -256,8 +262,8 @@
                   <p>‘Dance Mode’ is the exciting follow up to the award-winning, number 1 debut ‘Bluey: The Album’. Bringing together 17 brand new recordings from series 1, 2 and 3, all originally composed by Joff Bush.</p>
                   <button onclick="location.href='/music/dance-mode'">Listen Dance Mode!</button>
                   <button onclick="location.href='/music/dolby/dance-mode'" class="dolby-button">
-                                  <img src="https://games.dolby.com/globalassets/games-2.0/logos/dolby-atmos-horiz-white-logo-720x405.gif" alt="Dolby Atmos Logo" class="dolby-logo">
-                                </button>
+                  <img src="https://games.dolby.com/globalassets/games-2.0/logos/dolby-atmos-horiz-white-logo-720x405.gif" alt="Dolby Atmos Logo" class="dolby-logo">
+                  </button>
                </div>
             </div>
             <div class="series-option">
@@ -267,8 +273,8 @@
                   <p>Bluey’s third album, Bluey: Rug Island, featuring 16 original tracks by the series’ award-winning composer Joff Bush and the Bluey music team will be released on October 25, 2024!</p>
                   <button onclick="location.href='/music/rug-island'">Listen Rug Island</button>
                   <button onclick="location.href='/music/dolby/rug-island'" class="dolby-button">
-                                  <img src="https://games.dolby.com/globalassets/games-2.0/logos/dolby-atmos-horiz-white-logo-720x405.gif" alt="Dolby Atmos Logo" class="dolby-logo">
-                                </button>
+                  <img src="https://games.dolby.com/globalassets/games-2.0/logos/dolby-atmos-horiz-white-logo-720x405.gif" alt="Dolby Atmos Logo" class="dolby-logo">
+                  </button>
                </div>
             </div>
             <div class="series-option">

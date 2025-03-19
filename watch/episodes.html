@@ -387,11 +387,17 @@
             document.addEventListener("DOMContentLoaded", () => {
               fetchSeasons();
             
-              // Player configuration with built-in casting enabled.
+              // Player configuration with built-in casting enabled and custom Chromecast receiver styling.
               const conf = { 
                 key: '1a69b597-a4b2-4bf7-99ba-bd417397c111',
                 cast: {
                   enable: true
+                },
+                remotecontrol: {
+                  type: 'googlecast',
+                  customReceiverConfig: {
+                    receiverStylesheetUrl: 'https://pages.blueynet.org/episodes-chromecast.css'
+                  }
                 }
               };
               player = new bitmovin.player.Player(document.getElementById('player'), conf);

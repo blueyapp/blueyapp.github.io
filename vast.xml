@@ -1,0 +1,22 @@
+<VAST version="4.0">
+    <Ad id="trailer-001">
+        <InLine>
+            <AdSystem>YourWebsite</AdSystem>
+            <AdTitle>Upcoming Movie Trailer</AdTitle>
+
+            <Creatives>
+                <Creative>
+                    <Linear skipoffset="00:00:10"> <!-- Allow skipping after 5 seconds -->
+                        <Duration>00:07:00</Duration> <!-- Trailer duration -->
+
+                        <MediaFiles>
+                            <MediaFile delivery="progressive" type="video/mp4" bitrate="500" width="1920" height="1080">
+                                <![CDATA[https://blueynet.org/emby/videos/15/stream.mkv?Static=true&api_key=df8984914efa4d1f9dd6bbf6663c416c]]>
+                            </MediaFile>
+                        </MediaFiles>
+                    </Linear>
+                </Creative>
+            </Creatives>
+        </InLine>
+    </Ad>
+</VAST>

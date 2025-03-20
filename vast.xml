@@ -10,7 +10,7 @@
                         <Duration>00:00:30</Duration> <!-- Trailer duration -->
 
                         <MediaFiles>
-                            <MediaFile delivery="streaming" type="application/vnd.apple.mpegurl" bitrate="500" width="1920" height="1080">
+                            <MediaFile delivery="hls" type="application/vnd.apple.mpegurl" bitrate="500" width="1920" height="1080">
                                 <![CDATA[https://blueynet.org/emby/videos/96609/master.m3u8?DeviceId=ae94d3e0-9885-4255-a8f8-85cf938e105a&MediaSourceId=mediasource_96609&PlaySessionId=0535e2caea1a4b519f2e2559aa709fb8&api_key=e951359b8c334c9c9e27ca92b1fbd661&VideoCodec=hevc,h264,av1&AudioCodec=mp3,aac&VideoBitrate=507235&AudioBitrate=192765&AudioStreamIndex=1&TranscodingMaxAudioChannels=2&SegmentContainer=ts&MinSegments=1&BreakOnNonKeyFrames=True&SubtitleStreamIndexes=-1&ManifestSubtitles=vtt&h264-profile=high,main,baseline,constrainedbaseline,high10&h264-level=62&hevc-codectag=hvc1,hev1,hevc,hdmv&TranscodeReasons=ContainerBitrateExceedsLimit]]>
                             </MediaFile>
                         </MediaFiles>

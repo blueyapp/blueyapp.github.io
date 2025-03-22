@@ -1,8 +1,8 @@
 <VAST version="4.2">
   <Ad id="12345">
     <InLine>
-      <AdSystem version="4.2">My Ad Server</AdSystem>
-      <AdTitle>Sample Trailer</AdTitle>
+      <AdSystem version="4.2">Advertisement</AdSystem>
+      <AdTitle>ABC iView</AdTitle>
       <Creatives>
         <!-- Video Creative -->
         <Creative id="1" sequence="1" adId="1001">

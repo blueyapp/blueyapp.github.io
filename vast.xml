@@ -1,18 +1,23 @@
 <VAST version="4.2">
   <Ad id="12345">
     <InLine>
-      <AdSystem version="4.2">My Ad Server</AdSystem>
-      <AdTitle>Sample Trailer</AdTitle>
+      <AdSystem version="4.2">Advertisement</AdSystem>
+      <AdTitle>ABC iView</AdTitle>
       <Creatives>
         <!-- Video Creative -->
         <Creative id="1" sequence="1" adId="1001">
           <Linear skipoffset="00:00:01">
             <Duration>00:00:30</Duration>
             <MediaFiles>
-              <MediaFile delivery="streaming" type="application/vnd.apple.mpegurl" width="1920" height="1080" bitrate="507235" codec="h264" framerate="30">
-                https://blueynet.org/emby/videos/96609/master.m3u8?DeviceId=ae94d3e0-9885-4255-a8f8-85cf938e105a&amp;MediaSourceId=mediasource_96609&amp;PlaySessionId=0535e2caea1a4b519f2e2559aa709fb8&amp;api_key=e951359b8c334c9c9e27ca92b1fbd661&amp;VideoCodec=hevc,h264,av1&amp;AudioCodec=mp3,aac&amp;VideoBitrate=507235&amp;AudioBitrate=192765&amp;AudioStreamIndex=1&amp;TranscodingMaxAudioChannels=2&amp;SegmentContainer=ts&amp;MinSegments=1&amp;BreakOnNonKeyFrames=True&amp;SubtitleStreamIndexes=-1&amp;ManifestSubtitles=vtt&amp;h264-profile=high,main,baseline,constrainedbaseline,high10&amp;h264-level=62&amp;hevc-codectag=hvc1,hev1,hevc,hdmv&amp;TranscodeReasons=ContainerBitrateExceedsLimit
+              <MediaFile delivery="streaming" type="application/x-mpegURL" width="1920" height="1080" bitrate="507235" codec="h264" framerate="30">
+                https://blueynet.org/emby/videos/96609/master.m3u8?DeviceId=ae94d3e0-9885-4255-a8f8-85cf938e105a&amp;MediaSourceId=mediasource_96609&amp;PlaySessionId=0535e2caea1a4b519f2e2559aa709fb8&amp;api_key=e951359b8c334c9c9e27ca92b1fbd661&amp;VideoCodec=h264&amp;AudioCodec=mp3,aac&amp;VideoBitrate=507235&amp;AudioBitrate=192765&amp;AudioStreamIndex=1&amp;TranscodingMaxAudioChannels=2&amp;SegmentContainer=ts&amp;MinSegments=1&amp;BreakOnNonKeyFrames=True&amp;SubtitleStreamIndexes=-1&amp;ManifestSubtitles=vtt&amp;h264-profile=high,main,baseline,constrainedbaseline,high10&amp;h264-level=62&amp;TranscodeReasons=ContainerBitrateExceedsLimit
               </MediaFile>
             </MediaFiles>
+            <VideoClicks>
+              <ClickThrough>
+                https://example.com/landing-page
+              </ClickThrough>
+            </VideoClicks>
           </Linear>
         </Creative>
 
@@ -30,6 +35,7 @@
           </CompanionAds>
         </Creative>
       </Creatives>
+      <UniversalAdId idRegistry="Ad-ID">12345</UniversalAdId>
     </InLine>
   </Ad>
 </VAST>

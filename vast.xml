@@ -1,34 +1,35 @@
-<VAST version="4.0">
-    <Ad id="trailer-001">
-        <InLine>
-            <AdSystem>Bluey</AdSystem>
-            <AdTitle>ABC iView</AdTitle>
+<VAST version="4.2">
+  <Ad id="12345">
+    <InLine>
+      <AdSystem version="4.2">My Ad Server</AdSystem>
+      <AdTitle>Sample Trailer</AdTitle>
+      <Creatives>
+        <!-- Video Creative -->
+        <Creative id="1" sequence="1" adId="1001">
+          <Linear skipoffset="00:00:01">
+            <Duration>00:00:30</Duration>
+            <MediaFiles>
+              <MediaFile delivery="streaming" type="application/vnd.apple.mpegurl" width="1920" height="1080">
+                https://blueynet.org/emby/videos/96609/master.m3u8?DeviceId=ae94d3e0-9885-4255-a8f8-85cf938e105a&amp;MediaSourceId=mediasource_96609&amp;PlaySessionId=0535e2caea1a4b519f2e2559aa709fb8&amp;api_key=e951359b8c334c9c9e27ca92b1fbd661&amp;VideoCodec=hevc,h264,av1&amp;AudioCodec=mp3,aac&amp;VideoBitrate=507235&amp;AudioBitrate=192765&amp;AudioStreamIndex=1&amp;TranscodingMaxAudioChannels=2&amp;SegmentContainer=ts&amp;MinSegments=1&amp;BreakOnNonKeyFrames=True&amp;SubtitleStreamIndexes=-1&amp;ManifestSubtitles=vtt&amp;h264-profile=high,main,baseline,constrainedbaseline,high10&amp;h264-level=62&amp;hevc-codectag=hvc1,hev1,hevc,hdmv&amp;TranscodeReasons=ContainerBitrateExceedsLimit
+              </MediaFile>
+            </MediaFiles>
+          </Linear>
+        </Creative>
 
-            <Creatives>
-                <Creative>
-                    <Linear skipoffset="00:00:00"> <!-- Allow skipping after 5 seconds -->
-                        <Duration>00:00:30</Duration> <!-- Trailer duration -->
-
-                        <MediaFiles>
-                            <MediaFile delivery="hls" type="application/vnd.apple.mpegurl" bitrate="500" width="1920" height="1080">
-                                <![CDATA[https://blueynet.org/emby/videos/96609/master.m3u8?DeviceId=ae94d3e0-9885-4255-a8f8-85cf938e105a&MediaSourceId=mediasource_96609&PlaySessionId=0535e2caea1a4b519f2e2559aa709fb8&api_key=e951359b8c334c9c9e27ca92b1fbd661&VideoCodec=hevc,h264,av1&AudioCodec=mp3,aac&VideoBitrate=507235&AudioBitrate=192765&AudioStreamIndex=1&TranscodingMaxAudioChannels=2&SegmentContainer=ts&MinSegments=1&BreakOnNonKeyFrames=True&SubtitleStreamIndexes=-1&ManifestSubtitles=vtt&h264-profile=high,main,baseline,constrainedbaseline,high10&h264-level=62&hevc-codectag=hvc1,hev1,hevc,hdmv&TranscodeReasons=ContainerBitrateExceedsLimit]]>
-                            </MediaFile>
-                        </MediaFiles>
-                    </Linear>
-                </Creative>
-                
-                <!-- Link to ABC iView -->
-                <Creative>
-                    <NonLinear>
-                        <NonLinearClickThrough>
-                            <![CDATA[https://iview.abc.net.au]]>
-                        </NonLinearClickThrough>
-                        <StaticResource creativeType="image/png">
-                            <![CDATA[https://pdbimg.choice.com.au/abc-iview_2.jpg]]>
-                        </StaticResource>
-                    </NonLinear>
-                </Creative>
-            </Creatives>
-        </InLine>
-    </Ad>
+        <!-- Companion Creative (Clickable URL) -->
+        <Creative id="2" sequence="1" adId="1002">
+          <CompanionAds>
+            <Companion width="300" height="250">
+              <StaticResource creativeType="image/jpeg">
+                https://pdbimg.choice.com.au/abc-iview_2.jpg
+              </StaticResource>
+              <CompanionClickThrough>
+                https://iview.abc.net.au
+              </CompanionClickThrough>
+            </Companion>
+          </CompanionAds>
+        </Creative>
+      </Creatives>
+    </InLine>
+  </Ad>
 </VAST>

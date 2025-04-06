@@ -9,8 +9,8 @@
           <Linear skipoffset="00:00:01">
             <Duration>00:00:36</Duration>
             <MediaFiles>
-              <MediaFile delivery="progressive" type="application/x-mpegURL" width="1920" height="1080" bitrate="3790273" codec="h264">
-                https://blueynet.org/emby/videos/170078/stream.mp4?Static=true&api_key=df8984914efa4d1f9dd6bbf6663c416c
+              <MediaFile delivery="progressive" type="video/mp4" width="1920" height="1080" bitrate="3790273">
+                https://blueynet.org/emby/videos/170078/stream.mp4?Static=true&amp;api_key=df8984914efa4d1f9dd6bbf6663c416c
               </MediaFile>
             </MediaFiles>
             <VideoClicks>
@@ -22,7 +22,7 @@
         </Creative>
 
         <!-- Companion Creative (Clickable URL) -->
-        <Creative id="2" sequence="1" adId="1002">
+        <Creative id="2" sequence="2" adId="1002">
           <CompanionAds>
             <Companion width="300" height="250">
               <StaticResource creativeType="image/jpeg">

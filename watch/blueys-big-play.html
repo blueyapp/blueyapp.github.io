@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <!-- Meta & Title -->
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Watch Bluey!</title>
+      <title>Bluey’s Big Play</title>
       <meta name="title" content="Bluey's Big Play" />
       <meta name="description" content="Bluey and Bingo pull out all the stops to try to get Dad off his phone in their first live stage show, brought to life by brilliant puppets and featuring brand new original music." />
       <meta name="keywords" content="bluey, bluey, bluey" />
@@ -20,17 +19,12 @@
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content="Bluey's Big Play" />
       <meta name="twitter:description" content="Bluey and Bingo pull out all the stops to try to get Dad off his phone in their first live stage show, brought to life by brilliant puppets and featuring brand new original music." />
-      <meta name="twitter:image" content="https://cdn.iview.abc.net.au/thumbs/1200/mp/MP2514H056C00DT1_67e9dce518e24_3600.jpg" />
-
-  <!-- Icons, Fonts, & Video.js/Bitmovin -->
-  <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
+      <meta name="twitter:image" content="https://cdn.iview.abc.net.au/thumbs/1200/mp/MP2514H056C00DT1_67e9dce518e24_3600.jpg" />  <!-- Icons, Fonts, & Video.js/Bitmovin -->  <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
   <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet" />
   <script src="https://vjs.zencdn.net/7.15.4/video.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bitmovin-player@8/bitmovinplayer.js"></script>
   <!-- Custom font -->
-  <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
-
-  <style>
+  <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">  <style>
     /* Reset and general box sizing */
     * {
       box-sizing: border-box;
@@ -111,8 +105,7 @@
 
     /* Poster, title, and description */
     .movie-poster {
-      max-width: 300px;
-      width: 100%;
+      width: 100px;   /* reduced size to 100px */
       height: auto;
       border-radius: 10px;
     }
@@ -139,6 +132,9 @@
       border-radius: 5px;
       font-family: "Hello Headline", Arial, sans-serif;
     }
+    .bmpui-ui-watermark {
+        display: none;
+    }
 
     /* Responsive Adjustments */
     @media (max-width: 768px) {
@@ -160,17 +156,14 @@
         text-align: center;
       }
     }
-  </style>
-</head>
-
-<body>
+  </style></head><body>
   <!-- Header -->
   <div class="container">
     <div class="header">
-      <img 
-        src="https://www.themoviedb.org/t/p/original/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" 
-        alt="Bluey" 
-        class="logo" 
+      <img     
+        src="https://www.themoviedb.org/t/p/original/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png"     
+        alt="Bluey"     
+        class="logo"     
       />
       <ul class="nav">
         <li><a href="/">Home</a></li>
@@ -180,29 +173,23 @@
         <li><a href="/download">App</a></li>
       </ul>
     </div>
-  </div>
-
-  <!-- Main Content -->
-  <div class="container">
+  </div>  <!-- Main Content -->  <div class="container">
     <!-- Player wrapper -->
     <div class="player-wrapper">
       <div id="player"></div>
-    </div>
-
-    <!-- Movie Details -->
-    <div class="movie-details">
-      <div class="poster-container">
-        <img id="movie-poster" alt="Movie Poster" class="movie-poster" />
-      </div>
-      <div class="info-container">
-        <h1 id="movie-title" class="movie-title"></h1>
-        <p id="movie-description" class="movie-description"></p>
-        <button id="download-button" onclick="downloadMovie()">Download</button>
-      </div>
-    </div>
+    </div><!-- Movie Details -->
+<div class="movie-details">
+  <div class="poster-container">
+    <img id="movie-poster" alt="Movie Poster" class="movie-poster" />
   </div>
+  <div class="info-container">
+    <h1 id="movie-title" class="movie-title"></h1>
+    <p id="movie-description" class="movie-description"></p>
+    <button id="download-button" onclick="downloadMovie()">Download</button>
+  </div>
+</div>
 
-  <script>
+  </div>  <script>
     // Configuration
     const serverUrl = "https://blueynet.org:443";
     const apiKey = "9d5cf3331775456dbbabef7535c0f41e";
@@ -212,7 +199,16 @@
 
     let movieMetadata = {}; // to store movie metadata
     document.addEventListener("DOMContentLoaded", () => {
-      const conf = { key: bitmovinKey };
+      const conf = {
+        key: bitmovinKey,
+        cast: { enable: true },
+        remotecontrol: {
+          type: 'googlecast',
+          customReceiverConfig: {
+            receiverStylesheetUrl: 'https://pages.blueynet.org/episodes-chromecast.css'
+          }
+        }
+      };
       const player = new bitmovin.player.Player(
         document.getElementById("player"),
         conf
@@ -293,7 +289,7 @@
                 album: "Movies",
                 artwork: [
                   {
-                    src: `${serverUrl}/emby/Items/${movieMetadata.Id}/Images/Primary?api_key=${apiKey}`,
+                    src: `${serverUrl}/emby/Items/${movieMetadata.Id}/Images/Thumb?api_key=${apiKey}`,
                     sizes: "1920x1080",
                     type: "image/png",
                   },
@@ -322,6 +318,5 @@
       const downloadUrl = `${serverUrl}/emby/Items/${movieMetadata.Id}/Download?X-Emby-Token=${apiKey}`;
       window.location.href = downloadUrl;
     }
-  </script>
-</body>
+  </script></body>
 </html>

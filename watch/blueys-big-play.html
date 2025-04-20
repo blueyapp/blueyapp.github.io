@@ -189,134 +189,106 @@
   </div>
 </div>
 
-  </div>  <script>
-    // Configuration
-    const serverUrl = "https://blueynet.org:443";
-    const apiKey = "9d5cf3331775456dbbabef7535c0f41e";
-    const movieId = "176581";
-    const bitmovinKey = "1a69b597-a4b2-4bf7-99ba-bd417397c111";
-    let selectedAudioStreamIndex = 1; // default to English audio
+  </div>  
+<script>
+  const serverUrl = "https://blueynet.org:443";
+  const apiKey = "9d5cf3331775456dbbabef7535c0f41e";
+  const movieId = "176581";
+  const bitmovinKey = "1a69b597-a4b2-4bf7-99ba-bd417397c111";
+  let selectedAudioStreamIndex = 1;
+  let movieMetadata = {};
 
-    let movieMetadata = {}; // to store movie metadata
-    document.addEventListener("DOMContentLoaded", () => {
-      const conf = {
-        key: bitmovinKey,
-        cast: { enable: true },
-        remotecontrol: {
-          type: 'googlecast',
-          customReceiverConfig: {
-            receiverStylesheetUrl: 'https://pages.blueynet.org/episodes-chromecast.css'
-          }
+  document.addEventListener("DOMContentLoaded", async () => {
+    const conf = {
+      key: bitmovinKey,
+      cast: { enable: true },
+      remotecontrol: {
+        type: 'googlecast',
+        customReceiverConfig: {
+          receiverStylesheetUrl: 'https://pages.blueynet.org/episodes-chromecast.css'
         }
-      };
-      const player = new bitmovin.player.Player(
-        document.getElementById("player"),
-        conf
-      );
+      }
+    };
 
-      // Fetch and display metadata
-      fetchMovieMetadata().then(() => {
-        displayMovieDetails();
-        initializePlayer(player);
-      });
+    const player = new bitmovin.player.Player(document.getElementById("player"), conf);
+
+    try {
+      await fetchMovieMetadata();
+      displayMovieDetails();
+      await initializePlayer(player);
+    } catch (err) {
+      console.error("Initialization error:", err);
+    }
+  });
+
+  async function fetchMovieMetadata() {
+    const url = `${serverUrl}/emby/Users/ba603d94a7c24b3b8c7e7ea2fedc9162/Items/${movieId}?fields=ShareLevel&ExcludeFields=VideoChapters,VideoMediaSources,MediaStreams&X-Emby-Token=${apiKey}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Metadata fetch failed");
+    movieMetadata = await response.json();
+  }
+
+  function displayMovieDetails() {
+    document.getElementById("movie-poster").src = `${serverUrl}/emby/Items/${movieMetadata.Id}/Images/Primary?X-Emby-Token=${apiKey}`;
+    document.getElementById("movie-title").textContent = movieMetadata.Name || "Movie Title";
+    document.getElementById("movie-description").textContent = movieMetadata.Overview || "Movie description not available.";
+  }
+
+  async function initializePlayer(player) {
+    const playbackUrl = `${serverUrl}/emby/Items/${movieId}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources`;
+    const response = await fetch(playbackUrl);
+    const playbackInfo = await response.json();
+    const mediaSource = playbackInfo.MediaSources[0];
+    const mediaSourceId = mediaSource.Id;
+    const playSessionId = playbackInfo.PlaySessionId;
+
+    const hlsUrl = `${serverUrl}/emby/videos/${movieId}/master.m3u8?MediaSourceId=${mediaSourceId}&PlaySessionId=${playSessionId}&api_key=${apiKey}&AudioStreamIndex=${selectedAudioStreamIndex}`;
+
+    await player.load({
+      title: movieMetadata.Name,
+      hls: hlsUrl,
+      poster: `${serverUrl}/emby/Items/${movieMetadata.Id}/Images/Thumb?X-Emby-Token=${apiKey}`
     });
 
-    // Fetch movie metadata from Emby
-    function fetchMovieMetadata() {
-      return fetch(
-        `${serverUrl}/emby/Users/ba603d94a7c24b3b8c7e7ea2fedc9162/Items/${movieId}?fields=ShareLevel&ExcludeFields=VideoChapters,VideoMediaSources,MediaStreams&X-Emby-Token=${apiKey}`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          movieMetadata = data;
-        })
-        .catch((error) => console.error("Error retrieving movie metadata:", error));
+    // Optional subtitle (check for subtitle availability)
+    try {
+      const subtitleUrl = `${serverUrl}/emby/Videos/${movieMetadata.Id}/${mediaSourceId}/Subtitles/2/0/Stream.vtt?api_key=${apiKey}`;
+      player.subtitles.add({
+        id: "sub1",
+        lang: "en",
+        label: "English",
+        url: subtitleUrl,
+        kind: "subtitle"
+      });
+    } catch (err) {
+      console.warn("No subtitles found or failed to load subtitles.");
     }
 
-    // Display movie details
-    function displayMovieDetails() {
-      const moviePoster = document.getElementById("movie-poster");
-      const movieTitle = document.getElementById("movie-title");
-      const movieDescription = document.getElementById("movie-description");
+    await player.play();
 
-      moviePoster.src = `${serverUrl}/emby/Items/${movieMetadata.Id}/Images/Primary?X-Emby-Token=${apiKey}`;
-      movieTitle.textContent = movieMetadata.Name || "Movie Title";
-      movieDescription.textContent =
-        movieMetadata.Overview || "Movie description not available.";
+    if ("mediaSession" in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: movieMetadata.Name,
+        artist: "Movies",
+        album: "Movies",
+        artwork: [{
+          src: `${serverUrl}/emby/Items/${movieMetadata.Id}/Images/Thumb?api_key=${apiKey}`,
+          sizes: "1920x1080",
+          type: "image/png"
+        }]
+      });
+
+      navigator.mediaSession.setActionHandler("play", () => player.play());
+      navigator.mediaSession.setActionHandler("pause", () => player.pause());
+      navigator.mediaSession.setActionHandler("nexttrack", () => {});
+      navigator.mediaSession.setActionHandler("previoustrack", () => {});
     }
+  }
 
-    // Initialize the Bitmovin player
-    function initializePlayer(player) {
-      fetch(
-        `${serverUrl}/emby/Items/${movieId}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources`
-      )
-        .then((response) => response.json())
-        .then((playbackInfo) => {
-          const mediaSourceId = playbackInfo.MediaSources[0].Id;
-          const playSessionId = playbackInfo.PlaySessionId;
-          const videoBitRate = playbackInfo.MediaSources[0].MediaStreams.find(
-            (stream) => stream.Type === "Video"
-          ).BitRate;
-          const audioBitRate = playbackInfo.MediaSources[0].MediaStreams.find(
-            (stream) => stream.Type === "Audio"
-          ).BitRate;
-
-          const hls = `${serverUrl}/emby/videos/${movieId}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${playSessionId}&api_key=${apiKey}&VideoCodec=h264,h265,hevc&AudioCodec=mp3,aac&VideoBitrate=${videoBitRate}&AudioBitrate=${audioBitRate}&AudioStreamIndex=${selectedAudioStreamIndex}&TranscodingMaxAudioChannels=2&SegmentContainer=m4s,ts&MinSegments=2&BreakOnNonKeyFrames=True&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&hevc-codectag=hvc1&TranscodeReasons=ContainerBitrateExceedsLimit`;
-
-          player.load({
-            title: movieMetadata.Name,
-            hls: hls,
-            poster: `${serverUrl}/emby/Items/${movieMetadata.Id}/Images/Thumb?X-Emby-Token=${apiKey}`,
-          }).then(() => {
-            // Optional: add a subtitle
-            const enSubtitle = {
-              id: "sub1",
-              lang: "en",
-              label: "English",
-              url: `${serverUrl}/emby/Videos/${movieMetadata.Id}/${mediaSourceId}/Subtitles/2/0/Stream.vtt?api_key=${apiKey}`,
-              kind: "subtitle",
-            };
-            player.subtitles.add(enSubtitle);
-
-            // Start playback
-            player.play();
-
-            // ----- OPTIONAL: Media Session integration -----
-            if ("mediaSession" in navigator) {
-              navigator.mediaSession.metadata = new MediaMetadata({
-                title: movieMetadata.Name,
-                artist: "Movies",
-                album: "Movies",
-                artwork: [
-                  {
-                    src: `${serverUrl}/emby/Items/${movieMetadata.Id}/Images/Thumb?api_key=${apiKey}`,
-                    sizes: "1920x1080",
-                    type: "image/png",
-                  },
-                ],
-              });
-
-              // Basic action handlers
-              navigator.mediaSession.setActionHandler("play", () => player.play());
-              navigator.mediaSession.setActionHandler("pause", () => player.pause());
-
-              // If there's no next or previous, you can omit or stub these:
-              navigator.mediaSession.setActionHandler("nexttrack", () => {
-                console.log("No next track for a single movie.");
-              });
-              navigator.mediaSession.setActionHandler("previoustrack", () => {
-                console.log("No previous track for a single movie.");
-              });
-            }
-          });
-        })
-        .catch((error) => console.error("Error retrieving playback info:", error));
-    }
-
-    // Download movie function
-    function downloadMovie() {
-      const downloadUrl = `${serverUrl}/emby/Items/${movieMetadata.Id}/Download?X-Emby-Token=${apiKey}`;
-      window.location.href = downloadUrl;
-    }
-  </script></body>
+  function downloadMovie() {
+    const url = `${serverUrl}/emby/Items/${movieMetadata.Id}/Download?X-Emby-Token=${apiKey}`;
+    window.location.href = url;
+  }
+</script>
+</body>
 </html>

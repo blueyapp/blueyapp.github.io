@@ -168,6 +168,7 @@
          font-size: 12px;
          margin: 0;
          }
+         /* Only add the "selected" class when an episode has been clicked. */
          #episodes li.selected {
          background-color: #ffffff;
          color: #000000;
@@ -303,6 +304,7 @@
    </head>
    <body>
       <div class="container">
+         <!-- Header -->
          <div class="header">
             <img src="/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo" />
             <ul class="nav">
@@ -313,13 +315,16 @@
                <li><a href="/download">App</a></li>
             </ul>
          </div>
+         <!-- Main Content -->
          <div class="main">
+            <!-- Left: Player & Landscape Description -->
             <div class="main-left">
                <div class="player-wrapper">
                   <div id="player"></div>
                </div>
                <div id="landscape-description" style="display: none; margin-top: 10px; background-color: rgba(0,0,0,0.8); color: #fff; padding: 10px; border-radius: 10px;"></div>
             </div>
+            <!-- Right: Seasons, Episodes & Overlay -->
             <div class="main-right">
                <div id="content">
                   <div id="seasons-container">
@@ -347,365 +352,393 @@
                </div>
             </div>
          </div>
+         <!-- Scripts -->
          <script src="https://cdn.jsdelivr.net/npm/bitmovin-player@8/bitmovinplayer.js"></script>
          <script>
+            // Global configuration and state variables
             const serverUrl = "https://blueynet.org:443";
-            const apiKey = "6b2548952ea2439ea800b8cd3f1072d1"; 
+            const apiKey = "6b2548952ea2439ea800b8cd3f1072d1"; // Your API key
             const itemId = "11";
-            let selectedAudioStreamIndex = 1; 
-            let userPreferredLanguage = selectedAudioStreamIndex; 
-            let userPreferredLanguageBackup = null; 
-            let fallbackTriggered = false; 
-            let fallbackEpisodeId = null; 
-            let fallbackPosition = null; 
+            
+            // Language selection state
+            let selectedAudioStreamIndex = 1; // default to English
+            let userPreferredLanguage = selectedAudioStreamIndex; // caches user's current choice
+            let userPreferredLanguageBackup = null; // backup of user's choice if fallback occurs
+            let fallbackTriggered = false; // whether fallback has been triggered for the current episode
+            let fallbackEpisodeId = null; // episode ID that triggered fallback
+            let fallbackPosition = null; // store playback time when fallback occurs
+            
+            // Episode and season state
             let selectedSeason = null;
             let episodes = [];
-            let currentEpisodeIndex = -1; 
+            let currentEpisodeIndex = -1; // no episode highlighted initially
             let episodesCache = {};
-            let seasonsList = [];    
-            let currentSeason = null; 
-            let currentSeasonIndex = -1; 
+            
+            let seasonsList = [];    // Array of season objects.
+            let currentSeason = null; // Currently selected season.
+            let currentSeasonIndex = -1; // Index in seasonsList.
+            
+            // Bitmovin player instance
             let player = null;
+            // Token to track the latest playback info request
             let currentPlaybackRequestId = 0;
             
             document.addEventListener("DOMContentLoaded", () => {
-                fetchSeasons();
-                const conf = { 
-                    key: '1a69b597-a4b2-4bf7-99ba-bd417397c111',
-                    cast: {
-                        enable: true
-                    },
-                    remotecontrol: {
-                        type: 'googlecast',
-                        customReceiverConfig: {
-                            receiverStylesheetUrl: 'https://pages.blueynet.org/episodes-chromecast.css'
-                        }
-                    }
-                };
-                player = new bitmovin.player.Player(document.getElementById('player'), conf);
-                player.on(bitmovin.player.PlayerEvent.Error, (error) => {
-                    console.error("Player error detected:", error);
-                    if (!fallbackTriggered && selectedAudioStreamIndex != 1) {
-                        console.log("Scheduling fallback in 5000ms...");
-                        setTimeout(() => {
-                            fallbackTriggered = true;
-                            if (episodes && currentEpisodeIndex >= 0) {
-                                fallbackEpisodeId = episodes[currentEpisodeIndex].Id;
-                            }
-                            if (userPreferredLanguage != 1) {
-                                userPreferredLanguageBackup = userPreferredLanguage;
-                            }
-                            fallbackPosition = player.getCurrentTime();
-                            player.unload().then(() => {
-                                selectedAudioStreamIndex = 1;
-                                document.getElementById('language-select').value = "1";
-                                console.log("Executing fallback: Changing language to English and resuming playback.");
-                                setLanguage("1", fallbackPosition);
-                            }).catch((e) => {
-                                console.error("Error during fallback unload:", e);
-                                selectedAudioStreamIndex = 1;
-                                document.getElementById('language-select').value = "1";
-                                setLanguage("1", fallbackPosition);
-                            });
-                        }, 5000);
-                    }
-                });
+              fetchSeasons();
             
-                player.on(bitmovin.player.PlayerEvent.PlaybackFinished, () => {
-                    if (currentEpisodeIndex >= 0 && currentEpisodeIndex + 1 < episodes.length) {
-                        currentEpisodeIndex++;
-                        playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
-                    } else if (currentEpisodeIndex >= 0 && currentSeasonIndex < seasonsList.length - 1) {
-                        currentSeasonIndex++;
-                        currentSeason = seasonsList[currentSeasonIndex];
-                        document.querySelectorAll('.season-selector__button').forEach(btn => btn.classList.remove('selected'));
-                        const nextSeasonButton = document.querySelector(`.season-selector__button[data-season-id="${currentSeason.Id}"]`);
-                        if (nextSeasonButton) nextSeasonButton.classList.add("selected");
-                        if (episodesCache[currentSeason.Id]) {
-                            episodes = episodesCache[currentSeason.Id];
-                            renderEpisodes(episodes);
-                            currentEpisodeIndex = 0;
-                            playEpisode(episodes[0], 0);
-                        } else {
-                            fetchEpisodes(currentSeason);
-                        }
-                    }
-                });
+              // Player configuration with built-in casting enabled and custom Chromecast receiver styling.
+              const conf = { 
+                key: '1a69b597-a4b2-4bf7-99ba-bd417397c111',
+                cast: {
+                  enable: true
+                },
+                remotecontrol: {
+                  type: 'googlecast',
+                  customReceiverConfig: {
+                    receiverStylesheetUrl: 'https://pages.blueynet.org/episodes-chromecast.css'
+                  }
+                }
+              };
+              player = new bitmovin.player.Player(document.getElementById('player'), conf);
             
-                window.addEventListener('resize', updateOrientationUI);
-                document.addEventListener('DOMContentLoaded', updateOrientationUI);
+              // Listen for general error events. If an error occurs and the current language isn't English,
+              // schedule a fallback after 5 seconds.
+              player.on(bitmovin.player.PlayerEvent.Error, (error) => {
+                console.error("Player error detected:", error);
+                if (!fallbackTriggered && selectedAudioStreamIndex != 1) {
+                  console.log("Scheduling fallback in 5000ms...");
+                  setTimeout(() => {
+                    fallbackTriggered = true;
+                    if (episodes && currentEpisodeIndex >= 0) {
+                      fallbackEpisodeId = episodes[currentEpisodeIndex].Id;
+                    }
+                    if (userPreferredLanguage != 1) {
+                      userPreferredLanguageBackup = userPreferredLanguage;
+                    }
+                    fallbackPosition = player.getCurrentTime();
+                    player.unload().then(() => {
+                      selectedAudioStreamIndex = 1;
+                      document.getElementById('language-select').value = "1";
+                      console.log("Executing fallback: Changing language to English and resuming playback.");
+                      setLanguage("1", fallbackPosition);
+                    }).catch((e) => {
+                      console.error("Error during fallback unload:", e);
+                      selectedAudioStreamIndex = 1;
+                      document.getElementById('language-select').value = "1";
+                      setLanguage("1", fallbackPosition);
+                    });
+                  }, 5000); // 5 seconds delay
+                }
+              });
+            
+              // Auto-advance when an episode finishes.
+              player.on(bitmovin.player.PlayerEvent.PlaybackFinished, () => {
+                if (currentEpisodeIndex >= 0 && currentEpisodeIndex + 1 < episodes.length) {
+                  currentEpisodeIndex++;
+                  playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+                } else if (currentEpisodeIndex >= 0 && currentSeasonIndex < seasonsList.length - 1) {
+                  currentSeasonIndex++;
+                  currentSeason = seasonsList[currentSeasonIndex];
+                  document.querySelectorAll('.season-selector__button').forEach(btn => btn.classList.remove('selected'));
+                  const nextSeasonButton = document.querySelector(`.season-selector__button[data-season-id="${currentSeason.Id}"]`);
+                  if (nextSeasonButton) nextSeasonButton.classList.add("selected");
+                  if (episodesCache[currentSeason.Id]) {
+                    episodes = episodesCache[currentSeason.Id];
+                    renderEpisodes(episodes);
+                    currentEpisodeIndex = 0;
+                    playEpisode(episodes[0], 0);
+                  } else {
+                    fetchEpisodes(currentSeason);
+                  }
+                }
+              });
+            
+              window.addEventListener('resize', updateOrientationUI);
+              document.addEventListener('DOMContentLoaded', updateOrientationUI);
             });
             
+            // Prefetch episodes for a season.
             function prefetchEpisodes(season) {
-                if (!episodesCache[season.Id]) {
-                    fetch(`${serverUrl}/emby/Shows/${itemId}/Episodes?SeasonId=${season.Id}&api_key=${apiKey}&Fields=Overview`)
-                        .then(response => response.json())
-                        .then(data => { episodesCache[season.Id] = data.Items; })
-                        .catch(error => console.error("Error prefetching episodes:", error));
-                }
-            }
-            
-            function fetchSeasons() {
-                fetch(`${serverUrl}/emby/Shows/${itemId}/Seasons?api_key=${apiKey}`)
-                    .then(response => response.json())
-                    .then(seasons => {
-                        const seasonsContainer = document.getElementById('seasons');
-                        seasonsList = seasons.Items.filter(season => season.SeriesId === itemId);
-                        seasonsList.forEach((season, i) => {
-                            prefetchEpisodes(season);
-                            const seasonBtn = document.createElement("button");
-                            seasonBtn.classList.add("season-selector__button");
-                            seasonBtn.innerText = `Season ${season.IndexNumber}`;
-                            seasonBtn.setAttribute("data-season-id", season.Id);
-                            seasonBtn.addEventListener("click", () => {
-                                handleSeasonClick(seasonBtn, season, i);
-                                if (episodesCache[season.Id]) {
-                                    episodes = episodesCache[season.Id];
-                                    renderEpisodes(episodes);
-                                } else {
-                                    fetchEpisodes(season);
-                                }
-                            });
-                            seasonsContainer.appendChild(seasonBtn);
-                        });
-                    })
-                    .catch(error => console.error("Error retrieving seasons:", error));
-            }
-            
-            function fetchEpisodes(season) {
+              if (!episodesCache[season.Id]) {
                 fetch(`${serverUrl}/emby/Shows/${itemId}/Episodes?SeasonId=${season.Id}&api_key=${apiKey}&Fields=Overview`)
-                    .then(response => response.json())
-                    .then(data => {
-                        episodesCache[season.Id] = data.Items;
-                        episodes = data.Items;
+                  .then(response => response.json())
+                  .then(data => { episodesCache[season.Id] = data.Items; })
+                  .catch(error => console.error("Error prefetching episodes:", error));
+              }
+            }
+            
+            // Fetch seasons from server.
+            function fetchSeasons() {
+              fetch(`${serverUrl}/emby/Shows/${itemId}/Seasons?api_key=${apiKey}`)
+                .then(response => response.json())
+                .then(seasons => {
+                  const seasonsContainer = document.getElementById('seasons');
+                  seasonsList = seasons.Items.filter(season => season.SeriesId === itemId);
+                  seasonsList.forEach((season, i) => {
+                    prefetchEpisodes(season);
+                    const seasonBtn = document.createElement("button");
+                    seasonBtn.classList.add("season-selector__button");
+                    seasonBtn.innerText = `Season ${season.IndexNumber}`;
+                    seasonBtn.setAttribute("data-season-id", season.Id);
+                    seasonBtn.addEventListener("click", () => {
+                      handleSeasonClick(seasonBtn, season, i);
+                      if (episodesCache[season.Id]) {
+                        episodes = episodesCache[season.Id];
                         renderEpisodes(episodes);
-                    })
-                    .catch(error => console.error("Error retrieving episodes:", error));
+                      } else {
+                        fetchEpisodes(season);
+                      }
+                    });
+                    seasonsContainer.appendChild(seasonBtn);
+                  });
+                })
+                .catch(error => console.error("Error retrieving seasons:", error));
             }
             
+            // Fetch episodes for a season.
+            function fetchEpisodes(season) {
+              fetch(`${serverUrl}/emby/Shows/${itemId}/Episodes?SeasonId=${season.Id}&api_key=${apiKey}&Fields=Overview`)
+                .then(response => response.json())
+                .then(data => {
+                  episodesCache[season.Id] = data.Items;
+                  episodes = data.Items;
+                  renderEpisodes(episodes);
+                })
+                .catch(error => console.error("Error retrieving episodes:", error));
+            }
+            
+            // Handle season button click.
             function handleSeasonClick(button, season, seasonIndex) {
-                if (selectedSeason) {
-                    selectedSeason.classList.remove("selected");
-                }
-                selectedSeason = button;
-                selectedSeason.classList.add("selected");
-                currentSeason = season;
-                currentSeasonIndex = seasonIndex;
-                currentEpisodeIndex = -1;
+              if (selectedSeason) {
+                selectedSeason.classList.remove("selected");
+              }
+              selectedSeason = button;
+              selectedSeason.classList.add("selected");
+              currentSeason = season;
+              currentSeasonIndex = seasonIndex;
+              currentEpisodeIndex = -1;
             }
             
+            // Render the list of episodes.
             function renderEpisodes(episodes) {
-            const episodeList = document.getElementById('episodes');
-            episodeList.innerHTML = ''; // Corrected line
-            episodes.forEach((episode, index) => {
-            const episodeItem = document.createElement("li");
-            episodeItem.innerHTML = `
-            <img src="${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="Episode Thumbnail">
-            <div>
-                <h2>Episode ${episode.IndexNumber}: ${episode.Name}</h2>
-                <p>${episode.Overview}</p>
-            </div>
-            `;
-            episodeItem.addEventListener("click", () => {
-            currentEpisodeIndex = index;
-            playEpisode(episode, index);
-            });
-            if (currentEpisodeIndex === index) {
-            episodeItem.classList.add("selected");
-            }
-            episodeList.appendChild(episodeItem);
-            });
+              const episodeList = document.getElementById('episodes');
+              episodeList.innerHTML = '';
+              episodes.forEach((episode, index) => {
+                const episodeItem = document.createElement("li");
+                episodeItem.innerHTML = `
+                  <img src="${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="Episode Thumbnail">
+                  <div>
+                    <h2>Episode ${episode.IndexNumber}: ${episode.Name}</h2>
+                    <p>${episode.Overview}</p>
+                  </div>
+                `;
+                episodeItem.addEventListener("click", () => {
+                  currentEpisodeIndex = index;
+                  playEpisode(episode, index);
+                });
+                if (currentEpisodeIndex === index) {
+                  episodeItem.classList.add("selected");
+                }
+                episodeList.appendChild(episodeItem);
+              });
             }
             
+            // Play a given episode and update player and UI accordingly.
+            // An optional 'seekTime' parameter (in seconds) is used to resume playback after fallback.
             function playEpisode(episode, index, seekTime) {
-                if (fallbackTriggered && fallbackEpisodeId !== episode.Id) {
-                    if (userPreferredLanguageBackup && userPreferredLanguageBackup != 1) {
-                        selectedAudioStreamIndex = userPreferredLanguageBackup;
-                        document.getElementById('language-select').value = userPreferredLanguageBackup.toString();
-                        userPreferredLanguage = userPreferredLanguageBackup;
-                        userPreferredLanguageBackup = null;
+              // If fallback was triggered on a previous episode and this is a new episode,
+              // restore the user's original language (if it was non-English).
+              if (fallbackTriggered && fallbackEpisodeId !== episode.Id) {
+                if (userPreferredLanguageBackup && userPreferredLanguageBackup != 1) {
+                  selectedAudioStreamIndex = userPreferredLanguageBackup;
+                  document.getElementById('language-select').value = userPreferredLanguageBackup.toString();
+                  // Restore the user's language preference.
+                  userPreferredLanguage = userPreferredLanguageBackup;
+                  userPreferredLanguageBackup = null;
+                }
+                fallbackTriggered = false;
+                fallbackEpisodeId = null;
+              }
+            
+              document.querySelector('.player-wrapper').style.display = 'block';
+              if (player) { player.pause(); }
+            
+              currentPlaybackRequestId++;
+              const requestId = currentPlaybackRequestId;
+            
+              if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                  title: `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`,
+                  artist: "Bluey",
+                  album: `Season ${episode.ParentIndexNumber}`,
+                  artwork: [
+                    { src: `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`, sizes: '1920x1080', type: 'image/png' }
+                  ]
+                });
+                navigator.mediaSession.setActionHandler('nexttrack', () => {
+                  if (currentEpisodeIndex + 1 < episodes.length) {
+                    currentEpisodeIndex++;
+                    playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+                  } else if (currentSeasonIndex < seasonsList.length - 1) {
+                    currentSeasonIndex++;
+                    currentSeason = seasonsList[currentSeasonIndex];
+                    document.querySelectorAll('.season-selector__button').forEach(btn => btn.classList.remove('selected'));
+                    const nextSeasonButton = document.querySelector(`.season-selector__button[data-season-id="${currentSeason.Id}"]`);
+                    if (nextSeasonButton) nextSeasonButton.classList.add("selected");
+                    if (episodesCache[currentSeason.Id]) {
+                      episodes = episodesCache[currentSeason.Id];
+                      renderEpisodes(episodes);
+                      currentEpisodeIndex = 0;
+                      playEpisode(episodes[0], 0);
+                    } else {
+                      fetchEpisodes(currentSeason);
                     }
-                    fallbackTriggered = false;
-                    fallbackEpisodeId = null;
-                }
+                  }
+                });
+                navigator.mediaSession.setActionHandler('previoustrack', () => {
+                  if (currentEpisodeIndex > 0) {
+                    currentEpisodeIndex--;
+                    playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+                  } else if (currentSeasonIndex > 0) {
+                    currentSeasonIndex--;
+                    currentSeason = seasonsList[currentSeasonIndex];
+                    document.querySelectorAll('.season-selector__button').forEach(btn => btn.classList.remove('selected'));
+                    const prevSeasonButton = document.querySelector(`.season-selector__button[data-season-id="${currentSeason.Id}"]`);
+                    if (prevSeasonButton) prevSeasonButton.classList.add("selected");
+                    if (episodesCache[currentSeason.Id]) {
+                      episodes = episodesCache[currentSeason.Id];
+                      renderEpisodes(episodes);
+                      currentEpisodeIndex = episodes.length - 1;
+                      playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+                    } else {
+                      fetchEpisodes(currentSeason);
+                    }
+                  }
+                });
+              }
             
-                document.querySelector('.player-wrapper').style.display = 'block';
-                if (player) { player.pause(); }
+              const timestamp = new Date().getTime();
+              fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources&t=${timestamp}`)
+                .then(response => response.json())
+                .then(playbackInfo => {
+                  if (requestId !== currentPlaybackRequestId) {
+                    console.log("Ignoring outdated playback info result.");
+                    return;
+                  }
+                  const mediaSourceId = playbackInfo.MediaSources[0].Id;
+                  const PlaySessionId = playbackInfo.PlaySessionId;
+                  const VideoBitRate = playbackInfo.MediaSources[0].MediaStreams[0].BitRate;
+                  const AudioBitRate = playbackInfo.MediaSources[0].MediaStreams[1].BitRate;
+                  const epname = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
+                  const progressive = `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`;
+                  const hls = `${serverUrl}/emby/videos/${episode.Id}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${PlaySessionId}&api_key=${apiKey}&VideoCodec=h264,h265,hevc&AudioCodec=mp3,aac&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}&AudioStreamIndex=${selectedAudioStreamIndex}&TranscodingMaxAudioChannels=2&SegmentContainer=m4s,ts&MinSegments=2&BreakOnNonKeyFrames=True&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&hevc-codectag=hvc1&TranscodeReasons=ContainerBitrateExceedsLimit`;
             
-                currentPlaybackRequestId++;
-                const requestId = currentPlaybackRequestId;
-            
-                if ('mediaSession' in navigator) {
-                    navigator.mediaSession.metadata = new MediaMetadata({
-                        title: `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`,
-                        artist: "Bluey",
-                        album: `Season ${episode.ParentIndexNumber}`,
-                        artwork: [
-                            { src: `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`, sizes: '1920x1080', type: 'image/png' }
-                        ]
+                  player.load({
+                    title: epname,
+                    hls: hls,
+                    progressive: progressive,
+                    poster: `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`
+                  }).then(() => {
+                    const enSubtitle = {
+                      id: "sub1",
+                      lang: "en",
+                      label: "English",
+                      url: `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/2/0/Stream.vtt?api_key=${apiKey}`,
+                      kind: "subtitle"
+                    };
+                    player.subtitles.add(enSubtitle);
+                    player.play().then(() => {
+                      if (typeof seekTime === "number") {
+                        player.seek(seekTime);
+                        fallbackPosition = null;
+                      }
+                      showInfo();
                     });
-                    navigator.mediaSession.setActionHandler('nexttrack', () => {
-                        if (currentEpisodeIndex + 1 < episodes.length) {
-                            currentEpisodeIndex++;
-                            playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
-                        } else if (currentSeasonIndex < seasonsList.length - 1) {
-                            currentSeasonIndex++;
-                            currentSeason = seasonsList[currentSeasonIndex];
-                            document.querySelectorAll('.season-selector__button').forEach(btn => btn.classList.remove('selected'));
-                            const nextSeasonButton = document.querySelector(`.season-selector__button[data-season-id="${currentSeason.Id}"]`);
-                            if (nextSeasonButton) nextSeasonButton.classList.add("selected");
-                            if (episodesCache[currentSeason.Id]) {
-                                episodes = episodesCache[currentSeason.Id];
-                                renderEpisodes(episodes);
-                                currentEpisodeIndex = 0;
-                                playEpisode(episodes[0], 0);
-                            } else {
-                                fetchEpisodes(currentSeason);
-                            }
-                        }
-                    });
-                    navigator.mediaSession.setActionHandler('previoustrack', () => {
-                        if (currentEpisodeIndex > 0) {
-                            currentEpisodeIndex--;
-                            playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
-                        } else if (currentSeasonIndex > 0) {
-                            currentSeasonIndex--;
-                            currentSeason = seasonsList[currentSeasonIndex];
-                            document.querySelectorAll('.season-selector__button').forEach(btn => btn.classList.remove('selected'));
-                            const prevSeasonButton = document.querySelector(`.season-selector__button[data-season-id="${currentSeason.Id}"]`);
-                            if (prevSeasonButton) prevSeasonButton.classList.add("selected");
-                            if (episodesCache[currentSeason.Id]) {
-                                episodes = episodesCache[currentSeason.Id];
-                                renderEpisodes(episodes);
-                                currentEpisodeIndex = episodes.length - 1;
-                                playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
-                            } else {
-                                fetchEpisodes(currentSeason);
-                            }
-                        }
-                    });
-                }
+                  });
+                })
+                .catch(error => console.error("Error retrieving playback info:", error));
             
-                const timestamp = new Date().getTime();
-                fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources&t=${timestamp}`)
-                    .then(response => response.json())
-                    .then(playbackInfo => {
-                        if (requestId !== currentPlaybackRequestId) {
-                            console.log("Ignoring outdated playback info result.");
-                            return;
-                        }
-                        const mediaSourceId = playbackInfo.MediaSources[0].Id;
-                        const PlaySessionId = playbackInfo.PlaySessionId;
-                        const VideoBitRate = playbackInfo.MediaSources[0].MediaStreams[0].BitRate;
-                        const AudioBitRate = playbackInfo.MediaSources[0].MediaStreams[1].BitRate;
-                        const epname = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
-                        const progressive = `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`;
-                        const hls = `${serverUrl}/emby/videos/${episode.Id}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${PlaySessionId}&api_key=${apiKey}&VideoCodec=h264,h265,hevc&AudioCodec=mp3,aac&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}&AudioStreamIndex=${selectedAudioStreamIndex}&TranscodingMaxAudioChannels=2&SegmentContainer=m4s,ts&MinSegments=2&BreakOnNonKeyFrames=True&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&hevc-codectag=hvc1&TranscodeReasons=ContainerBitrateExceedsLimit`;
+              const prevSelected = document.querySelector("#episodes li.selected");
+              if (prevSelected) prevSelected.classList.remove("selected");
+              const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
+              if (selectedEpisodeItem) selectedEpisodeItem.classList.add("selected");
             
-                        player.load({
-                            title: epname,
-                            hls: hls,
-                            progressive: progressive,
-                            poster: `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`
-                        }).then(() => {
-                            const enSubtitle = {                            	
-                                id: "sub1",
-                                lang: "en",
-                                label: "English",
-                                url: `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/2/0/Stream.vtt?api_key=${apiKey}`,
-                                kind: "subtitle"
-                            };
-                            player.subtitles.add(enSubtitle);
-                            player.play().then(() => {
-                                if (typeof seekTime === "number") {
-                                    player.seek(seekTime);
-                                    fallbackPosition = null;
-                                }
-                                showInfo();
-                            });
-                        });
-                    })
-                    .catch(error => console.error("Error retrieving playback info:", error));
-            
-                const prevSelected = document.querySelector("#episodes li.selected");
-                if (prevSelected) prevSelected.classList.remove("selected");
-                const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
-                if (selectedEpisodeItem) selectedEpisodeItem.classList.add("selected");
-            
-                renderOverlay(episode);
+              renderOverlay(episode);
             }
             
             function renderOverlay(episode) {
-                if (window.innerHeight > window.innerWidth) {
-                    const overlay = document.getElementById('overlay');
-                    const overlayImage = document.getElementById('overlay-image');
-                    const overlayTitle = document.getElementById('overlay-title');
-                    const overlayDescription = document.getElementById('overlay-description');
-                    const overlayEpisodeNumber = document.getElementById('overlay-episode-number');
+              if (window.innerHeight > window.innerWidth) {
+                const overlay = document.getElementById('overlay');
+                const overlayImage = document.getElementById('overlay-image');
+                const overlayTitle = document.getElementById('overlay-title');
+                const overlayDescription = document.getElementById('overlay-description');
+                const overlayEpisodeNumber = document.getElementById('overlay-episode-number');
             
-                    overlayImage.src = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
-                    overlayEpisodeNumber.innerText = `S${episode.ParentIndexNumber}E${episode.IndexNumber}`;
-                    overlayTitle.innerText = episode.Name;
-                    overlayDescription.innerText = episode.Overview;
-                    overlay.style.display = 'block';
+                overlayImage.src = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
+                overlayEpisodeNumber.innerText = `S${episode.ParentIndexNumber}E${episode.IndexNumber}`;
+                overlayTitle.innerText = episode.Name;
+                overlayDescription.innerText = episode.Overview;
+                overlay.style.display = 'block';
             
-                    const descContainer = document.getElementById('landscape-description');
-                    if (descContainer) descContainer.style.display = 'none';
-                } else {
-                    const descContainer = document.getElementById('landscape-description');
-                    descContainer.innerHTML = `
-                        <img src="${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="Episode Thumbnail" style="width:120px; height:auto; float:left; margin-right:15px;">
-                        <div style="overflow: hidden;">
-                            <h2 style="margin-bottom:10px;">S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}</h2>
-                            <p>${episode.Overview}</p>
-                            <button id="download-button-landscape" onclick="downloadEpisode()" style="cursor:pointer; color:#ffffff; background-color:#e2793b; padding:10px 20px; border:none; border-radius:5px; font-family:'Hello Headline', sans-serif; margin-top:10px;">Download</button>
-                        </div>
-                        <div style="clear: both;"></div>
-                    `;
-                    descContainer.style.display = 'block';
-                    document.getElementById('overlay').style.display = 'none';
-                }
+                const descContainer = document.getElementById('landscape-description');
+                if (descContainer) descContainer.style.display = 'none';
+              } else {
+                const descContainer = document.getElementById('landscape-description');
+                descContainer.innerHTML = `
+                  <img src="${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="Episode Thumbnail" style="width:120px; height:auto; float:left; margin-right:15px;">
+                  <div style="overflow: hidden;">
+                    <h2 style="margin-bottom:10px;">S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}</h2>
+                    <p>${episode.Overview}</p>
+                    <button id="download-button-landscape" onclick="downloadEpisode()" style="cursor:pointer; color:#ffffff; background-color:#e2793b; padding:10px 20px; border:none; border-radius:5px; font-family:'Hello Headline', sans-serif; margin-top:10px;">Download</button>
+                  </div>
+                  <div style="clear: both;"></div>
+                `;
+                descContainer.style.display = 'block';
+                document.getElementById('overlay').style.display = 'none';
+              }
             }
             
             function closeOverlay() {
-                document.getElementById('overlay').style.display = 'none';
+              document.getElementById('overlay').style.display = 'none';
             }
             
             function showInfo() {
-                if (currentEpisodeIndex >= 0 && episodes[currentEpisodeIndex]) {
-                    renderOverlay(episodes[currentEpisodeIndex]);
-                }
+              if (currentEpisodeIndex >= 0 && episodes[currentEpisodeIndex]) {
+                renderOverlay(episodes[currentEpisodeIndex]);
+              }
             }
             
             function downloadEpisode() {
-                if (currentEpisodeIndex >= 0 && episodes[currentEpisodeIndex]) {
-                    const episode = episodes[currentEpisodeIndex];
-                    const downloadUrl = `${serverUrl}/emby/Items/${episode.Id}/Download?api_key=${apiKey}`;
-                    window.location.href = downloadUrl;
-                }
+              if (currentEpisodeIndex >= 0 && episodes[currentEpisodeIndex]) {
+                const episode = episodes[currentEpisodeIndex];
+                const downloadUrl = `${serverUrl}/emby/Items/${episode.Id}/Download?api_key=${apiKey}`;
+                window.location.href = downloadUrl;
+              }
             }
             
-            function setLanguage(value, seekTime ) {
-                selectedAudioStreamIndex = parseInt(value);
-                userPreferredLanguage = selectedAudioStreamIndex;
-                if (episodes.length > 0 && currentEpisodeIndex >= 0) {
-                    playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex, seekTime);
-                }
+            // Handle language selection changes (same as when a user manually changes language).
+            // Optionally accept a 'seekTime' (in seconds) to resume playback.
+            function setLanguage(value, seekTime) {
+              selectedAudioStreamIndex = parseInt(value);
+              userPreferredLanguage = selectedAudioStreamIndex;
+              if (episodes.length > 0 && currentEpisodeIndex >= 0) {
+                playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex, seekTime);
+              }
             }
             
             function updateOrientationUI() {
-                const infoButton = document.getElementById('info-button');
-                const landscapeDesc = document.getElementById('landscape-description');
+              const infoButton = document.getElementById('info-button');
+              const landscapeDesc = document.getElementById('landscape-description');
             
-                if (window.innerHeight > window.innerWidth) {
-                    infoButton.style.display = 'block';
-                    if (landscapeDesc) landscapeDesc.style.display = 'none';
-                } else {
-                    infoButton.style.display = 'none';
-                    if (currentEpisodeIndex >= 0 && episodes[currentEpisodeIndex]) {
-                        renderOverlay(episodes[currentEpisodeIndex]);
-                    }
+              if (window.innerHeight > window.innerWidth) {
+                infoButton.style.display = 'block';
+                if (landscapeDesc) landscapeDesc.style.display = 'none';
+              } else {
+                infoButton.style.display = 'none';
+                if (currentEpisodeIndex >= 0 && episodes[currentEpisodeIndex]) {
+                  renderOverlay(episodes[currentEpisodeIndex]);
                 }
+              }
             }
          </script>
       </div>

@@ -740,6 +740,19 @@
                 }
               }
             }
+            document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement) {
+            // we’re now fullscreen → lock to landscape
+            screen.orientation
+            .lock('landscape')
+            .catch(err => console.warn('Orientation lock failed:', err));  // MDN: lock() must be called in fullscreen context 0
+            } else {
+            // we’ve exited fullscreen → let the device rotate normally again
+            if (screen.orientation.unlock) {
+            screen.orientation.unlock();
+            }
+            }
+            });
          </script>
       </div>
    </body>

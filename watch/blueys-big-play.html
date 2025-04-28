@@ -130,6 +130,9 @@
          border-radius: 5px;
          font-family: "Hello Headline", Arial, sans-serif;
          }
+         .bmpui-ui-watermark {
+         display: none;
+         }
          /* Responsive Adjustments */
          @media (max-width: 768px) {
          .header {
@@ -204,7 +207,7 @@
              remotecontrol: {
                type: 'googlecast',
                customReceiverConfig: {
-                 receiverStylesheetUrl: 'https://pages.blueynet.org/episodes-chromecast.css'
+                 receiverStylesheetUrl: 'https://pages.blueynet.org/blueys-big-play-chromecast.css'
                }
              }
            };
@@ -300,6 +303,19 @@
            const downloadUrl = `${serverUrl}/emby/Items/${movieMetadata.Id}/Download?X-Emby-Token=${apiKey}`;
            window.location.href = downloadUrl;
          }
+            document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement) {
+            // we’re now fullscreen → lock to landscape
+            screen.orientation
+            .lock('landscape')
+            .catch(err => console.warn('Orientation lock failed:', err));  // MDN: lock() must be called in fullscreen context 0
+            } else {
+            // we’ve exited fullscreen → let the device rotate normally again
+            if (screen.orientation.unlock) {
+            screen.orientation.unlock();
+            }
+            }
+            });
       </script>
    </body>
 </html>

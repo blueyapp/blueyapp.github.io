@@ -333,7 +333,7 @@
                <div id="content">
                   <div id="seasons-container">
                      <div id="seasons"></div>
-                     <select id="language-select" onchange="setLanguage(this.value)">
+                     <select id="language-select" onchange="setLanguage(this.value, player.getCurrentTime())">
                         <option value="1" selected>English</option>
                         <option value="3">Malay</option>
                      </select>
@@ -743,6 +743,19 @@
                 }
               }
             }
+            document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement) {
+            // we’re now fullscreen → lock to landscape
+            screen.orientation
+            .lock('landscape')
+            .catch(err => console.warn('Orientation lock failed:', err));  // MDN: lock() must be called in fullscreen context 0
+            } else {
+            // we’ve exited fullscreen → let the device rotate normally again
+            if (screen.orientation.unlock) {
+            screen.orientation.unlock();
+            }
+            }
+            });
          </script>
       </div>
    </body>

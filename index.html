@@ -225,177 +225,211 @@
     <script>
       // Navigation function
       function loadPage(url) {
-        window.location.href = url;
+          window.location.href = url;
       }
-      
+
       // Loading screen logic
       const loadingOverlay = document.querySelector('.loading-overlay');
+
       function sendPing() {
-        fetch('https://tv.blueynet.org/iptv/channel/1.m3u8')
-          .then(() => {
-            loadingOverlay.style.display = 'none';
-            document.querySelector('.container').style.display = 'block';
-            player.load(source);
-          })
-          .catch((error) => {
-            console.error('Ping error:', error);
-            setTimeout(sendPing, 2000);
-          });
+          fetch('https://tv.blueynet.org/iptv/channel/1.m3u8')
+              .then(() => {
+                  loadingOverlay.style.display = 'none';
+                  document.querySelector('.container').style.display = 'block';
+                  player.load(source);
+              })
+              .catch((error) => {
+                  console.error('Ping error:', error);
+                  setTimeout(sendPing, 2000);
+              });
       }
       sendPing();
-      
+
       // Bitmovin Player setup with Chromecast and custom receiver stylesheet
       var conf = {
-        key: '1a69b597-a4b2-4bf7-99ba-bd417397c111',
-        cast: {
-          enable: true
-        },
-        remotecontrol: {
-          type: 'googlecast',
-          customReceiverConfig: {
-            receiverStylesheetUrl: 'https://pages.blueynet.org/index-chromecast.css'
+          key: '1a69b597-a4b2-4bf7-99ba-bd417397c111',
+          cast: {
+              enable: true
+          },
+          remotecontrol: {
+              type: 'googlecast',
+              customReceiverConfig: {
+                  receiverStylesheetUrl: 'https://pages.blueynet.org/index-chromecast.css'
+              }
           }
-        }
       };
       var source = {
-        title: 'Bluey & Friends Play Along Stream',
-        hls: 'https://tv.blueynet.org/iptv/session/1/hls.m3u8',
-        poster: 'https://cdn.iview.abc.net.au/thumbs/i/X0_66fc879b74b7b_3600.jpg'
+          title: 'Bluey & Friends Play Along Stream',
+          hls: 'https://tv.blueynet.org/iptv/session/1/hls.m3u8',
+          poster: 'https://cdn.iview.abc.net.au/thumbs/i/X0_66fc879b74b7b_3600.jpg'
       };
       var player = new bitmovin.player.Player(document.getElementById('player'), conf);
       player.load(source);
-      
+
       // Media Session API Integration
       if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-          title: source.title,
-          artist: 'Bluey',
-          album: 'Bluey',
-          artwork: [
-            { src: source.poster, sizes: '1920x1080', type: 'image/jpeg' }
-          ]
-        });
-        navigator.mediaSession.setActionHandler('play', () => { player.play(); });
-        navigator.mediaSession.setActionHandler('pause', () => { player.pause(); });
-        navigator.mediaSession.setActionHandler('seekbackward', (details) => {
-          const offset = details.seekOffset || 10;
-          player.seek(player.getCurrentTime() - offset);
-        });
-        navigator.mediaSession.setActionHandler('seekforward', (details) => {
-          const offset = details.seekOffset || 10;
-          player.seek(player.getCurrentTime() + offset);
-        });
-        navigator.mediaSession.setActionHandler('previoustrack', () => { console.log('Previous track not implemented'); });
-        navigator.mediaSession.setActionHandler('nexttrack', () => { console.log('Next track not implemented'); });
+          navigator.mediaSession.metadata = new MediaMetadata({
+              title: source.title,
+              artist: 'Bluey',
+              album: 'Bluey',
+              artwork: [{
+                  src: source.poster,
+                  sizes: '1920x1080',
+                  type: 'image/jpeg'
+              }]
+          });
+          navigator.mediaSession.setActionHandler('play', () => {
+              player.play();
+          });
+          navigator.mediaSession.setActionHandler('pause', () => {
+              player.pause();
+          });
+          navigator.mediaSession.setActionHandler('seekbackward', (details) => {
+              const offset = details.seekOffset || 10;
+              player.seek(player.getCurrentTime() - offset);
+          });
+          navigator.mediaSession.setActionHandler('seekforward', (details) => {
+              const offset = details.seekOffset || 10;
+              player.seek(player.getCurrentTime() + offset);
+          });
+          navigator.mediaSession.setActionHandler('previoustrack', () => {
+              console.log('Previous track not implemented');
+          });
+          navigator.mediaSession.setActionHandler('nexttrack', () => {
+              console.log('Next track not implemented');
+          });
       }
       player.on(bitmovin.player.PlayerEvent.Playing, () => {
-        if ('mediaSession' in navigator) {
-          navigator.mediaSession.playbackState = 'playing';
-        }
+          if ('mediaSession' in navigator) {
+              navigator.mediaSession.playbackState = 'playing';
+          }
       });
       player.on(bitmovin.player.PlayerEvent.Paused, () => {
-        if ('mediaSession' in navigator) {
-          navigator.mediaSession.playbackState = 'paused';
-        }
+          if ('mediaSession' in navigator) {
+              navigator.mediaSession.playbackState = 'paused';
+          }
       });
-      
+
       // ------------------------------
       // EPG Fetch, Parse, and Update
       // ------------------------------
       let programmeList = [];
+
       function parseProgrammeTime(timeStr) {
-        let year = timeStr.substring(0,4);
-        let month = timeStr.substring(4,6);
-        let day = timeStr.substring(6,8);
-        let hour = timeStr.substring(8,10);
-        let minute = timeStr.substring(10,12);
-        let second = timeStr.substring(12,14);
-        let tzSign = timeStr.substring(15,16);
-        let tzHour = timeStr.substring(16,18);
-        let tzMinute = timeStr.substring(18,20);
-        let isoString = `${year}-${month}-${day}T${hour}:${minute}:${second}${tzSign}${tzHour}:${tzMinute}`;
-        return new Date(isoString);
+          let year = timeStr.substring(0, 4);
+          let month = timeStr.substring(4, 6);
+          let day = timeStr.substring(6, 8);
+          let hour = timeStr.substring(8, 10);
+          let minute = timeStr.substring(10, 12);
+          let second = timeStr.substring(12, 14);
+          let tzSign = timeStr.substring(15, 16);
+          let tzHour = timeStr.substring(16, 18);
+          let tzMinute = timeStr.substring(18, 20);
+          let isoString = `${year}-${month}-${day}T${hour}:${minute}:${second}${tzSign}${tzHour}:${tzMinute}`;
+          return new Date(isoString);
       }
       fetch('https://tv.blueynet.org/iptv/xmltv.xml')
-        .then(response => response.text())
-        .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
-        .then(data => {
-          const programmes = data.querySelectorAll("programme[channel='1.etv']");
-          programmes.forEach(programme => {
-            let startStr = programme.getAttribute("start");
-            let stopStr  = programme.getAttribute("stop");
-            let startDate = parseProgrammeTime(startStr);
-            let stopDate  = parseProgrammeTime(stopStr);
-            const episodeNumEl = programme.querySelector('episode-num[system="onscreen"]');
-            let episodeNumber = episodeNumEl ? episodeNumEl.textContent.trim() : "";
-            const subTitleEl = programme.querySelector("sub-title");
-            let episodeName = subTitleEl
-              ? subTitleEl.textContent.trim()
-              : (programme.querySelector("title")?.textContent.trim() || "");
-            programmeList.push({
-              start: startDate,
-              stop: stopDate,
-              episode: episodeNumber + ": " + episodeName
-            });
+          .then(response => response.text())
+          .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
+          .then(data => {
+              const programmes = data.querySelectorAll("programme[channel='1.etv']");
+              programmes.forEach(programme => {
+                  let startStr = programme.getAttribute("start");
+                  let stopStr = programme.getAttribute("stop");
+                  let startDate = parseProgrammeTime(startStr);
+                  let stopDate = parseProgrammeTime(stopStr);
+                  const episodeNumEl = programme.querySelector('episode-num[system="onscreen"]');
+                  let episodeNumber = episodeNumEl ? episodeNumEl.textContent.trim() : "";
+                  const subTitleEl = programme.querySelector("sub-title");
+                  let episodeName = subTitleEl ?
+                      subTitleEl.textContent.trim() :
+                      (programme.querySelector("title")?.textContent.trim() || "");
+                  programmeList.push({
+                      start: startDate,
+                      stop: stopDate,
+                      episode: episodeNumber + ": " + episodeName
+                  });
+              });
+              programmeList.sort((a, b) => a.start - b.start);
+              updateEPG();
+              setInterval(updateEPG, 1000);
+          })
+          .catch(error => {
+              console.error("Error fetching EPG:", error);
           });
-          programmeList.sort((a, b) => a.start - b.start);
-          updateEPG();
-          setInterval(updateEPG, 1000);
-        })
-        .catch(error => {
-          console.error("Error fetching EPG:", error);
-        });
+
       function updateEPG() {
-        const now = new Date();
-        let currentIndex = -1;
-        let currentProgramme = null;
-        for (let i = 0; i < programmeList.length; i++) {
-          if (now >= programmeList[i].start && now < programmeList[i].stop) {
-            currentIndex = i;
-            currentProgramme = programmeList[i];
-            break;
-          }
-        }
-        if (currentIndex === -1) {
+          const now = new Date();
+          let currentIndex = -1;
+          let currentProgramme = null;
           for (let i = 0; i < programmeList.length; i++) {
-            if (programmeList[i].start > now) {
-              currentIndex = i;
-              break;
-            }
+              if (now >= programmeList[i].start && now < programmeList[i].stop) {
+                  currentIndex = i;
+                  currentProgramme = programmeList[i];
+                  break;
+              }
           }
           if (currentIndex === -1) {
-            currentIndex = Math.max(0, programmeList.length - 5);
+              for (let i = 0; i < programmeList.length; i++) {
+                  if (programmeList[i].start > now) {
+                      currentIndex = i;
+                      break;
+                  }
+              }
+              if (currentIndex === -1) {
+                  currentIndex = Math.max(0, programmeList.length - 5);
+              }
           }
-        }
-        const displayList = programmeList.slice(currentIndex, currentIndex + 5);
-        const tbody = document.querySelector('#epgTable tbody');
-        tbody.innerHTML = "";
-        displayList.forEach(prog => {
-          const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-          let formattedStart = prog.start.toLocaleString(undefined, options);
-          let row = document.createElement("tr");
-          if (now >= prog.start && now < prog.stop) {
-            row.style.backgroundColor = "#d1ffd1";
-          }
-          let tdStart = document.createElement("td");
-          tdStart.textContent = formattedStart;
-          let tdEpisode = document.createElement("td");
-          tdEpisode.textContent = prog.episode;
-          row.appendChild(tdStart);
-          row.appendChild(tdEpisode);
-          tbody.appendChild(row);
-        });
-        if (currentProgramme && 'mediaSession' in navigator) {
-          navigator.mediaSession.metadata = new MediaMetadata({
-            title: currentProgramme.episode,
-            artist: 'Bluey & Friends Play Along Stream',
-            album: 'Bluey',
-            artwork: [
-              { src: source.poster, sizes: '1920x1080', type: 'image/jpeg' }
-            ]
+          const displayList = programmeList.slice(currentIndex, currentIndex + 5);
+          const tbody = document.querySelector('#epgTable tbody');
+          tbody.innerHTML = "";
+          displayList.forEach(prog => {
+              const options = {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit'
+              };
+              let formattedStart = prog.start.toLocaleString(undefined, options);
+              let row = document.createElement("tr");
+              if (now >= prog.start && now < prog.stop) {
+                  row.style.backgroundColor = "#d1ffd1";
+              }
+              let tdStart = document.createElement("td");
+              tdStart.textContent = formattedStart;
+              let tdEpisode = document.createElement("td");
+              tdEpisode.textContent = prog.episode;
+              row.appendChild(tdStart);
+              row.appendChild(tdEpisode);
+              tbody.appendChild(row);
           });
-        }
+          if (currentProgramme && 'mediaSession' in navigator) {
+              navigator.mediaSession.metadata = new MediaMetadata({
+                  title: currentProgramme.episode,
+                  artist: 'Bluey & Friends Play Along Stream',
+                  album: 'Bluey',
+                  artwork: [{
+                      src: source.poster,
+                      sizes: '1920x1080',
+                      type: 'image/jpeg'
+                  }]
+              });
+          }
       }
+      document.addEventListener('fullscreenchange', () => {
+          if (document.fullscreenElement) {
+              // we’re now fullscreen → lock to landscape
+              screen.orientation
+                  .lock('landscape')
+                  .catch(err => console.warn('Orientation lock failed:', err)); // MDN: lock() must be called in fullscreen context 0
+          } else {
+              // we’ve exited fullscreen → let the device rotate normally again
+              if (screen.orientation.unlock) {
+                  screen.orientation.unlock();
+              }
+          }
+      });
     </script>
   </body>
 </html>

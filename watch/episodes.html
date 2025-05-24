@@ -681,7 +681,72 @@
                             type: 'image/png'
                         }]
                     });
-                    // Media Session next/prev (add shuffle logic if needed)
+
+                    navigator.mediaSession.setActionHandler('previoustrack', () => {
+                        if (shuffleMode && allEpisodes.length > 1) {
+                            let prevIndex;
+                            let currentId = episodes[currentEpisodeIndex]?.Id;
+                            do {
+                                prevIndex = Math.floor(Math.random() * allEpisodes.length);
+                            } while (allEpisodes[prevIndex].Id === currentId);
+                            let prevEp = allEpisodes[prevIndex];
+                            let season = seasonsList.find(s => s.Id === prevEp.SeasonId);
+                            if (season) {
+                                currentSeason = season;
+                                currentSeasonIndex = seasonsList.indexOf(season);
+                                episodes = episodesCache[season.Id] || [];
+                                renderEpisodes(episodes);
+                                let epIndex = episodes.findIndex(e => e.Id === prevEp.Id);
+                                if (epIndex !== -1) {
+                                    currentEpisodeIndex = epIndex;
+                                    playEpisode(prevEp, epIndex);
+                                }
+                            }
+                        } else if (currentEpisodeIndex > 0) {
+                            currentEpisodeIndex--;
+                            playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+                        } else if (currentSeasonIndex > 0) {
+                            currentSeasonIndex--;
+                            currentSeason = seasonsList[currentSeasonIndex];
+                            episodes = episodesCache[currentSeason.Id] || [];
+                            renderEpisodes(episodes);
+                            currentEpisodeIndex = episodes.length - 1;
+                            playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+                        }
+                    });
+
+                    navigator.mediaSession.setActionHandler('nexttrack', () => {
+                        if (shuffleMode && allEpisodes.length > 1) {
+                            let nextIndex;
+                            let currentId = episodes[currentEpisodeIndex]?.Id;
+                            do {
+                                nextIndex = Math.floor(Math.random() * allEpisodes.length);
+                            } while (allEpisodes[nextIndex].Id === currentId);
+                            let nextEp = allEpisodes[nextIndex];
+                            let season = seasonsList.find(s => s.Id === nextEp.SeasonId);
+                            if (season) {
+                                currentSeason = season;
+                                currentSeasonIndex = seasonsList.indexOf(season);
+                                episodes = episodesCache[season.Id] || [];
+                                renderEpisodes(episodes);
+                                let epIndex = episodes.findIndex(e => e.Id === nextEp.Id);
+                                if (epIndex !== -1) {
+                                    currentEpisodeIndex = epIndex;
+                                    playEpisode(nextEp, epIndex);
+                                }
+                            }
+                        } else if (currentEpisodeIndex < episodes.length - 1) {
+                            currentEpisodeIndex++;
+                            playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+                        } else if (currentSeasonIndex < seasonsList.length - 1) {
+                            currentSeasonIndex++;
+                            currentSeason = seasonsList[currentSeasonIndex];
+                            episodes = episodesCache[currentSeason.Id] || [];
+                            renderEpisodes(episodes);
+                            currentEpisodeIndex = 0;
+                            playEpisode(episodes[0], 0);
+                        }
+                    });
                 }
 
                 const timestamp = new Date().getTime();

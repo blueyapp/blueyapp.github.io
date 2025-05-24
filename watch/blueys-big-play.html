@@ -29,129 +29,207 @@
       <!-- Custom font -->
       <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
       <style>
-         /* Reset and general box sizing */
          * {
-         box-sizing: border-box;
-         margin: 0;
-         padding: 0;
+         	box-sizing: border-box;
+         	margin: 0;
+         	padding: 0;
          }
-         /* Body font & background */
+         
          body {
-         font-family: "Hello Headline", Arial, sans-serif !important;
-         background-color: #87c0e8 !important;
-         color: #ffffff;
-         text-align: center;
-         margin: 0;
+         	font-family: "Hello Headline", Arial, sans-serif !important;
+         	background-color: #87c0e8 !important;
+         	color: #ffffff;
+         	text-align: center;
+         	margin: 0;
+         	transition: background 0.3s, color 0.3s;
          }
-         /* Container for overall layout */
+         
          .container {
-         max-width: 1200px;
-         margin: 0 auto;
-         padding: 20px;
+         	max-width: 1200px;
+         	margin: 0 auto;
+         	padding: 20px;
          }
-         /* Header Styles */
+         
          .header {
-         display: flex;
-         align-items: center;
-         justify-content: space-between;
-         margin-bottom: 20px;
+         	display: flex;
+         	align-items: center;
+         	justify-content: space-between;
+         	margin-bottom: 20px;
          }
+         
          .logo {
-         width: 150px;
-         border-radius: 0px;
+         	width: 150px;
+         	border-radius: 0px;
          }
+         
          .nav {
-         display: flex;
-         list-style: none;
+         	display: flex;
+         	list-style: none;
          }
+         
          .nav li {
-         margin-left: 20px;
+         	margin-left: 20px;
+         	display: flex;
+         	align-items: center;
          }
+         
          .nav a {
-         text-decoration: none;
-         color: #ffffff;
-         font-weight: bold;
-         font-family: "Hello Headline", Arial, sans-serif;
+         	text-decoration: none;
+         	color: #ffffff;
+         	font-weight: bold;
+         	font-family: "Hello Headline", Arial, sans-serif;
+         }
+         /* Dark mode toggle button styles */
+         
+         .darkmode-toggle {
+         	background: none;
+         	border: none;
+         	cursor: pointer;
+         	border-radius: 50%;
+         	margin-left: 8px;
+         	width: 36px;
+         	height: 36px;
+         	display: flex;
+         	align-items: center;
+         	justify-content: center;
+         	outline: none;
+         	padding: 2px;
+         	transition: background 0.2s;
+         }
+         
+         .darkmode-toggle:focus,
+         .darkmode-toggle:hover {
+         	background: rgba(128, 128, 128, 0.12);
+         }
+         
+         .darkmode-toggle svg {
+         	width: 24px;
+         	height: 24px;
+         	display: block;
+         	pointer-events: none;
+         }
+         
+         .dark .darkmode-toggle .sun {
+         	display: none;
+         }
+         
+         .dark .darkmode-toggle .moon {
+         	display: block;
+         }
+         
+         .darkmode-toggle .moon {
+         	display: none;
+         }
+         
+         .darkmode-toggle .sun {
+         	display: block;
          }
          /* Player wrapper */
+         
          .player-wrapper {
-         width: 90%;
-         margin: 20px auto;
-         box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+         	width: 90%;
+         	margin: 20px auto;
+         	box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
          }
+         
          #player {
-         width: 100%;
-         height: auto;
-         background-color: #000;
+         	width: 100%;
+         	height: auto;
+         	background-color: #000;
          }
-         /* Movie details: flex layout for poster & info */
+         
          .movie-details {
-         margin-top: 20px;
-         display: flex;
-         justify-content: center;
-         align-items: flex-start;
-         flex-wrap: wrap; /* wrap on smaller screens */
+         	margin-top: 20px;
+         	display: flex;
+         	justify-content: center;
+         	align-items: flex-start;
+         	flex-wrap: wrap;
          }
+         
          .poster-container {
-         flex: 0 0 auto;
-         margin-right: 20px;
+         	flex: 0 0 auto;
+         	margin-right: 20px;
          }
+         
          .info-container {
-         flex: 1;
-         text-align: left;
-         max-width: 600px;
+         	flex: 1;
+         	text-align: left;
+         	max-width: 600px;
          }
-         /* Poster, title, and description */
+         
          .movie-poster {
-         max-width: 100px;
-         width: 100%;
-         height: auto;
-         border-radius: 10px;
+         	max-width: 100px;
+         	width: 100%;
+         	height: auto;
+         	border-radius: 10px;
          }
+         
          .movie-title {
-         font-size: 24px;
-         font-weight: bold;
-         margin-bottom: 10px;
-         font-family: "Hello Headline", Arial, sans-serif;
+         	font-size: 24px;
+         	font-weight: bold;
+         	margin-bottom: 10px;
+         	font-family: "Hello Headline", Arial, sans-serif;
          }
+         
          .movie-description {
-         font-size: 16px;
-         margin-bottom: 20px;
-         font-family: "Hello Headline", Arial, sans-serif;
+         	font-size: 16px;
+         	margin-bottom: 20px;
+         	font-family: "Hello Headline", Arial, sans-serif;
          }
-         /* Download button */
+         
          #download-button {
-         margin-top: 10px;
-         cursor: pointer;
-         color: #ffffff;
-         background-color: #e2793b;
-         padding: 10px 20px;
-         border: none;
-         border-radius: 5px;
-         font-family: "Hello Headline", Arial, sans-serif;
+         	margin-top: 10px;
+         	cursor: pointer;
+         	color: #ffffff;
+         	background-color: #e2793b;
+         	padding: 10px 20px;
+         	border: none;
+         	border-radius: 5px;
+         	font-family: "Hello Headline", Arial, sans-serif;
          }
+         
          .bmpui-ui-watermark {
-         display: none;
+         	display: none;
          }
          /* Responsive Adjustments */
+         
          @media (max-width: 768px) {
-         .header {
-         flex-direction: column;
+         	.header {
+         		flex-direction: column;
+         	}
+         	.nav {
+         		margin-top: 20px;
+         	}
+         	.movie-details {
+         		flex-direction: column;
+         		align-items: center;
+         	}
+         	.poster-container {
+         		margin-right: 0;
+         		margin-bottom: 20px;
+         	}
+         	.info-container {
+         		text-align: center;
+         	}
          }
-         .nav {
-         margin-top: 20px;
+         /* --- Dark mode styles --- */
+         
+         body.dark {
+         	background: #191d25 !important;
+         	color: #dbeafe !important;
          }
-         .movie-details {
-         flex-direction: column;
-         align-items: center;
+         
+         body.dark .header {
+         	background: #191d25 !important;
          }
-         .poster-container {
-         margin-right: 0;
-         margin-bottom: 20px;
+         
+         body.dark .nav a {
+         	color: #fbbf24 !important;
          }
-         .info-container {
-         text-align: center;
-         }
+         
+         body.dark #download-button {
+         	background: #394867 !important;
+         	color: #ffd700 !important;
          }
       </style>
    </head>
@@ -163,13 +241,33 @@
                src="https://www.themoviedb.org/t/p/original/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" 
                alt="Bluey" 
                class="logo" 
-               />
+            />
             <ul class="nav">
                <li><a href="/">Home</a></li>
                <li><a href="/watch">Watch</a></li>
                <li><a href="/music">Music</a></li>
                <li><a href="/audiobooks">Audio Books</a></li>
                <li><a href="/download">App</a></li>
+               <li>
+                 <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+                   <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                     <circle cx="12" cy="12" r="5"/>
+                     <g>
+                       <line x1="12" y1="1" x2="12" y2="3"/>
+                       <line x1="12" y1="21" x2="12" y2="23"/>
+                       <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                       <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                       <line x1="1" y1="12" x2="3" y2="12"/>
+                       <line x1="21" y1="12" x2="23" y2="12"/>
+                       <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                       <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                     </g>
+                   </svg>
+                   <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                   </svg>
+                 </button>
+               </li>
             </ul>
          </div>
       </div>
@@ -191,6 +289,30 @@
             </div>
          </div>
       </div>
+      <!-- DARK MODE TOGGLE SCRIPT -->
+      <script>
+        const themeKey = "bluey-site-theme";
+        const root = document.body;
+        const darkToggle = document.getElementById("darkToggle");
+        function setTheme(dark) {
+          if (dark) {
+            root.classList.add('dark');
+            localStorage.setItem(themeKey, "dark");
+          } else {
+            root.classList.remove('dark');
+            localStorage.setItem(themeKey, "light");
+          }
+        }
+        (() => {
+          const saved = localStorage.getItem(themeKey);
+          if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+            setTheme(true);
+          } else {
+            setTheme(false);
+          }
+        })();
+        darkToggle.onclick = () => setTheme(!root.classList.contains('dark'));
+      </script>
       <script>
          // Configuration
          const serverUrl = "https://blueynet.org:443";
@@ -303,19 +425,17 @@
            const downloadUrl = `${serverUrl}/emby/Items/${movieMetadata.Id}/Download?X-Emby-Token=${apiKey}`;
            window.location.href = downloadUrl;
          }
-            document.addEventListener('fullscreenchange', () => {
-            if (document.fullscreenElement) {
-            // we’re now fullscreen → lock to landscape
-            screen.orientation
-            .lock('landscape')
-            .catch(err => console.warn('Orientation lock failed:', err));  // MDN: lock() must be called in fullscreen context 0
-            } else {
-            // we’ve exited fullscreen → let the device rotate normally again
-            if (screen.orientation.unlock) {
-            screen.orientation.unlock();
-            }
-            }
-            });
+         document.addEventListener('fullscreenchange', () => {
+           if (document.fullscreenElement) {
+             screen.orientation
+               .lock('landscape')
+               .catch(err => console.warn('Orientation lock failed:', err));
+           } else {
+             if (screen.orientation.unlock) {
+               screen.orientation.unlock();
+             }
+           }
+         });
       </script>
    </body>
 </html>

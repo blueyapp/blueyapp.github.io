@@ -1,181 +1,357 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
-  <script src="https://vjs.zencdn.net/7.15.4/video.js"></script>
-  <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Download Bluey</title>
-  <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
-  <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "Hello Headline", Arial, sans-serif !important; background-color: #87c0e8 !important; transition: background 0.3s, color 0.3s;}
-    .imagebox { width: 300px; margin: 5px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; }
-    .imagetv { height: 300px; margin: 5px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-    .header { position: sticky; top: 0; background-color: #87c0e8; z-index: 1000; padding: 0px 0; width: 100%; }
-    .header .container { display: flex; align-items: center; justify-content: space-between; }
-    .logo { width: 150px; border-radius: 0px; }
-    .nav { display: flex; list-style: none; }
-    .nav li { margin-left: 20px; display: flex; align-items: center; }
-    .nav a { text-decoration: none; color: #ffffff; font-weight: bold; }
-    .main { display: flex; align-items: center; justify-content: space-between; margin-top: 40px; }
-    .main-left { width: 50%; }
-    .main-right { width: 40%; }
-    .main h1 { font-size: 48px; color: #fff; margin-bottom: 20px; }
-    .main p, .main h2, .main li { color: #fff; }
-    .main button { display: inline-block; padding: 15px 25px; border: none; border-radius: 10px; background-color: #ffffff; color: black; font-size: 18px; font-weight: bold; font-family: "Hello Headline", Arial, sans-serif !important; cursor: pointer; }
-    .main img { width: 100%; height: auto; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); }
-    @media (max-width: 768px) {
-      .header .container { flex-direction: column; }
-      .nav { margin-top: 20px; }
-      .main { flex-direction: column; }
-      .main-left, .main-right { width: 100%; }
-      .main-right { margin-top: 20px; }
-    }
-    /* --- DARK MODE --- */
-    body.dark { background: #191d25 !important; color: #dbeafe !important; }
-    body.dark .header { background: #191d25; }
-    body.dark .nav a { color: #fbbf24; }
-    body.dark .main h1,
-    body.dark .main p,
-    body.dark .main h2,
-    body.dark .main li { color: #dbeafe; }
-    body.dark .main button { background-color: #394867; color: #fbbf24; }
-    body.dark .main button:hover { background-color: #23293a; color: #ffd700; }
-    body.dark .imagebox, body.dark .imagetv { background: #23293a; }
-    /* --- DARK MODE TOGGLE --- */
-    .darkmode-toggle {
-      background: none; border: none; cursor: pointer;
-      border-radius: 50%; margin-left: 8px; width: 36px; height: 36px;
-      display: flex; align-items: center; justify-content: center; outline: none; padding: 2px;
-      transition: background 0.2s;
-    }
-    .darkmode-toggle:focus, .darkmode-toggle:hover { background: rgba(128,128,128,0.12);}
-    .darkmode-toggle svg { width: 24px; height: 24px; display: block; pointer-events: none; }
-    .dark .darkmode-toggle .sun { display: none; }
-    .dark .darkmode-toggle .moon { display: block; }
-    .darkmode-toggle .moon { display: none; }
-    .darkmode-toggle .sun { display: block; }
-  </style>
-</head>
-<body>
-  <!-- Header -->
-  <div class="header">
-    <div class="container">
-      <img src="/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
-      <ul class="nav">
-        <li><a href="/">Home</a></li>
-        <li><a href="/watch">Watch</a></li>
-        <li><a href="/music">Music</a></li>
-        <li><a href="/audiobooks">Audio Books</a></li>
-        <li><a href="/download">App</a></li>
-        <li>
-          <!-- Dark mode toggle button -->
-          <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
-            <!-- Sun (white for light mode) -->
-            <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="5"/>
-              <g>
-                <line x1="12" y1="1" x2="12" y2="3"/>
-                <line x1="12" y1="21" x2="12" y2="23"/>
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                <line x1="1" y1="12" x2="3" y2="12"/>
-                <line x1="21" y1="12" x2="23" y2="12"/>
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-              </g>
-            </svg>
-            <!-- Moon (yellow for dark mode) -->
-            <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-            </svg>
-          </button>
-        </li>
-      </ul>
-    </div>
-  </div>
-  <!-- Main container -->
-  <div class="container">
-    <div class="main">
-      <div class="main-left">
-        <h1 id="Android">Watch Bluey without censorship on Android.</h1>
-        <p>This is the app for watching Bluey newer episodes and without censorship. You can stream live and on-demand, listen to the music, and posting Bluey related thing.</p>
-        <h2>Changelog</h2>
-        <ul>
-          <li><strong>10.4011-QLD | 2025-03-22</strong></li>
-          <ul>
-            <li><em>Added</em></li>
-            <ul>
-              <li>TikTok like social video</li>
+   <head>
+      <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
+      <script src="https://vjs.zencdn.net/7.15.4/video.js"></script>
+      <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Download Bluey</title>
+      <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
+      <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
+      <style>
+         * {
+         	box-sizing: border-box;
+         	margin: 0;
+         	padding: 0;
+         }
+         
+         body {
+         	font-family: "Hello Headline", Arial, sans-serif !important;
+         	background-color: #87c0e8 !important;
+         	transition: background 0.3s, color 0.3s;
+         }
+         
+         .imagebox {
+         	width: 300px;
+         	margin: 5px;
+         	border-radius: 20px;
+         	display: flex;
+         	flex-direction: column;
+         	align-items: center;
+         	justify-content: center;
+         	overflow-y: auto;
+         }
+         
+         .imagetv {
+         	height: 300px;
+         	margin: 5px;
+         	border-radius: 20px;
+         	display: flex;
+         	flex-direction: column;
+         	align-items: center;
+         	justify-content: center;
+         	overflow-y: auto;
+         }
+         
+         .container {
+         	max-width: 1200px;
+         	margin: 0 auto;
+         	padding: 20px;
+         }
+         
+         .header {
+         	position: sticky;
+         	top: 0;
+         	background-color: #87c0e8;
+         	z-index: 1000;
+         	padding: 0px 0;
+         	width: 100%;
+         }
+         
+         .header .container {
+         	display: flex;
+         	align-items: center;
+         	justify-content: space-between;
+         }
+         
+         .logo {
+         	width: 150px;
+         	border-radius: 0px;
+         }
+         
+         .nav {
+         	display: flex;
+         	list-style: none;
+         }
+         
+         .nav li {
+         	margin-left: 20px;
+         	display: flex;
+         	align-items: center;
+         }
+         
+         .nav a {
+         	text-decoration: none;
+         	color: #ffffff;
+         	font-weight: bold;
+         }
+         
+         .main {
+         	display: flex;
+         	align-items: center;
+         	justify-content: space-between;
+         	margin-top: 40px;
+         }
+         
+         .main-left {
+         	width: 50%;
+         }
+         
+         .main-right {
+         	width: 40%;
+         }
+         
+         .main h1 {
+         	font-size: 48px;
+         	color: #fff;
+         	margin-bottom: 20px;
+         }
+         
+         .main p,
+         .main h2,
+         .main li {
+         	color: #fff;
+         }
+         
+         .main button {
+         	display: inline-block;
+         	padding: 15px 25px;
+         	border: none;
+         	border-radius: 10px;
+         	background-color: #ffffff;
+         	color: black;
+         	font-size: 18px;
+         	font-weight: bold;
+         	font-family: "Hello Headline", Arial, sans-serif !important;
+         	cursor: pointer;
+         }
+         
+         .main img {
+         	width: 100%;
+         	height: auto;
+         	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+         }
+         
+         @media (max-width: 768px) {
+         	.header .container {
+         		flex-direction: column;
+         	}
+         	.nav {
+         		margin-top: 20px;
+         	}
+         	.main {
+         		flex-direction: column;
+         	}
+         	.main-left,
+         	.main-right {
+         		width: 100%;
+         	}
+         	.main-right {
+         		margin-top: 20px;
+         	}
+         }
+         /* --- DARK MODE --- */
+         
+         body.dark {
+         	background: #191d25 !important;
+         	color: #dbeafe !important;
+         }
+         
+         body.dark .header {
+         	background: #191d25;
+         }
+         
+         body.dark .nav a {
+         	color: #fbbf24;
+         }
+         
+         body.dark .main h1,
+         body.dark .main p,
+         body.dark .main h2,
+         body.dark .main li {
+         	color: #dbeafe;
+         }
+         
+         body.dark .main button {
+         	background-color: #394867;
+         	color: #fbbf24;
+         }
+         
+         body.dark .main button:hover {
+         	background-color: #23293a;
+         	color: #ffd700;
+         }
+         
+         body.dark .imagebox,
+         body.dark .imagetv {
+         	background: #23293a;
+         }
+         /* --- DARK MODE TOGGLE --- */
+         
+         .darkmode-toggle {
+         	background: none;
+         	border: none;
+         	cursor: pointer;
+         	border-radius: 50%;
+         	margin-left: 8px;
+         	width: 36px;
+         	height: 36px;
+         	display: flex;
+         	align-items: center;
+         	justify-content: center;
+         	outline: none;
+         	padding: 2px;
+         	transition: background 0.2s;
+         }
+         
+         .darkmode-toggle:focus,
+         .darkmode-toggle:hover {
+         	background: rgba(128, 128, 128, 0.12);
+         }
+         
+         .darkmode-toggle svg {
+         	width: 24px;
+         	height: 24px;
+         	display: block;
+         	pointer-events: none;
+         }
+         
+         .dark .darkmode-toggle .sun {
+         	display: none;
+         }
+         
+         .dark .darkmode-toggle .moon {
+         	display: block;
+         }
+         
+         .darkmode-toggle .moon {
+         	display: none;
+         }
+         
+         .darkmode-toggle .sun {
+         	display: block;
+         }
+      </style>
+   </head>
+   <body>
+      <!-- Header -->
+      <div class="header">
+         <div class="container">
+            <img src="/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
+            <ul class="nav">
+               <li><a href="/">Home</a></li>
+               <li><a href="/watch">Watch</a></li>
+               <li><a href="/music">Music</a></li>
+               <li><a href="/audiobooks">Audio Books</a></li>
+               <li><a href="/download">App</a></li>
+               <li>
+                  <!-- Dark mode toggle button -->
+                  <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+                     <!-- Sun (white for light mode) -->
+                     <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"/>
+                        <g>
+                           <line x1="12" y1="1" x2="12" y2="3"/>
+                           <line x1="12" y1="21" x2="12" y2="23"/>
+                           <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                           <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                           <line x1="1" y1="12" x2="3" y2="12"/>
+                           <line x1="21" y1="12" x2="23" y2="12"/>
+                           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                           <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                        </g>
+                     </svg>
+                     <!-- Moon (yellow for dark mode) -->
+                     <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                     </svg>
+                  </button>
+               </li>
             </ul>
-            <li><em>Fixed</em></li>
-            <ul>
-              <li>Bug on the app</li>
-            </ul>
-          </ul>
-        </ul>
-        <p><br></p><button onclick="window.open('https://apkfab.com/bluey/com.bluey.tvshow/apk?h=e5fb16f75e36c10ced78e7ea066d836dd9ceac7d679da9a7132abdd48454906c')">Download Bluey App</button> 
+         </div>
       </div>
-      <div class="main-right">
-        <div style="display: flex; align-items: center; justify-content: center;">
-          <img src="/images/tempFileForShare_20250322-023707.png" alt="Bluey App Screenshot" class="imagebox"> 
-          <img src="/images/tempFileForShare_20250322-023751.png" alt="Bluey App Screenshot" class="imagebox">
-          <img src="/images/Screenshot-20240130-044334.png" alt="Bluey App Screenshot" class="imagebox">
-        </div>
+      <!-- Main container -->
+      <div class="container">
+         <div class="main">
+            <div class="main-left">
+               <h1 id="Android">Watch Bluey without censorship on Android.</h1>
+               <p>This is the app for watching Bluey newer episodes and without censorship. You can stream live and on-demand, listen to the music, and posting Bluey related thing.</p>
+               <h2>Changelog</h2>
+               <ul>
+                  <li><strong>10.4011-QLD | 2025-03-22</strong></li>
+                  <ul>
+                     <li><em>Added</em></li>
+                     <ul>
+                        <li>TikTok like social video</li>
+                     </ul>
+                     <li><em>Fixed</em></li>
+                     <ul>
+                        <li>Bug on the app</li>
+                     </ul>
+                  </ul>
+               </ul>
+               <p><br></p>
+               <button onclick="window.open('https://apkfab.com/bluey/com.bluey.tvshow/apk?h=e5fb16f75e36c10ced78e7ea066d836dd9ceac7d679da9a7132abdd48454906c')">Download Bluey App</button> 
+            </div>
+            <div class="main-right">
+               <div style="display: flex; align-items: center; justify-content: center;">
+                  <img src="/images/tempFileForShare_20250322-023707.png" alt="Bluey App Screenshot" class="imagebox"> 
+                  <img src="/images/tempFileForShare_20250322-023751.png" alt="Bluey App Screenshot" class="imagebox">
+                  <img src="/images/Screenshot-20240130-044334.png" alt="Bluey App Screenshot" class="imagebox">
+               </div>
+            </div>
+         </div>
+         <div class="main">
+            <div class="main-left">
+               <h1 id="iOS">Watch Bluey without censorship on iOS.</h1>
+               <p>We're also provide web app for iOS so you can watch without filling up your storage.</p>
+               <p><br></p>
+               <button onclick="window.open('https://blueyapp.glide.page')">Bookmark Bluey as Web App</button> 
+            </div>
+            <div class="main-right">
+               <div style="display: flex; align-items: center; justify-content: center;">
+                  <img src="/images/2024-05-22-16-49-44-High-Res-Screenshot.png" alt="Bluey App Screenshot" class="imagebox"> 
+                  <img src="/images/2024-05-22-16-50-45-High-Res-Screenshot.png" alt="Bluey App Screenshot" class="imagebox">
+                  <img src="/images/2024-05-22-16-50-24-High-Res-Screenshot.png" alt="Bluey App Screenshot" class="imagebox">
+               </div>
+            </div>
+         </div>
+         <div class="main">
+            <div class="main-left">
+               <h1 id="TV">Watch Bluey without censorship on TV.</h1>
+               <p>Don't want to watch on small screen? You can watch on your TV. No casting needed, no string attached.</p>
+               <p><br></p>
+               <button onclick="window.location.href='/tvapp'">Learn More</button> 
+            </div>
+            <div class="main-right">
+               <div style="display: flex; align-items: center; justify-content: center;">
+                  <img src="/images/TV.png" alt="Bluey App Screenshot" class="imagetv"> 
+               </div>
+            </div>
+         </div>
       </div>
-    </div>
-    <div class="main">
-      <div class="main-left">
-        <h1 id="iOS">Watch Bluey without censorship on iOS.</h1>
-        <p>We're also provide web app for iOS so you can watch without filling up your storage.</p>
-        <p><br></p><button onclick="window.open('https://blueyapp.glide.page')">Bookmark Bluey as Web App</button> 
-      </div>
-      <div class="main-right">
-        <div style="display: flex; align-items: center; justify-content: center;">
-          <img src="/images/2024-05-22-16-49-44-High-Res-Screenshot.png" alt="Bluey App Screenshot" class="imagebox"> 
-          <img src="/images/2024-05-22-16-50-45-High-Res-Screenshot.png" alt="Bluey App Screenshot" class="imagebox">
-          <img src="/images/2024-05-22-16-50-24-High-Res-Screenshot.png" alt="Bluey App Screenshot" class="imagebox">
-        </div>
-      </div>
-    </div>
-    <div class="main">
-      <div class="main-left">
-        <h1 id="TV">Watch Bluey without censorship on TV.</h1>
-        <p>Don't want to watch on small screen? You can watch on your TV. No casting needed, no string attached.</p>
-        <p><br></p><button onclick="window.location.href='/tvapp'">Learn More</button> 
-      </div>
-      <div class="main-right">
-        <div style="display: flex; align-items: center; justify-content: center;">
-          <img src="/images/TV.png" alt="Bluey App Screenshot" class="imagetv"> 
-        </div>
-      </div>
-    </div>
-  </div>
-  <script>
-    // Dark mode logic (remembers for all site)
-    const themeKey = "bluey-site-theme";
-    const root = document.body;
-    const darkToggle = document.getElementById("darkToggle");
-    function setTheme(dark) {
-      if (dark) {
-        root.classList.add('dark');
-        localStorage.setItem(themeKey, "dark");
-      } else {
-        root.classList.remove('dark');
-        localStorage.setItem(themeKey, "light");
-      }
-    }
-    (() => {
-      const saved = localStorage.getItem(themeKey);
-      if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-        setTheme(true);
-      } else {
-        setTheme(false);
-      }
-    })();
-    darkToggle.onclick = () => setTheme(!root.classList.contains('dark'));
-  </script>
-</body>
+      <script>
+         // Dark mode logic (remembers for all site)
+         const themeKey = "bluey-site-theme";
+         const root = document.body;
+         const darkToggle = document.getElementById("darkToggle");
+         function setTheme(dark) {
+           if (dark) {
+             root.classList.add('dark');
+             localStorage.setItem(themeKey, "dark");
+           } else {
+             root.classList.remove('dark');
+             localStorage.setItem(themeKey, "light");
+           }
+         }
+         (() => {
+           const saved = localStorage.getItem(themeKey);
+           if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+             setTheme(true);
+           } else {
+             setTheme(false);
+           }
+         })();
+         darkToggle.onclick = () => setTheme(!root.classList.contains('dark'));
+      </script>
+   </body>
 </html>

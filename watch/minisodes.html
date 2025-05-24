@@ -11,298 +11,445 @@
       <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
       <meta name="language" content="English">
       <meta name="author" content="Bluey Heeler">
-      <!-- Meta tags for social share preview -->
+      <!-- Social meta -->
       <meta property="og:title" content="Watch Bluey Minisodes">
       <meta property="og:description" content="The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together.">
       <meta property="og:image" content="https://cdn.iview.abc.net.au/thumbs/1200/mp/MP2423H118C00DS1_6667b1657c3f7_3600.jpg">
-      <!-- URL to your image -->
       <meta property="og:url" content="https://pages.blueynet.org/watch/minisodes">
-      <!-- URL of your page -->
       <meta name="twitter:card" content="summary_large_image">
       <meta name="twitter:title" content="Watch Bluey Minisodes">
       <meta name="twitter:description" content="The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together.">
       <meta name="twitter:image" content="https://cdn.iview.abc.net.au/thumbs/1200/mp/MP2423H118C00DS1_6667b1657c3f7_3600.jpg">
-      <!-- URL to your image -->
       <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
       <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
       <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
       <style>
-         /* Global Styles */
          * {
-         box-sizing: border-box;
-         margin: 0;
-         padding: 0;
+         	box-sizing: border-box;
+         	margin: 0;
+         	padding: 0;
          }
+         
          body {
-         font-family: "Hello Headline", Arial, sans-serif !important;
-         background-color: #87c0e8 !important;
+         	font-family: "Hello Headline", Arial, sans-serif !important;
+         	background-color: #87c0e8 !important;
+         	transition: background 0.3s, color 0.3s;
          }
+         
          .container {
-         max-width: 1200px;
-         margin: 0 auto;
-         padding: 20px;
+         	max-width: 1200px;
+         	margin: 0 auto;
+         	padding: 20px;
          }
+         
          .header {
-         display: flex;
-         align-items: center;
-         justify-content: space-between;
+         	display: flex;
+         	align-items: center;
+         	justify-content: space-between;
          }
+         
          .logo {
-         width: 150px;
-         border-radius: 0px;
+         	width: 150px;
+         	border-radius: 0px;
          }
+         
          .nav {
-         display: flex;
-         list-style: none;
+         	display: flex;
+         	list-style: none;
          }
+         
          .nav li {
-         margin-left: 20px;
+         	margin-left: 20px;
+         	display: flex;
+         	align-items: center;
          }
+         
          .nav a {
-         text-decoration: none;
-         color: #ffffff;
-         font-weight: bold;
+         	text-decoration: none;
+         	color: #ffffff;
+         	font-weight: bold;
          }
+         
          .main {
-         display: flex;
-         gap: 45px;
-         margin-top: 30px;
+         	display: flex;
+         	gap: 45px;
+         	margin-top: 30px;
          }
+         
          .main-left,
          .main-right {
-         flex: 1;
+         	flex: 1;
          }
+         
          .player-wrapper {
-         display: none;
-         width: 100%;
-         margin: 0 auto;
-         box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+         	display: none;
+         	width: 100%;
+         	margin: 0 auto;
+         	box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
          }
+         
          #player {
-         width: 100%;
-         height: auto;
-         background-color: #000;
+         	width: 100%;
+         	height: auto;
+         	background-color: #000;
          }
+         
          #content {
-         margin-top: 10px;
-         position: relative;
+         	margin-top: 10px;
+         	position: relative;
          }
+         
          #seasons-container {
-         display: flex;
-         margin: 0 auto;
-         justify-content: space-between;
-         padding: 10px 0;
-         background-color: #87c0e8;
-         text-align: center;
-         max-width: 700px;
-         flex-wrap: wrap;
+         	display: flex;
+         	margin: 0 auto;
+         	justify-content: space-between;
+         	padding: 10px 0;
+         	background-color: #87c0e8;
+         	text-align: center;
+         	max-width: 700px;
+         	flex-wrap: wrap;
          }
+         
          .season-selector__button {
-         margin: 5px;
-         cursor: pointer;
-         color: #ffffff;
-         border: none;
-         background-color: transparent;
-         padding: 10px 10px;
-         border-radius: 5px;
-         font-family: 'Hello Headline', sans-serif;
+         	margin: 5px;
+         	cursor: pointer;
+         	color: #ffffff;
+         	border: none;
+         	background-color: transparent;
+         	padding: 10px 10px;
+         	border-radius: 5px;
+         	font-family: 'Hello Headline', sans-serif;
          }
+         
          .season-selector__button.selected {
-         color: #000000;
-         background-color: #ffffff;
+         	color: #000000;
+         	background-color: #ffffff;
          }
+         
          #info-button {
-         margin: 5px;
-         cursor: pointer;
-         color: #ffffff;
-         background-color: #edcc6f;
-         padding: 10px 10px;
-         border: none;
-         border-radius: 5px;
-         font-family: 'Hello Headline', sans-serif;
+         	margin: 5px;
+         	cursor: pointer;
+         	color: #ffffff;
+         	background-color: #edcc6f;
+         	padding: 10px 10px;
+         	border: none;
+         	border-radius: 5px;
+         	font-family: 'Hello Headline', sans-serif;
          }
+         
          #episodes {
-         overflow-y: scroll;
-         scrollbar-width: thin;
-         scrollbar-color: transparent transparent;
-         max-height: 500px;
-         max-width: 700px;
-         padding: 5px 0;
-         background-color: #87c0e8;
-         margin: 0 auto;
+         	overflow-y: scroll;
+         	scrollbar-width: thin;
+         	scrollbar-color: transparent transparent;
+         	max-height: 500px;
+         	max-width: 700px;
+         	padding: 5px 0;
+         	background-color: #87c0e8;
+         	margin: 0 auto;
          }
+         
          #episodes::-webkit-scrollbar {
-         width: 6px;
+         	width: 6px;
          }
+         
          #episodes::-webkit-scrollbar-thumb {
-         background-color: transparent;
+         	background-color: transparent;
          }
+         
          #episodes li {
-         margin: 5px;
-         list-style-type: none;
-         cursor: pointer;
-         border: 1px solid #dee2e6;
-         border-radius: 5px;
-         padding: 10px;
-         color: #fff;
-         background-color: #404066;
-         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-         display: flex;
-         align-items: flex-start;
+         	margin: 5px;
+         	list-style-type: none;
+         	cursor: pointer;
+         	border: 1px solid #dee2e6;
+         	border-radius: 5px;
+         	padding: 10px;
+         	color: #fff;
+         	background-color: #404066;
+         	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+         	display: flex;
+         	align-items: flex-start;
          }
+         
          #episodes img {
-         margin-right: 15px;
-         display: block;
-         width: 100px;
-         height: auto;
-         max-width: 100%;
-         max-height: 90px;
-         object-fit: cover;
+         	margin-right: 15px;
+         	display: block;
+         	width: 100px;
+         	height: auto;
+         	max-width: 100%;
+         	max-height: 90px;
+         	object-fit: cover;
          }
+         
          #episodes li div {
-         flex: 1;
-         text-align: left;
+         	flex: 1;
+         	text-align: left;
          }
+         
          #episodes h2 {
-         font-size: 20px;
-         font-weight: bold;
-         margin: 0;
+         	font-size: 20px;
+         	font-weight: bold;
+         	margin: 0;
          }
+         
          #episodes p {
-         font-size: 12px;
-         margin: 0;
+         	font-size: 12px;
+         	margin: 0;
          }
-         /* Only add the "selected" class when an episode has been clicked. */
+         
          #episodes li.selected {
-         background-color: #ffffff;
-         color: #000000;
+         	background-color: #ffffff;
+         	color: #000000;
          }
+         
          .overlay {
-         display: none;
-         position: absolute;
-         top: 50%;
-         left: 50%;
-         transform: translate(-50%, -50%);
-         width: 100%;
-         height: 100%;
-         background-color: rgba(0, 0, 0, 0.8);
-         z-index: 1;
-         overflow: hidden;
-         border-radius: 10px;
+         	display: none;
+         	position: absolute;
+         	top: 50%;
+         	left: 50%;
+         	transform: translate(-50%, -50%);
+         	width: 100%;
+         	height: 100%;
+         	background-color: rgba(0, 0, 0, 0.8);
+         	z-index: 1;
+         	overflow: hidden;
+         	border-radius: 10px;
          }
+         
          .overlay-content {
-         text-align: left;
-         color: #fff;
-         padding: 20px;
-         display: flex;
-         align-items: center;
+         	text-align: left;
+         	color: #fff;
+         	padding: 20px;
+         	display: flex;
+         	align-items: center;
          }
+         
          .overlay img {
-         max-width: 50%;
-         margin-right: 15px;
-         height: auto;
-         max-height: 200px;
-         border-radius: 5px;
+         	max-width: 50%;
+         	margin-right: 15px;
+         	height: auto;
+         	max-height: 200px;
+         	border-radius: 5px;
          }
+         
          .close-overlay {
-         position: absolute;
-         top: 10px;
-         right: 10px;
-         cursor: pointer;
-         color: #fff;
-         font-size: 20px;
+         	position: absolute;
+         	top: 10px;
+         	right: 10px;
+         	cursor: pointer;
+         	color: #fff;
+         	font-size: 20px;
          }
+         
          .overlay-content-text {
-         flex: 1;
+         	flex: 1;
          }
+         
          #overlay-title {
-         margin-bottom: 10px;
+         	margin-bottom: 10px;
          }
+         
          #download-button {
-         margin-top: 10px;
-         cursor: pointer;
-         color: #ffffff;
-         background-color: #e2793b;
-         padding: 10px 20px;
-         border: none;
-         border-radius: 5px;
-         font-family: 'Hello Headline', sans-serif;
+         	margin-top: 10px;
+         	cursor: pointer;
+         	color: #ffffff;
+         	background-color: #e2793b;
+         	padding: 10px 20px;
+         	border: none;
+         	border-radius: 5px;
+         	font-family: 'Hello Headline', sans-serif;
          }
+         
          .bmpui-ui-watermark {
-         display: none;
+         	display: none;
          }
+         
          .donate {
-         align-items: center;
+         	align-items: center;
          }
+         
          #language-select {
-         margin: 5px;
-         cursor: pointer;
-         color: #ffffff;
-         background-color: #404066;
-         padding: 10px;
-         border: none;
-         border-radius: 5px;
-         font-family: 'Hello Headline', sans-serif;
-         appearance: none;
-         -webkit-appearance: none;
-         -moz-appearance: none;
+         	margin: 5px;
+         	cursor: pointer;
+         	color: #ffffff;
+         	background-color: #404066;
+         	padding: 10px;
+         	border: none;
+         	border-radius: 5px;
+         	font-family: 'Hello Headline', sans-serif;
+         	appearance: none;
+         	-webkit-appearance: none;
+         	-moz-appearance: none;
          }
+         
          #language-select option {
-         color: #000000;
-         background-color: #ffffff;
+         	color: #000000;
+         	background-color: #ffffff;
          }
+         /* --- DARK MODE TOGGLE BUTTON --- */
+         
+         .darkmode-toggle {
+         	background: none;
+         	border: none;
+         	cursor: pointer;
+         	border-radius: 50%;
+         	margin-left: 8px;
+         	width: 36px;
+         	height: 36px;
+         	display: flex;
+         	align-items: center;
+         	justify-content: center;
+         	outline: none;
+         	padding: 2px;
+         	transition: background 0.2s;
+         }
+         
+         .darkmode-toggle:focus,
+         .darkmode-toggle:hover {
+         	background: rgba(128, 128, 128, 0.12);
+         }
+         
+         .darkmode-toggle svg {
+         	width: 24px;
+         	height: 24px;
+         	display: block;
+         	pointer-events: none;
+         }
+         
+         .dark .darkmode-toggle .sun {
+         	display: none;
+         }
+         
+         .dark .darkmode-toggle .moon {
+         	display: block;
+         }
+         
+         .darkmode-toggle .moon {
+         	display: none;
+         }
+         
+         .darkmode-toggle .sun {
+         	display: block;
+         }
+         /* --- DARK MODE STYLES --- */
+         
+         body.dark {
+         	background: #191d25 !important;
+         	color: #dbeafe !important;
+         }
+         
+         body.dark .header {
+         	background: #191d25 !important;
+         }
+         
+         body.dark .nav a {
+         	color: #fbbf24 !important;
+         }
+         
+         body.dark .main {
+         	background: none !important;
+         }
+         
+         body.dark #seasons-container {
+         	background: #23293a !important;
+         }
+         
+         body.dark .season-selector__button {
+         	color: #fbbf24;
+         	background: #23293a;
+         }
+         
+         body.dark .season-selector__button.selected {
+         	color: #23293a;
+         	background: #fbbf24;
+         }
+         
+         body.dark #episodes {
+         	background: #23293a !important;
+         }
+         
+         body.dark #episodes li {
+         	background: #32436a !important;
+         	color: #fbbf24 !important;
+         	border-color: #394867;
+         }
+         
+         body.dark #episodes li.selected {
+         	background: #fbbf24 !important;
+         	color: #23293a !important;
+         }
+         
+         body.dark .overlay {
+         	background: rgba(0, 0, 0, 0.92);
+         }
+         
+         body.dark .overlay-content {
+         	color: #fbbf24;
+         }
+         
+         body.dark #download-button,
+         body.dark #download-button-landscape {
+         	background: #394867 !important;
+         	color: #ffd700 !important;
+         }
+         
+         body.dark #language-select {
+         	background: #394867;
+         	color: #fbbf24;
+         }
+         
          @media (orientation: portrait) {
-         .header {
-         flex-direction: column;
+         	.header {
+         		flex-direction: column;
+         	}
+         	.nav {
+         		margin-top: 20px;
+         	}
+         	.main {
+         		flex-direction: column;
+         		gap: 20px;
+         	}
+         	.main-left,
+         	.main-right {
+         		width: 100%;
+         	}
+         	.overlay-content {
+         		text-align: center;
+         		color: #fff;
+         		padding: 20px;
+         		display: flex;
+         		flex-direction: column;
+         		align-items: center;
+         	}
+         	.overlay-content-text {
+         		flex: 1;
+         		padding: 20px;
+         	}
+         	#download-button {
+         		margin-top: 10px;
+         		cursor: pointer;
+         		color: #ffffff;
+         		background-color: #e2793b;
+         		padding: 10px 20px;
+         		border: none;
+         		border-radius: 5px;
+         		font-family: 'Hello Headline', sans-serif;
+         	}
+         	#seasons-container {
+         		flex-direction: column;
+         		align-items: center;
+         	}
          }
-         .nav {
-         margin-top: 20px;
-         }
-         .main {
-         flex-direction: column;
-         gap: 20px;
-         }
-         .main-left,
-         .main-right {
-         width: 100%;
-         }
-         .overlay-content {
-         text-align: center;
-         color: #fff;
-         padding: 20px;
-         display: flex;
-         flex-direction: column;
-         align-items: center;
-         }
-         .overlay-content-text {
-         flex: 1;
-         padding: 20px;
-         }
-         #download-button {
-         margin-top: 10px;
-         cursor: pointer;
-         color: #ffffff;
-         background-color: #e2793b;
-         padding: 10px 20px;
-         border: none;
-         border-radius: 5px;
-         font-family: 'Hello Headline', sans-serif;
-         }
-         #seasons-container {
-         flex-direction: column;
-         align-items: center;
-         }
-         }
+         
          @media (orientation: landscape) {
-         .player-wrapper {
-         margin-top: 25px;
-         }
-         .overlay {
-         display: none !important;
-         }
-         #info-button {
-         display: none;
-         }
+         	.player-wrapper {
+         		margin-top: 25px;
+         	}
+         	.overlay {
+         		display: none !important;
+         	}
+         	#info-button {
+         		display: none;
+         	}
          }
       </style>
    </head>
@@ -317,6 +464,26 @@
                <li><a href="/music">Music</a></li>
                <li><a href="/audiobooks">Audio Books</a></li>
                <li><a href="/download">App</a></li>
+               <li>
+                  <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+                     <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"/>
+                        <g>
+                           <line x1="12" y1="1" x2="12" y2="3"/>
+                           <line x1="12" y1="21" x2="12" y2="23"/>
+                           <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                           <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                           <line x1="1" y1="12" x2="3" y2="12"/>
+                           <line x1="21" y1="12" x2="23" y2="12"/>
+                           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                           <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                        </g>
+                     </svg>
+                     <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                     </svg>
+                  </button>
+               </li>
             </ul>
          </div>
          <!-- Main Content -->
@@ -357,13 +524,61 @@
          </div>
          <!-- Scripts -->
          <script src="https://cdn.jsdelivr.net/npm/bitmovin-player@8/bitmovinplayer.js"></script>
+         <!-- DARK MODE SCRIPT -->
+         <script>
+            const themeKey = "bluey-site-theme";
+            const root = document.body;
+            const darkToggle = document.getElementById("darkToggle");
+            function setTheme(dark) {
+              if (dark) {
+                root.classList.add('dark');
+                localStorage.setItem(themeKey, "dark");
+              } else {
+                root.classList.remove('dark');
+                localStorage.setItem(themeKey, "light");
+              }
+            }
+            (() => {
+              const saved = localStorage.getItem(themeKey);
+              if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+                setTheme(true);
+              } else {
+                setTheme(false);
+              }
+            })();
+            darkToggle.onclick = () => setTheme(!root.classList.contains('dark'));
+         </script>
+         <!-- DARK MODE SCRIPT -->
+         <script>
+            const themeKey = "bluey-site-theme";
+            const root = document.body;
+            const darkToggle = document.getElementById("darkToggle");
+            function setTheme(dark) {
+              if (dark) {
+                root.classList.add('dark');
+                localStorage.setItem(themeKey, "dark");
+              } else {
+                root.classList.remove('dark');
+                localStorage.setItem(themeKey, "light");
+              }
+            }
+            (() => {
+              const saved = localStorage.getItem(themeKey);
+              if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+                setTheme(true);
+              } else {
+                setTheme(false);
+              }
+            })();
+            darkToggle.onclick = () => setTheme(!root.classList.contains('dark'));
+         </script>
          <script>
             // Global configuration and state variables
             const serverUrl = "https://blueynet.org:443";
             const apiKey = "6b2548952ea2439ea800b8cd3f1072d1"; // Your API key
             const itemId = "48548";
             const LANG_STORAGE_KEY= "bluey_watch_selected_language_minisodes";
-
+            
             // Language selection state
             let selectedAudioStreamIndex = 1; // default to English
             let userPreferredLanguage = selectedAudioStreamIndex; // caches user's current choice
@@ -371,22 +586,22 @@
             let fallbackTriggered = false; // whether fallback has been triggered for the current episode
             let fallbackEpisodeId = null; // episode ID that triggered fallback
             let fallbackPosition = null; // store playback time when fallback occurs
-
+            
             // Episode and season state
             let selectedSeason = null;
             let episodes = [];
             let currentEpisodeIndex = -1; // no episode highlighted initially
             let episodesCache = {};
-
+            
             let seasonsList = []; // Array of season objects.
             let currentSeason = null; // Currently selected season.
             let currentSeasonIndex = -1; // Index in seasonsList.
-
+            
             // Bitmovin player instance
             let player = null;
             // Token to track the latest playback info request
             let currentPlaybackRequestId = 0;
-
+            
             document.addEventListener("DOMContentLoaded", () => {
                 // 1. Restore previously selected language (if any)
                 const saved = localStorage.getItem(LANG_STORAGE_KEY);
@@ -395,9 +610,9 @@
                     userPreferredLanguage = selectedAudioStreamIndex;
                     document.getElementById('language-select').value = saved;
                 }
-
+            
                 fetchSeasons();
-
+            
                 // Player configuration with built-in casting enabled and custom Chromecast receiver styling.
                 const conf = {
                     key: '1a69b597-a4b2-4bf7-99ba-bd417397c111',
@@ -412,7 +627,7 @@
                     }
                 };
                 player = new bitmovin.player.Player(document.getElementById('player'), conf);
-
+            
                 // Listen for general error events. If an error occurs and the current language isn't English,
                 // schedule a fallback after 5 seconds.
                 player.on(bitmovin.player.PlayerEvent.Error, (error) => {
@@ -442,7 +657,7 @@
                         }, 5000); // 5 seconds delay
                     }
                 });
-
+            
                 // Auto-advance when an episode finishes.
                 player.on(bitmovin.player.PlayerEvent.PlaybackFinished, () => {
                     if (currentEpisodeIndex >= 0 && currentEpisodeIndex + 1 < episodes.length) {
@@ -464,11 +679,11 @@
                         }
                     }
                 });
-
+            
                 window.addEventListener('resize', updateOrientationUI);
                 document.addEventListener('DOMContentLoaded', updateOrientationUI);
             });
-
+            
             // Prefetch episodes for a season.
             function prefetchEpisodes(season) {
                 if (!episodesCache[season.Id]) {
@@ -480,7 +695,7 @@
                         .catch(error => console.error("Error prefetching episodes:", error));
                 }
             }
-
+            
             // Fetch seasons from server.
             function fetchSeasons() {
                 fetch(`${serverUrl}/emby/Shows/${itemId}/Seasons?api_key=${apiKey}`)
@@ -508,7 +723,7 @@
                     })
                     .catch(error => console.error("Error retrieving seasons:", error));
             }
-
+            
             // Fetch episodes for a season.
             function fetchEpisodes(season) {
                 fetch(`${serverUrl}/emby/Shows/${itemId}/Episodes?SeasonId=${season.Id}&api_key=${apiKey}&Fields=Overview`)
@@ -520,7 +735,7 @@
                     })
                     .catch(error => console.error("Error retrieving episodes:", error));
             }
-
+            
             // Handle season button click.
             function handleSeasonClick(button, season, seasonIndex) {
                 if (selectedSeason) {
@@ -532,7 +747,7 @@
                 currentSeasonIndex = seasonIndex;
                 currentEpisodeIndex = -1;
             }
-
+            
             // Render the list of episodes.
             function renderEpisodes(episodes) {
                 const episodeList = document.getElementById('episodes');
@@ -556,7 +771,7 @@
                     episodeList.appendChild(episodeItem);
                 });
             }
-
+            
             // Play a given episode and update player and UI accordingly.
             // An optional 'seekTime' parameter (in seconds) is used to resume playback after fallback.
             function playEpisode(episode, index, seekTime) {
@@ -573,15 +788,15 @@
                     fallbackTriggered = false;
                     fallbackEpisodeId = null;
                 }
-
+            
                 document.querySelector('.player-wrapper').style.display = 'block';
                 if (player) {
                     player.pause();
                 }
-
+            
                 currentPlaybackRequestId++;
                 const requestId = currentPlaybackRequestId;
-
+            
                 if ('mediaSession' in navigator) {
                     navigator.mediaSession.metadata = new MediaMetadata({
                         title: `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`,
@@ -634,7 +849,7 @@
                         }
                     });
                 }
-
+            
                 const timestamp = new Date().getTime();
                 fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources&t=${timestamp}`)
                     .then(response => response.json())
@@ -650,7 +865,7 @@
                         const epname = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
                         const progressive = `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`;
                         const hls = `${serverUrl}/emby/videos/${episode.Id}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${PlaySessionId}&api_key=${apiKey}&VideoCodec=h264,h265,hevc&AudioCodec=mp3,aac&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}&AudioStreamIndex=${selectedAudioStreamIndex}&TranscodingMaxAudioChannels=2&SegmentContainer=m4s,ts&MinSegments=2&BreakOnNonKeyFrames=True&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&hevc-codectag=hvc1&TranscodeReasons=ContainerBitrateExceedsLimit`;
-
+            
                         player.load({
                             title: epname,
                             hls: hls,
@@ -675,15 +890,15 @@
                         });
                     })
                     .catch(error => console.error("Error retrieving playback info:", error));
-
+            
                 const prevSelected = document.querySelector("#episodes li.selected");
                 if (prevSelected) prevSelected.classList.remove("selected");
                 const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
                 if (selectedEpisodeItem) selectedEpisodeItem.classList.add("selected");
-
+            
                 renderOverlay(episode);
             }
-
+            
             function renderOverlay(episode) {
                 if (window.innerHeight > window.innerWidth) {
                     const overlay = document.getElementById('overlay');
@@ -691,13 +906,13 @@
                     const overlayTitle = document.getElementById('overlay-title');
                     const overlayDescription = document.getElementById('overlay-description');
                     const overlayEpisodeNumber = document.getElementById('overlay-episode-number');
-
+            
                     overlayImage.src = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
                     overlayEpisodeNumber.innerText = `S${episode.ParentIndexNumber}E${episode.IndexNumber}`;
                     overlayTitle.innerText = episode.Name;
                     overlayDescription.innerText = episode.Overview;
                     overlay.style.display = 'block';
-
+            
                     const descContainer = document.getElementById('landscape-description');
                     if (descContainer) descContainer.style.display = 'none';
                 } else {
@@ -715,17 +930,17 @@
                     document.getElementById('overlay').style.display = 'none';
                 }
             }
-
+            
             function closeOverlay() {
                 document.getElementById('overlay').style.display = 'none';
             }
-
+            
             function showInfo() {
                 if (currentEpisodeIndex >= 0 && episodes[currentEpisodeIndex]) {
                     renderOverlay(episodes[currentEpisodeIndex]);
                 }
             }
-
+            
             function downloadEpisode() {
                 if (currentEpisodeIndex >= 0 && episodes[currentEpisodeIndex]) {
                     const episode = episodes[currentEpisodeIndex];
@@ -733,26 +948,26 @@
                     window.location.href = downloadUrl;
                 }
             }
-
+            
             // Handle language selection changes (same as when a user manually changes language).
             // Optionally accept a 'seekTime' (in seconds) to resume playback.
-
+            
             function setLanguage(value, seekTime) {
                 selectedAudioStreamIndex = parseInt(value, 10);
                 userPreferredLanguage = selectedAudioStreamIndex;
-
+            
                 // Persist for next visit
                 localStorage.setItem(LANG_STORAGE_KEY, value);
-
+            
                 if (episodes.length > 0 && currentEpisodeIndex >= 0) {
                     playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex, seekTime);
                 }
             }
-
+            
             function updateOrientationUI() {
                 const infoButton = document.getElementById('info-button');
                 const landscapeDesc = document.getElementById('landscape-description');
-
+            
                 if (window.innerHeight > window.innerWidth) {
                     infoButton.style.display = 'block';
                     if (landscapeDesc) landscapeDesc.style.display = 'none';

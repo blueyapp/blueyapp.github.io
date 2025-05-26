@@ -550,10 +550,11 @@
                   playMusic(currentIndex);
               } else {
                   currentIndex += 1;
-                  if (currentIndex >= musicItems.length) {
-                      currentIndex = 0; 
+                  if (currentIndex < musicItems.length) {
+                      playMusic(currentIndex);
+                  } else {
+                      currentIndex = 0;
                   }
-                  playMusic(currentIndex); 
               }
           }
 

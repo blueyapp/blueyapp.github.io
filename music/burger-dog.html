@@ -34,6 +34,7 @@
          body {
          font-family: "Hello Headline", Arial, sans-serif !important;
          background-color: #87c0e8 !important;
+         transition: background-color 0.3s, color 0.3s;
          }
          .album {
          font-family: "Hello Headline", Arial, sans-serif;
@@ -46,6 +47,7 @@
          flex-direction: column;
          justify-content: center;
          align-items: center;
+         transition: background-color 0.3s, color 0.3s;
          }
          .album .img-container {
          width: 200px;
@@ -74,14 +76,18 @@
          .nav {
          display: flex;
          list-style: none;
+         align-items: center;
          }
          .nav li {
          margin-left: 20px;
+         display: flex;
+         align-items: center;
          }
          .nav a {
          text-decoration: none;
          color: #ffffff;
          font-weight: bold;
+         transition: color 0.3s;
          }
          .music-player {
          background-color: #fff;
@@ -89,6 +95,11 @@
          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
          border-radius: 10px;
          margin-top: 20px;
+         transition: background-color 0.3s, color 0.3s;
+         }
+         .music-player h1 {
+         transition: color 0.3s;
+         margin-bottom: 15px;
          }
          .music-list {
          list-style-type: none;
@@ -96,6 +107,7 @@
          margin: 0;
          max-height: 400px;
          overflow-y: auto;
+         transition: background-color 0.3s;
          }
          .music-item {
          display: flex;
@@ -103,22 +115,21 @@
          padding: 10px;
          border-bottom: 1px solid #ddd;
          cursor: pointer;
+         transition: background-color 0.3s, color 0.3s, border-color 0.3s;
          }
          .music-item:hover {
          background-color: #f0f0f0;
          }
          .highlight {
-         background-color: #d0e0ff;
+         background-color: #d0e0ff; /* Light mode highlight */
          font-weight: bold;
-         }
-         .music-item img {
-         margin-left: auto;
-         cursor: pointer;
          }
          .audio-player-container {
          background-color: #fff;
          padding: 10px;
          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+         margin-top: 15px;
+         transition: background-color 0.3s;
          }
          audio {
          width: 100%;
@@ -127,81 +138,206 @@
          display: flex;
          gap: 10px;
          align-items: center;
+         margin-bottom: 10px;
          }
-         .controls img {
-         width: 24px;
-         height: 24px;
-         cursor: pointer;
+
+         /* SVG Icon & Control Button Styling */
+         .control-button {
+            background: none;
+            border: none;
+            margin: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #555; /* Default icon stroke color for light mode */
+            transition: color 0.2s, background-color 0.2s, box-shadow 0.2s;
+            border-radius: 6px;
          }
-         button {
-         padding: 5px 10px;
-         font-size: 16px;
-         cursor: pointer;
-         background: none;
-         border: none;
+         .control-button svg {
+            width: 24px;
+            height: 24px;
+            vertical-align: middle;
+            stroke: currentColor; /* SVG lines take color from parent button */
+            fill: none; /* Ensure icons are line art */
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: background-color 0.2s, stroke 0.2s;
          }
+         .control-button:hover {
+            color: #007bff; /* Icon stroke color on hover */
+         }
+
+         .music-item .control-button { /* Download button in list */
+            margin-left: auto;
+            padding: 5px;
+         }
+         .music-item .control-button svg {
+            width: 20px;
+            height: 20px;
+         }
+
+         #loadingContainer {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 8px; /* Consistent with other control buttons */
+         }
+         #loadingContainer svg.icon-loader {
+            width: 24px; /* Consistent with other control buttons */
+            height: 24px;
+            stroke: #555; /* Default stroke for light mode */
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            animation: icon-loading-spin 0.8s linear infinite;
+            transform-origin: center;
+         }
+         @keyframes icon-loading-spin {
+            to { transform: rotate(360deg); }
+         }
+
+         /* Light mode active state for repeat buttons */
+         .controls button.control-button.active-control {
+            box-shadow: 0 0 8px 2px #cce7ff;
+            /* Button itself doesn't need a background if SVG gets it */
+         }
+         .controls button.control-button.active-control svg {
+            background-color: #cce7ff;
+            stroke: #0056b3; /* Icon stroke color for contrast */
+            /* fill: #0056b3; /* Only if there are filled parts like the '1' */
+            border-radius: 4px;
+         }
+         /* Special handling for the '1' in repeat-once if it were a fill */
+         .controls button.control-button.active-control svg.icon-repeat-once .icon-text-numeral {
+             stroke: #0056b3; /* Ensure '1' path color matches */
+         }
+
+
          p {
          margin-bottom: 30px;
          margin-top: 30px;
          font-family: "Hello Headline", sans-serif;
          color: white;
          text-align: center;
+         transition: color 0.3s;
          }
          @media (max-width: 768px) {
-         .header {
-         flex-direction: column;
+         .header { flex-direction: column; }
+         .nav { margin-top: 20px; }
          }
-         .nav {
-         margin-top: 20px;
-         }
-         .main {
-         flex-direction: column;
-         }
-         .main-left,
-         .main-right {
-         width: 100%;
-         }
-         .main-right {
-         margin-top: 20px;
-         }
-         }
-         /* Spinner animation */
-         @keyframes spin {
-         0% { transform: rotate(0deg); }
-         100% { transform: rotate(360deg); }
-         }
-         #loadingContainer img {
-         animation: spin 1s linear infinite;
-         }
-         /* Styles for the popup */
          .popup {
-         position: fixed;
-         top: 0;
-         left: 0;
-         width: 100%;
-         height: 100%;
-         background: rgba(0, 0, 0, 0.7);
-         color: white;
-         display: none;
-         justify-content: center;
-         align-items: center;
-         z-index: 1000;
+         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+         background: rgba(0, 0, 0, 0.7); color: white; display: none;
+         justify-content: center; align-items: center; z-index: 1000;
+         transition: background-color 0.3s;
          }
          .popup-content {
-         background: #333;
-         padding: 20px;
-         border-radius: 10px;
-         text-align: center;
-         position: relative;
+         background: #333; padding: 20px; border-radius: 10px;
+         text-align: center; position: relative;
+         transition: background-color 0.3s, color 0.3s;
          }
          .popup-close {
-         position: absolute;
-         top: 10px;
-         right: 10px;
-         cursor: pointer;
-         font-size: 20px;
-         color: white;
+         position: absolute; top: 10px; right: 10px;
+         cursor: pointer; font-size: 20px; color: white;
+         transition: color 0.3s;
          }
+
+         /* --- Dark mode styles --- */
+         body.dark {
+         background: #191d25 !important;
+         color: #dbeafe !important;
+         }
+         body.dark .nav a { color: #fbbf24 !important; }
+         body.dark .album {
+            background-color: #191d25 !important;
+            color: #dbeafe !important;
+         }
+         body.dark p { color: #dbeafe !important; }
+         body.dark .music-player {
+            background-color: #23293a !important;
+            color: #dbeafe !important;
+         }
+         body.dark .music-player h1 { color: #fbbf24 !important; }
+         body.dark .audio-player-container { background-color: #23293a !important; }
+
+         body.dark .control-button {
+            color: #fbbf24; /* Default icon stroke color for dark mode */
+         }
+         body.dark .control-button:hover {
+            color: #fff; /* Brighter icon stroke on hover */
+         }
+         body.dark #loadingContainer svg.icon-loader {
+            stroke: #fbbf24;
+         }
+
+         /* Dark mode active state for repeat buttons */
+         body.dark .controls button.control-button.active-control {
+            box-shadow: 0 0 8px 2px #ffe066 !important;
+         }
+         body.dark .controls button.control-button.active-control svg {
+            background: #fbbf24 !important;
+            stroke: #23293a !important; /* Icon stroke color for contrast */
+            /* fill: #23293a !important; /* Only if '1' is filled */
+            border-radius: 4px;
+         }
+          body.dark .controls button.control-button.active-control svg.icon-repeat-once .icon-text-numeral {
+             stroke: #23293a !important; /* Ensure '1' path color matches */
+         }
+
+         body.dark .music-list { background: #23293a !important; }
+         body.dark .music-item {
+            background: #23293a !important;
+            color: #fbbf24 !important;
+            border-bottom-color: #394867 !important;
+         }
+         body.dark .music-item:hover { background: #394867 !important; }
+         body.dark .music-item.highlight {
+            background: #fbbf24 !important;
+            color: #23293a !important;
+         }
+         /* Download icon color on highlight in dark mode */
+         body.dark .music-item.highlight .control-button.download-button {
+            color: #23293a !important; /* Sets stroke for SVG via currentColor */
+         }
+
+         /* Download icon color on highlight in light mode */
+         body:not(.dark) .music-item.highlight .control-button.download-button {
+            color: #000000 !important; /* Sets stroke for SVG via currentColor */
+         }
+
+         body.dark .popup { background: rgba(0, 0, 0, 0.92) !important; }
+         body.dark .popup-content {
+            background: #23293a !important;
+            color: #fbbf24 !important;
+         }
+         body.dark .popup-close { color: #fbbf24 !important; }
+
+         /* --- Dark mode toggle button --- */
+         .darkmode-toggle {
+         background: none; border: none; cursor: pointer; border-radius: 50%;
+         width: 36px; height: 36px; display: flex; align-items: center;
+         justify-content: center; outline: none; padding: 2px; transition: background 0.2s;
+         }
+         .darkmode-toggle:focus,
+         .darkmode-toggle:hover { background: rgba(128, 128, 128, 0.12); }
+         body.dark .darkmode-toggle:focus,
+         body.dark .darkmode-toggle:hover { background: rgba(251, 191, 36, 0.2); }
+         .darkmode-toggle svg {
+         width: 24px; height: 24px; display: block; pointer-events: none;
+         stroke: currentColor; /* Make toggle SVGs also use currentColor from button */
+         }
+         /* Ensure specific stroke colors for sun/moon in toggle if currentColor isn't desired for them */
+         .darkmode-toggle svg.sun { stroke: #fff; }
+         body.dark .darkmode-toggle svg.moon { stroke: #fbbf24; }
+
+
+         .dark .darkmode-toggle .sun { display: none; }
+         .dark .darkmode-toggle .moon { display: block; }
+         .darkmode-toggle .moon { display: none; }
+         .darkmode-toggle .sun { display: block; }
       </style>
    </head>
    <body>
@@ -214,24 +350,53 @@
                <li><a href="/music">Music</a></li>
                <li><a href="/audiobooks">Audio Books</a></li>
                <li><a href="/download">App</a></li>
+               <li>
+                  <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+                     <svg class="sun" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"/><g><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></g>
+                     </svg>
+                     <svg class="moon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                     </svg>
+                  </button>
+               </li>
             </ul>
          </div>
          <div class="album">
             <div class="img-container">
-               <img src="/images/ab67616d0000b2732f736d405f51af038344c8bb.jpg" alt="Logo">
+               <img src="/images/ab67616d0000b2732f736d405f51af038344c8bb.jpg" alt="Burger Dog">
             </div>
          </div>
          <div class="music-player">
             <h1>Burger Dog / Bluey Theme Tune (Burger Dog Version) [feat. Daniel O'Brien]</h1>
             <div class="controls">
-               <button id="repeatOnceButton">
-               <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAABFklEQVR4nO2WPQ4BQRSAv8JS+e3ECRxFJXEGUUhoXUHtIEqNjvhLFCrCESQUKNCQlbfJZmNnlh3b2C952WLezrfzMvNmISZGzQAoo6cODCWM8ADuQA8o+OT0Jc8JY2InjkAHSHpydkANuOrEKaAFzIGLZ/IgsQYqrvly8lSKS8DqC5lKjE6cckk3QBVIq0rjER6kUpZP7tVP3HZJnfKY2Fxa8UIG7JWaPk5K8VkGdOU1zhgYRS2N+QULYEbEZGXjnj55qSzHJgw1EU+DJBekMdxD3ip2M9rKHE1VoiWt7xDyOsvISh3pUtFOX819HfKSeBdLoKj6SpNiuxNOpLxWkBIlgAaw/8WfQxDyQBe4RS02eZxi/pAnPrySPmqzKTQAAAAASUVORK5CYII=" alt="Repeat Once">
+               <button id="repeatOnceButton" class="control-button" title="Repeat Once">
+                  <svg viewBox="0 0 24 24" class="icon-repeat-once">
+                    <polyline points="17 1 21 1 21 5"></polyline>
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                    <polyline points="7 23 3 23 3 19"></polyline>
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                    <path d="M12 14.5 V9.5 M10.5 11 L12 9.5" class="icon-text-numeral"></path> </svg>
                </button>
-               <button id="repeatAllButton">
-               <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAABAklEQVR4nO3Vv0rDUBiG8d9g7KTVgoN4BR28kE4FL8JB0NVbcHbzRlzclKqFDk6KtyDUQV2sQyXwCaFDyD/jYB44W97z5HzkvKGjozxX2PcHLPGFC+y0LV7GesUp1osEezjGPT5WNqq6HjHKk+7hoSFZYXEvI33CGBs1Rz2P6SV5gZOMdKuCMCte4ByDIoFphNKT1uESwzKB9xBXGW8tbnDdtrTjN5jiTsv048N9KxMaxhWpw0GIb4s8PIgSWESoKmkZPcceR3kPJlFz85X6K8tmnPRHOsurzlEUetM/iRl2896ySXHahJMYb1JkRGs4xEvNUVdmG2f4bFvc5HXq+Id8AxS0ib0GErJgAAAAAElFTkSuQmCC" alt="Repeat All">
+               <button id="repeatAllButton" class="control-button" title="Repeat All">
+                  <svg viewBox="0 0 24 24" class="icon-repeat-all">
+                    <polyline points="17 1 21 1 21 5"></polyline>
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                    <polyline points="7 23 3 23 3 19"></polyline>
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                  </svg>
                </button>
-               <div id="loadingContainer" style="display: none;">
-                  <img width="30" height="30" src="https://img.icons8.com/ios-glyphs/30/loading-sign.png" alt="loading-sign"/>
+               <div id="loadingContainer">
+                  <svg viewBox="0 0 24 24" class="icon-loader">
+                    <line x1="12" y1="2" x2="12" y2="6"></line>
+                    <line x1="12" y1="18" x2="12" y2="22"></line>
+                    <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                    <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                    <line x1="2" y1="12" x2="6" y2="12"></line>
+                    <line x1="18" y1="12" x2="22" y2="12"></line>
+                    <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                    <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+                  </svg>
                </div>
             </div>
             <div class="audio-player-container">
@@ -240,7 +405,6 @@
             <ul id="musicList" class="music-list"></ul>
          </div>
       </div>
-      <!-- Safari Autoplay Popup -->
       <div id="safariPopup" class="popup">
          <div class="popup-content">
             <span class="popup-close" onclick="closePopup()">&times;</span>
@@ -248,80 +412,121 @@
             <p>Due to autoplay restrictions on Safari, please click the play button to start the music.</p>
          </div>
       </div>
+
+      <script>
+         const themeKey = "bluey-site-theme";
+         const root = document.body;
+         const darkToggle = document.getElementById("darkToggle");
+
+         function setTheme(dark) {
+           if (dark) {
+             root.classList.add('dark');
+             localStorage.setItem(themeKey, "dark");
+           } else {
+             root.classList.remove('dark');
+             localStorage.setItem(themeKey, "light");
+           }
+         }
+         (() => {
+           const saved = localStorage.getItem(themeKey);
+           if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+             setTheme(true);
+           } else {
+             setTheme(false);
+           }
+         })();
+         if (darkToggle) {
+            darkToggle.onclick = () => setTheme(!root.classList.contains('dark'));
+         }
+      </script>
+
       <script>
          const EMBY_URL = 'https://blueynet.org';
          const EMBY_USER_ID = 'ba603d94a7c24b3b8c7e7ea2fedc9162';
          const EMBY_API_TOKEN = '6b2548952ea2439ea800b8cd3f1072d1';
          const parentID = '172676';
-          
+
           const musicListElement = document.getElementById('musicList');
           const audioPlayer = document.getElementById('audioPlayer');
           const repeatOnceButton = document.getElementById('repeatOnceButton');
           const repeatAllButton = document.getElementById('repeatAllButton');
           const loadingContainer = document.getElementById('loadingContainer');
           const safariPopup = document.getElementById('safariPopup');
-          
+
+          const downloadIconSVG = `
+            <svg viewBox="0 0 24 24" class="icon-download">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>`;
+
           let musicItems = [];
           let currentIndex = 0;
           let repeatOnce = false;
           let repeatAll = false;
-          
+
           async function fetchMusicData() {
-              const response = await fetch(`${EMBY_URL}/emby/Users/${EMBY_USER_ID}/Items?ParentId=${parentID}&Fields=BasicSyncInfo,CanDelete,PrimaryImageAspectRatio,SyncStatus&ImageTypeLimit=1&EnableTotalRecordCount=false&X-Emby-Token=${EMBY_API_TOKEN}`);
-              const data = await response.json();
-              return data.Items;
+              loadingContainer.style.display = 'inline-flex';
+              try {
+                  const response = await fetch(`${EMBY_URL}/emby/Users/${EMBY_USER_ID}/Items?ParentId=${parentID}&Fields=BasicSyncInfo,CanDelete,PrimaryImageAspectRatio,SyncStatus&ImageTypeLimit=1&EnableTotalRecordCount=false&X-Emby-Token=${EMBY_API_TOKEN}`);
+                  const data = await response.json();
+                  return data.Items;
+              } catch (error) {
+                  console.error("Failed to fetch music data:", error);
+                  return [];
+              } finally {
+                  loadingContainer.style.display = 'none';
+              }
           }
-          
+
           function createMusicItemElement(musicItem, index) {
               const li = document.createElement('li');
               li.className = 'music-item';
-          
+
               const title = document.createElement('span');
-              title.textContent = `${musicItem.IndexNumber}. ${musicItem.Name}`; // Add the track number before the music name
-          
-              const downloadButton = document.createElement('img');
-              downloadButton.src = 'https://img.icons8.com/ios-glyphs/30/downloading-updates.png';
-              downloadButton.alt = 'Download';
-              downloadButton.width = 30;
-              downloadButton.height = 30;
-              downloadButton.style.marginLeft = 'auto';
-              downloadButton.style.cursor = 'pointer';
-              downloadButton.onclick = () => {
+              title.textContent = `${musicItem.IndexNumber}. ${musicItem.Name}`;
+
+              const downloadButton = document.createElement('button');
+              downloadButton.className = 'control-button download-button';
+              downloadButton.title = 'Download';
+              downloadButton.innerHTML = downloadIconSVG; // SVG attributes are set in CSS or within the SVG string
+              downloadButton.onclick = (event) => {
+                  event.stopPropagation();
                   const musicId = musicItem.Id;
                   const downloadUrl = `${EMBY_URL}/emby/Items/${musicId}/Download?api_key=${EMBY_API_TOKEN}`;
                   window.open(downloadUrl, '_blank');
               };
-          
+
               li.appendChild(title);
               li.appendChild(downloadButton);
               li.onclick = () => playMusic(index);
-          
               return li;
           }
-          
+
           function displayMusicList(musicItems) {
+              musicListElement.innerHTML = '';
               musicItems.forEach((musicItem, index) => {
                   const musicItemElement = createMusicItemElement(musicItem, index);
                   musicListElement.appendChild(musicItemElement);
               });
           }
-          
+
           function updateHighlight() {
               const items = musicListElement.querySelectorAll('.music-item');
               items.forEach((item, index) => {
                   item.classList.toggle('highlight', index === currentIndex);
               });
           }
-          
+
           function playMusic(index) {
               currentIndex = index;
-              updateHighlight(); // Update the highlight when music changes
+              updateHighlight();
               const musicId = musicItems[index].Id;
               const musicUrl = `${EMBY_URL}/emby/Audio/${musicId}/universal?UserId=${EMBY_USER_ID}&MaxStreamingBitrate=4000000&Container=opus,mp3|mp3,mp2,mp3|mp2,m4a|aac,mp4|aac,flac,webma,webm,wav|PCM_S16LE,wav|PCM_S24LE,ogg&TranscodingContainer=aac&TranscodingProtocol=hls&AudioCodec=aac&api_key=${EMBY_API_TOKEN}`;
-          
               const musicItem = musicItems[index];
+              const musicTag = musicItem.ImageTags.Primary;
               const formattedArtists = (musicItem.Artists || []).join(', '); // Format Artists with proper spacing
-          
+
               if ('mediaSession' in navigator) {
                   navigator.mediaSession.metadata = new MediaMetadata({
                       title: musicItem.Name || 'Unknown Title',
@@ -335,7 +540,6 @@
                           },
                       ],
                   });
-          
                   navigator.mediaSession.setActionHandler('play', () => audioPlayer.play());
                   navigator.mediaSession.setActionHandler('pause', () => audioPlayer.pause());
                   navigator.mediaSession.setActionHandler('nexttrack', playNextMusic);
@@ -344,24 +548,23 @@
                       playMusic(currentIndex);
                   });
               }
-          
-              loadingContainer.style.display = 'flex'; // Show loading icon
-          
+              loadingContainer.style.display = 'inline-flex';
               audioPlayer.src = musicUrl;
               audioPlayer.play()
                   .catch((error) => {
                       console.error('Autoplay blocked. Please click the play button.', error);
                       if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
-                          safariPopup.style.display = 'flex'; // Show the popup for Safari
+                          safariPopup.style.display = 'flex';
                       }
                   })
                   .finally(() => {
-                      loadingContainer.style.display = 'none'; // Hide loading icon
+                      loadingContainer.style.display = 'none';
                   });
           }
-          
+
           function playNextMusic() {
               if (repeatOnce) {
+                  audioPlayer.currentTime = 0;
                   audioPlayer.play();
               } else if (repeatAll) {
                   currentIndex = (currentIndex + 1) % musicItems.length;
@@ -370,40 +573,51 @@
                   currentIndex += 1;
                   if (currentIndex < musicItems.length) {
                       playMusic(currentIndex);
+                  } else {
+                      currentIndex = 0;
                   }
               }
           }
-          
           audioPlayer.addEventListener('ended', playNextMusic);
-          
+
+          function toggleButtonActive(button, isActive) {
+              if (isActive) {
+                  button.classList.add('active-control');
+              } else {
+                  button.classList.remove('active-control');
+              }
+          }
+
           repeatOnceButton.addEventListener('click', () => {
               repeatOnce = !repeatOnce;
-              repeatOnceButton.style.backgroundColor = repeatOnce ? 'lightblue' : '';
+              toggleButtonActive(repeatOnceButton, repeatOnce);
               if (repeatOnce) {
                   repeatAll = false;
-                  repeatAllButton.style.backgroundColor = '';
+                  toggleButtonActive(repeatAllButton, false);
               }
           });
-          
           repeatAllButton.addEventListener('click', () => {
               repeatAll = !repeatAll;
-              repeatAllButton.style.backgroundColor = repeatAll ? 'lightblue' : '';
+              toggleButtonActive(repeatAllButton, repeatAll);
               if (repeatAll) {
                   repeatOnce = false;
-                  repeatOnceButton.style.backgroundColor = '';
+                  toggleButtonActive(repeatOnceButton, false);
               }
           });
-          
+
           async function init() {
               musicItems = await fetchMusicData();
-              displayMusicList(musicItems);
+              if (musicItems && musicItems.length > 0) {
+                displayMusicList(musicItems);
+              } else {
+                musicListElement.innerHTML = '<li>No audio episodes found or failed to load.</li>';
+              }
           }
-          
           init();
-          
+
           function closePopup() {
               safariPopup.style.display = 'none';
-          }   
+          }
       </script>
    </body>
 </html>

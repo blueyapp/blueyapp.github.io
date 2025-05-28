@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rug Island</title>
-    <meta name="title" content="Rug Island">
-    <meta name="description" content="Bluey’s third album, Bluey: Rug Island, featuring 16 original tracks by the series’ award-winning composer Joff Bush and the Bluey music team will be released on October 25, 2024!">
-    <meta name="keywords" content="bluey, bluey, bluey">
-    <meta name="robots" content="index, follow">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="language" content="English">
-    <meta name="author" content="Bluey Heeler">
-    <!-- Meta tags for social share preview -->
-    <meta property="og:title" content="Rug Island">
-    <meta property="og:description" content="Bluey’s third album, Bluey: Rug Island, featuring 16 original tracks by the series’ award-winning composer Joff Bush and the Bluey music team will be released on October 25, 2024!">
-    <meta property="og:image" content="https://www.bluey.tv/wp-content/uploads/2024/08/RI-C-1536x864.png">
-    <!-- URL to your image -->
-    <meta property="og:url" content="https://pages.blueynet.org/music/rug-island">
-    <!-- URL of your page -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Rug Island">
-    <meta name="twitter:description" content="Bluey’s third album, Bluey: Rug Island, featuring 16 original tracks by the series’ award-winning composer Joff Bush and the Bluey music team will be released on October 25, 2024!">
-    <meta name="twitter:image" content="https://www.bluey.tv/wp-content/uploads/2024/08/RI-C-1536x864.png">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Rug Island</title>
+      <meta name="title" content="Rug Island">
+      <meta name="description" content="Bluey’s third album, Bluey: Rug Island, featuring 16 original tracks by the series’ award-winning composer Joff Bush and the Bluey music team will be released on October 25, 2024!">
+      <meta name="keywords" content="bluey, bluey, bluey">
+      <meta name="robots" content="index, follow">
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <meta name="language" content="English">
+      <meta name="author" content="Bluey Heeler">
+      <!-- Meta tags for social share preview -->
+      <meta property="og:title" content="Rug Island">
+      <meta property="og:description" content="Bluey’s third album, Bluey: Rug Island, featuring 16 original tracks by the series’ award-winning composer Joff Bush and the Bluey music team will be released on October 25, 2024!">
+      <meta property="og:image" content="https://www.bluey.tv/wp-content/uploads/2024/08/RI-C-1536x864.png">
+      <!-- URL to your image -->
+      <meta property="og:url" content="https://pages.blueynet.org/music/rug-island">
+      <!-- URL of your page -->
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:title" content="Rug Island">
+      <meta name="twitter:description" content="Bluey’s third album, Bluey: Rug Island, featuring 16 original tracks by the series’ award-winning composer Joff Bush and the Bluey music team will be released on October 25, 2024!">
+      <meta name="twitter:image" content="https://www.bluey.tv/wp-content/uploads/2024/08/RI-C-1536x864.png">
       <!-- URL to your image -->
       <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
       <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
@@ -34,6 +34,7 @@
          body {
          font-family: "Hello Headline", Arial, sans-serif !important;
          background-color: #87c0e8 !important;
+         transition: background-color 0.3s, color 0.3s;
          }
          .album {
          font-family: "Hello Headline", Arial, sans-serif;
@@ -46,6 +47,7 @@
          flex-direction: column;
          justify-content: center;
          align-items: center;
+         transition: background-color 0.3s, color 0.3s;
          }
          .album .img-container {
          width: 200px;
@@ -74,14 +76,18 @@
          .nav {
          display: flex;
          list-style: none;
+         align-items: center;
          }
          .nav li {
          margin-left: 20px;
+         display: flex;
+         align-items: center;
          }
          .nav a {
          text-decoration: none;
          color: #ffffff;
          font-weight: bold;
+         transition: color 0.3s;
          }
          .music-player {
          background-color: #fff;
@@ -89,6 +95,16 @@
          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
          border-radius: 10px;
          margin-top: 20px;
+         transition: background-color 0.3s, color 0.3s;
+         }
+         .music-player h1 {
+         transition: color 0.3s;
+         margin-bottom: 15px;
+         }
+         .music-player h1 .dolby-logo { /* Moved from global p styling */
+            vertical-align: middle;
+            margin-left: 10px;
+            height: 22px; /* Adjusted for h1 context */
          }
          .music-list {
          list-style-type: none;
@@ -96,6 +112,7 @@
          margin: 0;
          max-height: 400px;
          overflow-y: auto;
+         transition: background-color 0.3s;
          }
          .music-item {
          display: flex;
@@ -103,110 +120,208 @@
          padding: 10px;
          border-bottom: 1px solid #ddd;
          cursor: pointer;
+         transition: background-color 0.3s, color 0.3s, border-color 0.3s;
          }
          .music-item:hover {
          background-color: #f0f0f0;
          }
          .highlight {
-         background-color: #d0e0ff;
+         background-color: #d0e0ff; /* Light mode highlight */
          font-weight: bold;
-         }
-         .music-item img {
-         margin-left: auto;
-         cursor: pointer;
          }
          .audio-player-container {
          background-color: #fff;
          padding: 10px;
          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+         margin-top: 15px;
+         transition: background-color 0.3s;
          }
          audio {
          width: 100%;
          }
          .controls {
          display: flex;
-         gap: 10px;
+         gap: 10px; /* Spacing between control buttons */
          align-items: center;
+         margin-bottom: 10px;
          }
-         .controls img {
-         width: 24px;
-         height: 24px;
-         cursor: pointer;
+         .control-button {
+            background: none;
+            border: none;
+            margin: 8px; /* Padding for clickable area */
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #555; 
+            transition: color 0.2s, background-color 0.2s, box-shadow 0.2s;
+            border-radius: 6px;
          }
-         button {
-         padding: 5px 10px;
-         font-size: 16px;
-         cursor: pointer;
-         background: none;
-         border: none;
+         .control-button svg {
+            width: 24px;
+            height: 24px;
+            vertical-align: middle;
+            stroke: currentColor; 
+            fill: none; 
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: background-color 0.2s, stroke 0.2s;
          }
-         p {
+         .control-button:hover {
+            color: #007bff; 
+         }
+         .music-item .control-button { 
+            margin-left: auto;
+            padding: 5px;
+         }
+         .music-item .control-button svg {
+            width: 20px;
+            height: 20px;
+         }
+         #loadingContainer {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 8px; 
+         }
+         #loadingContainer svg.icon-loader {
+            width: 24px; 
+            height: 24px;
+            stroke: #555; 
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            animation: icon-loading-spin 0.8s linear infinite;
+            transform-origin: center;
+         }
+         @keyframes icon-loading-spin {
+            to { transform: rotate(360deg); }
+         }
+         .controls button.control-button.active-control {
+            box-shadow: 0 0 8px 2px #cce7ff;
+         }
+         .controls button.control-button.active-control svg {
+            background-color: #cce7ff;
+            stroke: #0056b3; 
+            border-radius: 4px;
+         }
+         .controls button.control-button.active-control svg.icon-repeat-once .icon-text-numeral {
+             stroke: #0056b3; 
+         }
+         p { /* General paragraph styling if needed elsewhere */
          margin-bottom: 30px;
          margin-top: 30px;
          font-family: "Hello Headline", sans-serif;
          color: white;
          text-align: center;
-         }
-         .dolby-logo {
-         vertical-align: middle;
-         margin-left: 15px; /* Adds gap between text and logo */
-         height: 24px; /* Adjust the height as needed */
+         transition: color 0.3s;
          }
          @media (max-width: 768px) {
-         .header {
-         flex-direction: column;
+         .header { flex-direction: column; }
+         .nav { margin-top: 20px; }
          }
-         .nav {
-         margin-top: 20px;
-         }
-         .main {
-         flex-direction: column;
-         }
-         .main-left,
-         .main-right {
-         width: 100%;
-         }
-         .main-right {
-         margin-top: 20px;
-         }
-         }
-         /* Spinner animation */
-         @keyframes spin {
-         0% { transform: rotate(0deg); }
-         100% { transform: rotate(360deg); }
-         }
-         #loadingContainer img {
-         animation: spin 1s linear infinite;
-         }
-         /* Styles for the popup */
          .popup {
-         position: fixed;
-         top: 0;
-         left: 0;
-         width: 100%;
-         height: 100%;
-         background: rgba(0, 0, 0, 0.7);
-         color: white;
-         display: none;
-         justify-content: center;
-         align-items: center;
-         z-index: 1000;
+         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+         background: rgba(0, 0, 0, 0.7); color: white; display: none;
+         justify-content: center; align-items: center; z-index: 1000;
+         transition: background-color 0.3s;
          }
          .popup-content {
-         background: #333;
-         padding: 20px;
-         border-radius: 10px;
-         text-align: center;
-         position: relative;
+         background: #333; padding: 20px; border-radius: 10px;
+         text-align: center; position: relative;
+         transition: background-color 0.3s, color 0.3s;
          }
          .popup-close {
-         position: absolute;
-         top: 10px;
-         right: 10px;
-         cursor: pointer;
-         font-size: 20px;
-         color: white;
+         position: absolute; top: 10px; right: 10px;
+         cursor: pointer; font-size: 20px; color: white;
+         transition: color 0.3s;
          }
+         body.dark {
+         background: #191d25 !important;
+         color: #dbeafe !important;
+         }
+         body.dark .nav a { color: #fbbf24 !important; }
+         body.dark .album {
+            background-color: #191d25 !important;
+            color: #dbeafe !important;
+         }
+         body.dark p { color: #dbeafe !important; }
+         body.dark .dolby-logo {
+            filter: invert(1) brightness(2);
+         }
+         body.dark .music-player h1 .dolby-logo {
+            filter: invert(1) brightness(1.5) contrast(2); /* Adjusted for better visibility of white logo on dark */
+         }
+         body.dark .music-player {
+            background-color: #23293a !important;
+            color: #dbeafe !important;
+         }
+         body.dark .music-player h1 { color: #fbbf24 !important; }
+         body.dark .audio-player-container { background-color: #23293a !important; }
+         body.dark .control-button {
+            color: #fbbf24; 
+         }
+         body.dark .control-button:hover {
+            color: #fff; 
+         }
+         body.dark #loadingContainer svg.icon-loader {
+            stroke: #fbbf24;
+         }
+         body.dark .controls button.control-button.active-control {
+            box-shadow: 0 0 8px 2px #ffe066 !important;
+         }
+         body.dark .controls button.control-button.active-control svg {
+            background: #fbbf24 !important;
+            stroke: #23293a !important; 
+            border-radius: 4px;
+         }
+          body.dark .controls button.control-button.active-control svg.icon-repeat-once .icon-text-numeral {
+             stroke: #23293a !important; 
+         }
+         body.dark .music-list { background: #23293a !important; }
+         body.dark .music-item {
+            background: #23293a !important;
+            color: #fbbf24 !important;
+            border-bottom-color: #394867 !important;
+         }
+         body.dark .music-item:hover { background: #394867 !important; }
+         body.dark .music-item.highlight {
+            background: #fbbf24 !important;
+            color: #23293a !important;
+         }
+         body.dark .music-item.highlight .control-button.download-button {
+            color: #23293a !important; 
+         }
+         body:not(.dark) .music-item.highlight .control-button.download-button {
+            color: #000000 !important; 
+         }
+         body.dark .popup { background: rgba(0, 0, 0, 0.92) !important; }
+         body.dark .popup-content {
+            background: #23293a !important;
+            color: #fbbf24 !important;
+         }
+         body.dark .popup-close { color: #fbbf24 !important; }
+         .darkmode-toggle {
+         background: none; border: none; cursor: pointer; border-radius: 50%;
+         width: 36px; height: 36px; display: flex; align-items: center;
+         justify-content: center; outline: none; padding: 2px; transition: background 0.2s;
+         }
+         .darkmode-toggle:focus,
+         .darkmode-toggle:hover { background: rgba(128, 128, 128, 0.12); }
+         body.dark .darkmode-toggle:focus,
+         body.dark .darkmode-toggle:hover { background: rgba(251, 191, 36, 0.2); }
+         .darkmode-toggle svg {
+         width: 24px; height: 24px; display: block; pointer-events: none;
+         stroke: currentColor; 
+         }
+         .darkmode-toggle svg.sun { stroke: #fff; }
+         body.dark .darkmode-toggle svg.moon { stroke: #fbbf24; }
+         .dark .darkmode-toggle .sun { display: none; }
+         .dark .darkmode-toggle .moon { display: block; }
+         .darkmode-toggle .moon { display: none; }
+         .darkmode-toggle .sun { display: block; }
       </style>
    </head>
    <body>
@@ -219,24 +334,54 @@
                <li><a href="/music">Music</a></li>
                <li><a href="/audiobooks">Audio Books</a></li>
                <li><a href="/download">App</a></li>
+               <li>
+                  <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+                     <svg class="sun" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"/><g><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></g>
+                     </svg>
+                     <svg class="moon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                     </svg>
+                  </button>
+               </li>
             </ul>
          </div>
          <div class="album">
             <div class="img-container">
-               <img src="/images/Bluey_Rug-Island_Digital-Single_Rug-Island-scaled.jpg" alt="Logo">
+               <img src="/images/Bluey_Rug-Island_Digital-Single_Rug-Island-scaled.jpg" alt="Dance Mode">
             </div>
          </div>
          <div class="music-player">
             <h1>Rug Island<img src="/images/Dolby_Atmos_Logo.svg" alt="Dolby Atmos" class="dolby-logo"></h1>
             <div class="controls">
-               <button id="repeatOnceButton">
-               <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAABFklEQVR4nO2WPQ4BQRSAv8JS+e3ECRxFJXEGUUhoXUHtIEqNjvhLFCrCESQUKNCQlbfJZmNnlh3b2C952WLezrfzMvNmISZGzQAoo6cODCWM8ADuQA8o+OT0Jc8JY2InjkAHSHpydkANuOrEKaAFzIGLZ/IgsQYqrvly8lSKS8DqC5lKjE6cckk3QBVIq0rjER6kUpZP7tVP3HZJnfKY2Fxa8UIG7JWaPk5K8VkGdOU1zhgYRS2N+QULYEbEZGXjnj55qSzHJgw1EU+DJBekMdxD3ip2M9rKHE1VoiWt7xDyOsvISh3pUtFOX819HfKSeBdLoKj6SpNiuxNOpLxWkBIlgAaw/8WfQxDyQBe4RS02eZxi/pAnPrySPmqzKTQAAAAASUVORK5CYII=" alt="Repeat Once">
+               <button id="repeatOnceButton" class="control-button" title="Repeat Once">
+                  <svg viewBox="0 0 24 24" class="icon-repeat-once">
+                    <polyline points="17 1 21 1 21 5"></polyline>
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                    <polyline points="7 23 3 23 3 19"></polyline>
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                    <path d="M12 14.5 V9.5 M10.5 11 L12 9.5" class="icon-text-numeral"></path> 
+                  </svg>
                </button>
-               <button id="repeatAllButton">
-               <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAABAklEQVR4nO3Vv0rDUBiG8d9g7KTVgoN4BR28kE4FL8JB0NVbcHbzRlzclKqFDk6KtyDUQV2sQyXwCaFDyD/jYB44W97z5HzkvKGjozxX2PcHLPGFC+y0LV7GesUp1osEezjGPT5WNqq6HjHKk+7hoSFZYXEvI33CGBs1Rz2P6SV5gZOMdKuCMCte4ByDIoFphNKT1uESwzKB9xBXGW8tbnDdtrTjN5jiTsv048N9KxMaxhWpw0GIb4s8PIgSWESoKmkZPcceR3kPJlFz85X6K8tmnPRHOsurzlEUetM/iRl2896ySXHahJMYb1JkRGs4xEvNUVdmG2f4bFvc5HXq+Id8AxS0ib0GErJgAAAAAElFTkSuQmCC" alt="Repeat All">
+               <button id="repeatAllButton" class="control-button" title="Repeat All">
+                  <svg viewBox="0 0 24 24" class="icon-repeat-all">
+                    <polyline points="17 1 21 1 21 5"></polyline>
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                    <polyline points="7 23 3 23 3 19"></polyline>
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                  </svg>
                </button>
-               <div id="loadingContainer" style="display: none;">
-                  <img width="30" height="30" src="https://img.icons8.com/ios-glyphs/30/loading-sign.png" alt="loading-sign"/>
+               <div id="loadingContainer">
+                  <svg viewBox="0 0 24 24" class="icon-loader">
+                    <line x1="12" y1="2" x2="12" y2="6"></line>
+                    <line x1="12" y1="18" x2="12" y2="22"></line>
+                    <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                    <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                    <line x1="2" y1="12" x2="6" y2="12"></line>
+                    <line x1="18" y1="12" x2="22" y2="12"></line>
+                    <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                    <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+                  </svg>
                </div>
             </div>
             <div class="audio-player-container">
@@ -245,7 +390,6 @@
             <ul id="musicList" class="music-list"></ul>
          </div>
       </div>
-      <!-- Safari Autoplay Popup -->
       <div id="safariPopup" class="popup">
          <div class="popup-content">
             <span class="popup-close" onclick="closePopup()">&times;</span>
@@ -253,208 +397,309 @@
             <p>Due to autoplay restrictions on Safari, please click the play button to start the music.</p>
          </div>
       </div>
-      <!-- Include hls.js library in your HTML before the closing </body> tag -->
       <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+      <script>
+         const themeKey = "bluey-site-theme"; 
+         const root = document.body;
+         const darkToggle = document.getElementById("darkToggle");
+
+         function setTheme(dark) {
+           if (dark) {
+             root.classList.add('dark');
+             localStorage.setItem(themeKey, "dark");
+           } else {
+             root.classList.remove('dark');
+             localStorage.setItem(themeKey, "light");
+           }
+         }
+         (() => {
+           const saved = localStorage.getItem(themeKey);
+           if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) { 
+             setTheme(true);
+           } else {
+             setTheme(false);
+           }
+         })();
+         if (darkToggle) {
+            darkToggle.onclick = () => setTheme(!root.classList.contains('dark'));
+         }
+      </script>
+
       <script>
          const EMBY_URL = 'https://media.blueynet.org';
          const EMBY_USER_ID = '5d47298a0c97453893198c8f9c634858';
          const EMBY_API_TOKEN = 'ef82e7b6ea894d5c9a10bf7b97b2f235';
          const parentID = '42b4987c60d4a5f798c400c01eb7e632';
-         
-         const musicListElement = document.getElementById('musicList');
-         const audioPlayer = document.getElementById('audioPlayer');
-         const repeatOnceButton = document.getElementById('repeatOnceButton');
-         const repeatAllButton = document.getElementById('repeatAllButton');
-         const loadingContainer = document.getElementById('loadingContainer');
-         const safariPopup = document.getElementById('safariPopup');
-         
-         let musicItems = [];
-         let currentIndex = 0;
-         let repeatOnce = false;
-         let repeatAll = false;
-         
-         // Fetch music data from Emby server
-         async function fetchMusicData() {
-             try {
-                 const response = await fetch(`${EMBY_URL}/Users/${EMBY_USER_ID}/Items?ParentId=${parentID}&Fields=BasicSyncInfo,CanDelete,PrimaryImageAspectRatio,SyncStatus&ImageTypeLimit=1&EnableTotalRecordCount=false&api_key=${EMBY_API_TOKEN}`);
-                 const data = await response.json();
-                 return data.Items || [];
-             } catch (error) {
-                 console.error('Error fetching music data:', error);
-                 return [];
-             }
-         }
-         
-         // Create HTML elements for each music item
-         function createMusicItemElement(musicItem, index) {
-             const li = document.createElement('li');
-             li.className = 'music-item';
-         
-             const title = document.createElement('span');
-             title.textContent = `${musicItem.IndexNumber}. ${musicItem.Name}`; // Add the track number before the music name
-         
-             const downloadButton = document.createElement('img');
-             downloadButton.src = 'https://img.icons8.com/ios-glyphs/30/downloading-updates.png';
-             downloadButton.alt = 'Download';
-             downloadButton.width = 30;
-             downloadButton.height = 30;
-             downloadButton.style.marginLeft = 'auto';
-             downloadButton.style.cursor = 'pointer';
-             downloadButton.onclick = (event) => {
-                 event.stopPropagation(); // Prevent the click from triggering playMusic
-                 const musicId = musicItem.Id;
-                 const downloadUrl = `${EMBY_URL}/Items/${musicId}/Download?api_key=${EMBY_API_TOKEN}`;
-                 window.open(downloadUrl, '_blank');
-             };
-         
-             li.appendChild(title);
-             li.appendChild(downloadButton);
-             li.onclick = () => playMusic(index);
-         
-             return li;
-         }
-         
-         // Display the list of music items
-         function displayMusicList(musicItems) {
-             musicItems.forEach((musicItem, index) => {
-                 const musicItemElement = createMusicItemElement(musicItem, index);
-                 musicListElement.appendChild(musicItemElement);
-             });
-         }
-         
-         // Update the highlight of the current playing music item
-         function updateHighlight() {
-             const items = musicListElement.querySelectorAll('.music-item');
-             items.forEach((item, index) => {
-                 item.classList.toggle('highlight', index === currentIndex);
-             });
-         }
-         
-         // Play the selected music using HLS.js
-         function playMusic(index) {
-             currentIndex = index;
-             updateHighlight(); // Update the highlight when music changes
-             const musicId = musicItems[index].Id;
-             const musicUrl = `${EMBY_URL}/Audio/${musicId}/universal?UserId=${EMBY_USER_ID}&MaxStreamingBitrate=4000000&Container=ts&TranscodingContainer=ts&TranscodingProtocol=hls&AudioCodec=aac&api_key=${EMBY_API_TOKEN}`;
-         
-             loadingContainer.style.display = 'flex'; // Show loading icon
-         
-             // Destroy previous HLS instance if exists
-             if (window.hls) {
-                 window.hls.destroy();
-             }
-         
-             if (Hls.isSupported()) {
-                 window.hls = new Hls();
-                 window.hls.loadSource(musicUrl);
-                 window.hls.attachMedia(audioPlayer);
-                 window.hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                     audioPlayer.play().catch(handleAutoplayError);
-                     loadingContainer.style.display = 'none'; // Hide loading icon
-                 });
-                 window.hls.on(Hls.Events.ERROR, (event, data) => {
-                     console.error('HLS.js error:', data);
-                     loadingContainer.style.display = 'none'; // Hide loading icon
-                 });
-             } else if (audioPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-                 audioPlayer.src = musicUrl;
-                 audioPlayer.addEventListener('loadedmetadata', () => {
-                     audioPlayer.play().catch(handleAutoplayError);
-                     loadingContainer.style.display = 'none'; // Hide loading icon
-                 });
-             } else {
-                 console.error('This browser does not support HLS.');
-                 loadingContainer.style.display = 'none'; // Hide loading icon
-             }
-         
-             // Format and update Media Session API metadata
-             if ('mediaSession' in navigator) {
-                 const currentTrack = musicItems[index];
-                 const formattedArtists = (currentTrack.Artists || []).join(', '); // Format Artists with proper spacing
-                 navigator.mediaSession.metadata = new MediaMetadata({
-                     title: currentTrack.Name || 'Unknown Title',
-                     artist: formattedArtists || 'Unknown Artist',
-                     album: currentTrack.Album || 'Bluey Season 1',
-                     artwork: [
-                         {
-                             src: `${EMBY_URL}/Items/${currentTrack.Id}/Images/Primary?api_key=${EMBY_API_TOKEN}`,
-                             sizes: '512x512',
-                             type: 'image/png',
-                         },
-                     ],
-                 });
-         
-                 navigator.mediaSession.setActionHandler('play', () => audioPlayer.play());
-                 navigator.mediaSession.setActionHandler('pause', () => audioPlayer.pause());
-                 navigator.mediaSession.setActionHandler('nexttrack', playNextMusic);
-                 navigator.mediaSession.setActionHandler('previoustrack', () => {
-                     currentIndex = (currentIndex - 1 + musicItems.length) % musicItems.length;
-                     playMusic(currentIndex);
-                 });
-             }
-         }
-         
-         // Handle autoplay restrictions
-         function handleAutoplayError() {
-             console.log('Autoplay blocked. Please click the play button.');
-             if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
-                 safariPopup.style.display = 'flex'; // Show Safari autoplay popup
-             }
-         }
-         
-         // Play the next music item in the list
-         function playNextMusic() {
-             if (repeatOnce) {
-                 audioPlayer.currentTime = 0;
-                 audioPlayer.play();
-             } else if (repeatAll) {
-                 currentIndex = (currentIndex + 1) % musicItems.length;
-                 playMusic(currentIndex);
-             } else {
-                 currentIndex += 1;
-                 if (currentIndex < musicItems.length) {
-                     playMusic(currentIndex);
-                 }
-             }
-         }
-         
-         // Event listener for when the audio ends
-         audioPlayer.addEventListener('ended', playNextMusic);
-         
-         // Toggle repeat once functionality
-         repeatOnceButton.addEventListener('click', () => {
-             repeatOnce = !repeatOnce;
-             repeatOnceButton.style.backgroundColor = repeatOnce ? 'lightblue' : '';
-             if (repeatOnce) {
-                 repeatAll = false;
-                 repeatAllButton.style.backgroundColor = '';
-             }
-         });
-         
-         // Toggle repeat all functionality
-         repeatAllButton.addEventListener('click', () => {
-             repeatAll = !repeatAll;
-             repeatAllButton.style.backgroundColor = repeatAll ? 'lightblue' : '';
-             if (repeatAll) {
-                 repeatOnce = false;
-                 repeatOnceButton.style.backgroundColor = '';
-             }
-         });
-         
-         // Initialize the music player by fetching data and displaying the list
-         async function init() {
-             musicItems = await fetchMusicData();
-             musicItems.sort((a, b) => a.IndexNumber - b.IndexNumber); // Sort by IndexNumber for correct order
-             displayMusicList(musicItems);
-         }
-         
-         init();
-         
-         // Close the Safari autoplay popup
-         function closePopup() {
-             safariPopup.style.display = 'none';
-         }    
-               
+
+          const musicListElement = document.getElementById('musicList');
+          const audioPlayer = document.getElementById('audioPlayer');
+          const repeatOnceButton = document.getElementById('repeatOnceButton');
+          const repeatAllButton = document.getElementById('repeatAllButton');
+          const loadingContainer = document.getElementById('loadingContainer');
+          const safariPopup = document.getElementById('safariPopup');
+
+          const downloadIconSVG = `
+            <svg viewBox="0 0 24 24" class="icon-download">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>`;
+
+          let musicItems = [];
+          let currentIndex = 0;
+          let repeatOnce = false;
+          let repeatAll = false;
+          let hlsInstance; // Changed from window.hlsInstance to a local variable for better encapsulation
+
+          function updatePositionState() {
+            if ('mediaSession' in navigator && audioPlayer.readyState > 0 && !isNaN(audioPlayer.duration)) {
+              navigator.mediaSession.setPositionState({
+                duration: audioPlayer.duration,
+                playbackRate: audioPlayer.playbackRate,
+                position: audioPlayer.currentTime
+              });
+            }
+          }
+
+          // Define handleAutoplayError
+          function handleAutoplayError(error) {
+              console.warn('Autoplay failed or media error during play attempt:', error);
+              loadingContainer.style.display = 'none'; // Ensure loading is hidden
+              // Only show Safari popup for actual NotAllowedError, which indicates autoplay block
+              if (error && error.name === 'NotAllowedError' && navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
+                  safariPopup.style.display = 'flex';
+              }
+          }
+
+          async function fetchMusicData() {
+              loadingContainer.style.display = 'inline-flex'; 
+              try {
+                  // Using Emby details from the first file (Listen Along)
+                  const response = await fetch(`${EMBY_URL}/Users/${EMBY_USER_ID}/Items?ParentId=${parentID}&Fields=BasicSyncInfo,CanDelete,PrimaryImageAspectRatio,SyncStatus&ImageTypeLimit=1&EnableTotalRecordCount=false&api_key=${EMBY_API_TOKEN}`);
+                  const data = await response.json();
+                  return data.Items || [];
+              } catch (error) {
+                  console.error("Failed to fetch music data:", error);
+                  musicListElement.innerHTML = '<li>Error loading episodes. Please try again later.</li>';
+                  return [];
+              } finally {
+                  loadingContainer.style.display = 'none';
+              }
+          }
+
+          function createMusicItemElement(musicItem, index) {
+              const li = document.createElement('li');
+              li.className = 'music-item';
+
+              const title = document.createElement('span');
+              // Using IndexNumber and Name, assuming these are standard for your Emby items
+              title.textContent = `${musicItem.IndexNumber}. ${musicItem.Name}`; 
+
+              const downloadButton = document.createElement('button');
+              downloadButton.className = 'control-button download-button';
+              downloadButton.title = 'Download';
+              downloadButton.innerHTML = downloadIconSVG; 
+              downloadButton.onclick = (event) => {
+                  event.stopPropagation();
+                  const musicId = musicItem.Id;
+                  const downloadUrl = `${EMBY_URL}/Items/${musicId}/Download?api_key=${EMBY_API_TOKEN}`; // Corrected API key parameter
+                  window.open(downloadUrl, '_blank');
+              };
+
+              li.appendChild(title);
+              li.appendChild(downloadButton);
+              li.onclick = () => playMusic(index);
+              return li;
+          }
+
+          function displayMusicList(musicItems) {
+              musicListElement.innerHTML = ''; // Clear previous list
+              if (musicItems.length === 0) {
+                  musicListElement.innerHTML = '<li>No episodes found.</li>';
+                  return;
+              }
+              musicItems.forEach((musicItem, index) => {
+                  const musicItemElement = createMusicItemElement(musicItem, index);
+                  musicListElement.appendChild(musicItemElement);
+              });
+          }
+
+          function updateHighlight() {
+              const items = musicListElement.querySelectorAll('.music-item');
+              items.forEach((item, index) => {
+                  item.classList.toggle('highlight', index === currentIndex);
+              });
+          }
+          
+          function playPreviousMusic() {
+              if (musicItems.length === 0) return;
+              currentIndex--;
+              if (currentIndex < 0) {
+                  currentIndex = musicItems.length - 1; 
+              }
+              playMusic(currentIndex);
+          }
+          
+          function playNextMusic() {
+              if (musicItems.length === 0) return;
+              if (repeatOnce) {
+                  audioPlayer.currentTime = 0;
+                  audioPlayer.play().catch(handleAutoplayError);
+              } else if (repeatAll) {
+                  currentIndex = (currentIndex + 1) % musicItems.length;
+                  playMusic(currentIndex);
+              } else {
+                  currentIndex += 1;
+                  if (currentIndex < musicItems.length) {
+                      playMusic(currentIndex);
+                  } else {
+                      currentIndex = 0;
+                  }
+              }
+          }
+
+          function playMusic(index) {
+              if (index < 0 || index >= musicItems.length) {
+                  console.error("Invalid track index:", index);
+                  return;
+              }
+              currentIndex = index;
+              updateHighlight();
+              
+              const musicItem = musicItems[index];
+              const musicId = musicItem.Id;
+              // Construct HLS URL as per your working examples
+              const musicUrl = `${EMBY_URL}/Audio/${musicId}/universal?UserId=${EMBY_USER_ID}&MaxStreamingBitrate=4000000&Container=ts&TranscodingContainer=ts&TranscodingProtocol=hls&AudioCodec=aac&api_key=${EMBY_API_TOKEN}`;
+
+              loadingContainer.style.display = 'inline-flex';
+
+              if (hlsInstance) {
+                  hlsInstance.destroy();
+              }
+
+              if (Hls.isSupported()) {
+                  console.log("Using HLS.js for:", musicUrl);
+                  hlsInstance = new Hls({
+                      // debug: true, // Uncomment for detailed HLS debugging
+                      // enableWorker: true, // Can improve performance
+                  });
+                  hlsInstance.loadSource(musicUrl);
+                  hlsInstance.attachMedia(audioPlayer);
+                  hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+                      console.log("HLS.js: Manifest parsed");
+                      audioPlayer.play().then(() => {
+                          loadingContainer.style.display = 'none';
+                      }).catch(handleAutoplayError);
+                  });
+                  hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+                      console.error('HLS.js Error:', data.type, data.details, "Fatal:", data.fatal);
+                      loadingContainer.style.display = 'none';
+                      // Optionally, try to fallback or show user error
+                      if (data.fatal) {
+                          // alert("Error playing audio stream. Please try another track or check your connection.");
+                          // Fallback or more specific error handling could go here
+                          if (data.type === Hls.ErrorTypes.NETWORK_ERROR && data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR) {
+                            console.error("Could not load HLS manifest. Check URL and CORS policy on server.");
+                          }
+                      }
+                  });
+              } else if (audioPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                  console.log("Using native HLS (Safari) for:", musicUrl);
+                  audioPlayer.src = musicUrl;
+                  // Native HLS will trigger 'loadedmetadata' and 'canplay' on audioPlayer
+                  // We rely on the global event listeners for these on audioPlayer
+                  audioPlayer.play().then(() => {
+                      loadingContainer.style.display = 'none';
+                  }).catch(handleAutoplayError);
+              } else {
+                  console.error('This browser does not support HLS streaming.');
+                  alert('Sorry, your browser does not support the required streaming format.');
+                  loadingContainer.style.display = 'none';
+              }
+
+              if ('mediaSession' in navigator) {
+                  navigator.mediaSession.metadata = new MediaMetadata({
+                      title: musicItem.Name || 'Unknown Title',
+                      artist: (musicItem.ArtistItems && musicItem.ArtistItems.map(a => a.Name).join(', ')) || (musicItem.Artists && musicItem.Artists.join(', ')) || 'Unknown Artist',
+                      album: musicItem.Album || 'Bluey Listen Along', // Contextual album name
+                      artwork: [{ 
+                          src: `${EMBY_URL}/Items/${musicItem.Id}/Images/Primary?api_key=${EMBY_API_TOKEN}`, 
+                          sizes: '512x512', 
+                          type: musicItem.ImageTags && musicItem.ImageTags.Primary ? `image/${musicItem.ImageTags.Primary.toLowerCase().split('.').pop()}` : 'image/jpeg'
+                        }],
+                  });
+                  
+                  try {
+                    navigator.mediaSession.setActionHandler('play', () => { audioPlayer.play().catch(handleAutoplayError); });
+                    navigator.mediaSession.setActionHandler('pause', () => { audioPlayer.pause(); });
+                    navigator.mediaSession.setActionHandler('previoustrack', playPreviousMusic);
+                    navigator.mediaSession.setActionHandler('nexttrack', playNextMusic);
+                  } catch (error) {
+                    console.error('Error setting media session action handlers:', error);
+                  }
+                  if(audioPlayer.readyState > 0 && !isNaN(audioPlayer.duration)) {
+                      updatePositionState();
+                  }
+              }
+          }
+          
+          audioPlayer.addEventListener('ended', playNextMusic);
+          audioPlayer.addEventListener('timeupdate', updatePositionState);
+          audioPlayer.addEventListener('loadedmetadata', () => {
+            // This ensures loading is hidden if native HLS or direct src assignment takes time to load metadata
+            if (audioPlayer.src && audioPlayer.src !== '' && audioPlayer.src !== window.location.href) { // Check if src is set and not empty/default
+                 loadingContainer.style.display = 'none';
+            }
+            updatePositionState();
+          });
+          audioPlayer.addEventListener('play', updatePositionState); 
+          audioPlayer.addEventListener('pause', updatePositionState); 
+          audioPlayer.addEventListener('ratechange', updatePositionState);
+          audioPlayer.addEventListener('error', (e) => { // Global audio error handler
+            console.error("Audio Element Error:", audioPlayer.error, e);
+            loadingContainer.style.display = 'none';
+            // alert("An error occurred while trying to play the audio.");
+          });
+
+
+          function toggleButtonActive(button, isActive) {
+              if (isActive) {
+                  button.classList.add('active-control');
+              } else {
+                  button.classList.remove('active-control');
+              }
+          }
+
+          repeatOnceButton.addEventListener('click', () => {
+              repeatOnce = !repeatOnce;
+              toggleButtonActive(repeatOnceButton, repeatOnce);
+              if (repeatOnce) {
+                  repeatAll = false;
+                  toggleButtonActive(repeatAllButton, false);
+              }
+          });
+          repeatAllButton.addEventListener('click', () => {
+              repeatAll = !repeatAll;
+              toggleButtonActive(repeatAllButton, repeatAll);
+              if (repeatAll) {
+                  repeatOnce = false;
+                  toggleButtonActive(repeatOnceButton, false);
+              }
+          });
+
+          async function init() {
+              musicItems = await fetchMusicData();
+              // Sort by IndexNumber if available, otherwise maintain fetched order
+              if (musicItems.length > 0 && musicItems[0].IndexNumber !== undefined) {
+                musicItems.sort((a, b) => a.IndexNumber - b.IndexNumber);
+              }
+              displayMusicList(musicItems);
+          }
+          init();
+
+          function closePopup() {
+              safariPopup.style.display = 'none';
+          }
       </script>
    </body>
 </html>

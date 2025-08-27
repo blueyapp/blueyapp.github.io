@@ -30,10 +30,9 @@
     <link href="https://vjs.zencdn.net/8.16.0/video-js.css" rel="stylesheet" />
     <script src="https://vjs.zencdn.net/8.16.0/video.min.js"></script>
 
-    <!-- Chromecast plugin for Video.js + Cast Sender SDK -->
+    <!-- Chromecast plugin for Video.js + Cast Sender SDK (kept as-is; website subtitle styling is below) -->
     <link rel="stylesheet" href="https://unpkg.com/@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css" />
     <script>
-      /* Optional global config hook the plugin supports */
       window.SILVERMINE_VIDEOJS_CHROMECAST_CONFIG = { preloadWebComponents: false };
     </script>
     <script src="https://unpkg.com/@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.min.js"></script>
@@ -141,6 +140,38 @@
       .vjs-user-inactive .vjs-episode-title { opacity: 0; }
       .vjs-user-active .vjs-episode-title { opacity: 1; }
       body.dark .vjs-episode-title { background: rgba(25,29,37,0.6); color: #fbbf24; }
+
+      /* ====== WEBSITE CAPTION STYLING (custom font) ====== */
+      /* Native WebVTT rendering on most browsers */
+      video::cue {
+        font-family: "Hello Headline", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        font-weight: 600;
+        font-size: 1.05em;
+        line-height: 1.25;
+        color: #ffffff;
+        text-shadow: 0 2px 3px rgba(0,0,0,.65);
+        background: rgba(0,0,0,.35);
+        padding: .1em .35em;
+        border-radius: .35em;
+      }
+      video::cue-region {
+        font-family: "Hello Headline", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      }
+
+      /* Video.js fallback renderer (when native cues aren’t used) */
+      .video-js .vjs-text-track-display,
+      .video-js .vjs-text-track-cue,
+      .video-js .vjs-text-track-cue > span {
+        font-family: "Hello Headline", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif !important;
+        font-weight: 600 !important;
+        text-shadow: 0 2px 3px rgba(0,0,0,.65) !important;
+      }
+      .video-js .vjs-text-track-cue {
+        background: rgba(0,0,0,.35) !important;
+        border-radius: .35em !important;
+        padding: .1em .35em !important;
+      }
+      /* ====== /WEBSITE CAPTION STYLING ====== */
     </style>
   </head>
   <body>
@@ -183,7 +214,7 @@
         <div class="main-left">
           <div class="player-wrapper">
             <div id="player">
-              <!-- NOTE: default unmuted + autoplay (browsers may block until user gesture) -->
+              <!-- default unmuted + autoplay (may need user gesture) -->
               <video id="bluey" class="video-js vjs-default-skin vjs-fluid" controls preload="auto" playsinline autoplay></video>
             </div>
           </div>
@@ -245,19 +276,16 @@
         darkToggle.onclick = () => setTheme(!root.classList.contains('dark'));
       </script>
 
-      <!-- App Scripts (Video.js + VHS + Cast wiring) -->
+      <!-- App Scripts (Video.js + VHS + Cast wiring kept) -->
       <script>
-        // Global configuration and state variables
         const serverUrl = "https://blueynet.org:443";
         const apiKey = "6b2548952ea2439ea800b8cd3f1072d1";
         const itemId = "11";
         const LANG_STORAGE_KEY = "bluey_watch_selected_language_episodes";
 
-        // Language selection state
-        let selectedAudioStreamIndex = 1; // default to English
+        let selectedAudioStreamIndex = 1; // English
         let userPreferredLanguage = selectedAudioStreamIndex;
 
-        // Episode and season state
         let selectedSeason = null;
         let episodes = [];
         let currentEpisodeIndex = -1;
@@ -267,17 +295,12 @@
         let currentSeason = null;
         let currentSeasonIndex = -1;
 
-        // Shuffle state
         let allEpisodes = [];
         let shuffleMode = false;
 
-        // Subtitles persistence
         let subsWanted = localStorage.getItem('bluey_subtitle_on') === '1';
-
-        // --- Player init (unmuted by default) ---
         const VOL_KEY = 'bluey_vol';
 
-        // >>> CAST: metadata holders the Chromecast plugin will read
         window.__castTitle = '';
         window.__castSubtitle = '';
         window.__castPoster = '';
@@ -291,19 +314,16 @@
           fluid: true,
           techOrder: ['chromecast', 'html5'],
           plugins: {
-            // >>> CAST: feed title/subtitle & tweak what the Cast receiver loads
             chromecast: {
               receiverAppID: 'CC1AD845',
               addButtonToControlBar: true,
               requestTitleFn: () => window.__castTitle || document.title,
               requestSubtitleFn: () => window.__castSubtitle || '',
               modifyLoadRequestFn: (request) => {
-                // Prefer MP4 for maximum Cast compatibility.
                 if (window.__castMP4) {
                   request.media.contentId = window.__castMP4;
                   request.media.contentType = 'video/mp4';
                 }
-                // Ensure poster artwork
                 if (window.__castPoster) {
                   request.media.metadata = request.media.metadata || new chrome.cast.media.GenericMediaMetadata();
                   request.media.metadata.images = [{ url: window.__castPoster }];
@@ -322,14 +342,10 @@
           }
         });
 
-        // Episode title overlay component (shows only when controls are visible)
+        // Episode title overlay (shows only when controls are visible)
         const BaseComp = videojs.getComponent('Component');
         class TitleOverlay extends BaseComp {
-          createEl() {
-            const el = videojs.dom.createEl('div', { className: 'vjs-episode-title' });
-            el.textContent = '';
-            return el;
-          }
+          createEl() { return videojs.dom.createEl('div', { className: 'vjs-episode-title' }); }
           set(text) { this.el().textContent = text || ''; }
         }
         videojs.registerComponent('TitleOverlay', TitleOverlay);
@@ -342,7 +358,7 @@
           subsWanted = on; localStorage.setItem('bluey_subtitle_on', on ? '1' : '0');
         });
 
-        // Default volume + persist (and ensure not muted)
+        // Default volume + persist (ensure not muted)
         player.ready(() => {
           const savedVol = parseFloat(localStorage.getItem(VOL_KEY));
           try { player.muted(false); } catch {}
@@ -352,42 +368,11 @@
           localStorage.setItem(VOL_KEY, String(player.volume()));
         });
 
-        // >>> CAST: connected / disconnected flags + robust auto-next fallback
-        player.on('chromecastConnected', () => {
-          window.__isCasting = true;
-          attachCastMediaListener(); // fallback listener to detect FINISHED
-        });
-        player.on('chromecastDisconnected', () => {
-          window.__isCasting = false;
-          detachCastMediaListener();
-        });
+        // Cast connection flags (kept)
+        player.on('chromecastConnected', () => { window.__isCasting = true; });
+        player.on('chromecastDisconnected', () => { window.__isCasting = false; });
 
-        let castMedia = null;
-        function attachCastMediaListener() {
-          try {
-            const ctx = cast && cast.framework && cast.framework.CastContext.getInstance();
-            const session = ctx && ctx.getCurrentSession();
-            castMedia = session && session.getMediaSession();
-            if (castMedia) {
-              castMedia.addUpdateListener(castMediaUpdate);
-            }
-          } catch {}
-        }
-        function detachCastMediaListener() {
-          try { if (castMedia) castMedia.removeUpdateListener(castMediaUpdate); } catch {}
-          castMedia = null;
-        }
-        function castMediaUpdate(/*isAlive*/) {
-          try {
-            if (!castMedia) return;
-            if (castMedia.playerState === chrome.cast.media.PlayerState.IDLE &&
-                castMedia.idleReason === chrome.cast.media.IdleReason.FINISHED) {
-              queueNextEpisode(); // fallback trigger (in case 'ended' didn't bubble)
-            }
-          } catch {}
-        }
-
-        // Load saved language
+        // Load saved language + seasons
         document.addEventListener('DOMContentLoaded', () => {
           const saved = localStorage.getItem(LANG_STORAGE_KEY);
           if (saved !== null) {
@@ -395,7 +380,6 @@
             userPreferredLanguage = selectedAudioStreamIndex;
             document.getElementById('language-select').value = saved;
           }
-
           fetchSeasons();
           document.getElementById('episodes').innerHTML = '';
 
@@ -403,7 +387,7 @@
           document.addEventListener('DOMContentLoaded', updateOrientationUI);
         });
 
-        // MediaSession prev/next hooks (local device)
+        // Media Session (local)
         function wireMediaSession(episode) {
           if (!('mediaSession' in navigator)) return;
           navigator.mediaSession.metadata = new MediaMetadata({
@@ -456,19 +440,17 @@
           }
         }
 
-        // Autoplay helper handling browser policies (unmuted)
         async function autoPlayMaybe(seek) {
           if (typeof seek === 'number') { try { player.currentTime(seek); } catch {} }
           try {
-            await player.play(); // try with sound
+            await player.play();
           } catch (e) {
             try { player.muted(false); } catch {}
-            player.bigPlayButton.show(); // wait for user gesture; keep unmuted
+            player.bigPlayButton.show();
             player.one('play', () => player.muted(false));
           }
         }
 
-        // Build CMAF HLS url for Emby
         function buildHlsUrl(episode, mediaSourceId, PlaySessionId, VideoBitRate, AudioBitRate) {
           return `${serverUrl}/emby/videos/${episode.Id}/master.m3u8` +
                  `?MediaSourceId=${mediaSourceId}` +
@@ -480,35 +462,27 @@
                  `&TranscodingMaxAudioChannels=2` +
                  `&SegmentContainer=fmp4&MinSegments=2&h264-profile=main`;
         }
-
-        // Progressive fallback
         function buildMp4Url(episode) {
           return `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`;
         }
-
-        // Current time
         function getCurrentTime() { return player.currentTime() || 0; }
 
-        // PLAY EPISODE
         let onEndedHandler = null;
         async function playEpisode(episode, index, seekTime) {
           wireMediaSession(episode);
 
           const niceTitle = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
           setPlayerTitle(niceTitle);
-          document.title = `Watch Bluey! — ${niceTitle}`;
+          document.title = `Watch Bluey! | ${niceTitle}`;
 
-          // >>> CAST: push metadata for receiver + prefer MP4 on cast
           const poster = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
           window.__castTitle = niceTitle;
-          window.__castSubtitle = `Bluey — Season ${episode.ParentIndexNumber}`;
+          window.__castSubtitle = `Bluey | Season ${episode.ParentIndexNumber}`;
           window.__castPoster = poster;
-          window.__castMP4 = buildMp4Url(episode); // used by modifyLoadRequestFn
+          window.__castMP4 = buildMp4Url(episode);
 
-          // Show player area
           document.querySelector('.player-wrapper').style.display = 'block';
 
-          // Fetch Emby playback info
           const timestamp = Date.now();
           const info = await fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources&t=${timestamp}`).then(r => r.json());
           const ms = info.MediaSources[0];
@@ -521,32 +495,25 @@
           const progressive = buildMp4Url(episode);
           const vtt = `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/2/0/Stream.vtt?api_key=${apiKey}`;
 
-          // Remove previous tracks
           const rtt = player.remoteTextTracks();
           for (let i = rtt.length - 1; i >= 0; i--) player.removeRemoteTextTrack(rtt[i]);
 
-          // Set poster & source (HLS for local; Cast will swap to MP4 via modifyLoadRequestFn)
           player.poster(poster);
           player.src({ src: hls, type: 'application/x-mpegURL' });
 
-          // Add VTT
           try { player.addRemoteTextTrack({ kind: 'subtitles', src: vtt, srclang: 'en', label: 'English' }, false); } catch {}
 
-          // Apply subtitle preference
           const tt = player.textTracks();
           for (let i = 0; i < tt.length; i++) { tt[i].mode = subsWanted ? 'showing' : 'disabled'; }
 
-          // Ready to play (Chromecast tech fires 'loadeddata', HTML5 fires 'loadedmetadata')
           const onReadyToPlay = async () => { try { player.muted(false); } catch {}; await autoPlayMaybe(seekTime); showInfo(); };
           player.one('loadedmetadata', onReadyToPlay);
           player.one('loadeddata', onReadyToPlay);
 
-          // Robust auto-advance (re-bind our own handler only)
           if (onEndedHandler) player.off('ended', onEndedHandler);
           onEndedHandler = () => queueNextEpisode();
           player.on('ended', onEndedHandler);
 
-          // Highlight current episode in list
           const prevSelected = document.querySelector('#episodes li.selected');
           if (prevSelected) prevSelected.classList.remove('selected');
           const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);

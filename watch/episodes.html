@@ -496,12 +496,12 @@
 
           const niceTitle = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
           setPlayerTitle(niceTitle);
-          document.title = `Watch Bluey! — ${niceTitle}`;
+          document.title = `Watch Bluey! | ${niceTitle}`;
 
           // >>> CAST: push metadata for receiver + prefer MP4 on cast
           const poster = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
           window.__castTitle = niceTitle;
-          window.__castSubtitle = `Bluey — Season ${episode.ParentIndexNumber}`;
+          window.__castSubtitle = `Bluey | Season ${episode.ParentIndexNumber}`;
           window.__castPoster = poster;
           window.__castMP4 = buildMp4Url(episode); // used by modifyLoadRequestFn
 

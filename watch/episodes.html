@@ -161,6 +161,27 @@
       }
       .toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
       body.dark .toast { background: rgba(25,29,37,0.95); color: #fbbf24; }
+
+      /* Netflix-style Skip Intro overlay (bottom-right) */
+      .vjs-skip-intro-overlay {
+        position: absolute;
+        right: 35px;
+        bottom: 35px;
+        z-index: 4;
+        background: rgba(0,0,0,0.55);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 14px;
+        font-family: 'Hello Headline', sans-serif;
+        font-size: 14px;
+        cursor: pointer;
+        display: none;
+      }
+      .vjs-skip-intro-overlay:focus,
+      .vjs-skip-intro-overlay:hover { background: rgba(0,0,0,0.75); }
+      body.dark .vjs-skip-intro-overlay { background: rgba(25,29,37,0.6); color: #fbbf24; }
+      body.dark .vjs-skip-intro-overlay:hover { background: rgba(25,29,37,0.85); }
     </style>
   </head>
   <body>
@@ -379,7 +400,6 @@
                 }
                 // Ensure metadata is present (do NOT blow away existing)
                 const md = request.media.metadata || new chrome.cast.media.GenericMediaMetadata();
-                // md.metadataType = chrome.cast.media.MetadataType.GENERIC; // optional
                 md.title = window.__castTitle || document.title || 'Bluey';
                 md.subtitle = window.__castSubtitle || '';
                 if (window.__castPoster) {
@@ -414,6 +434,73 @@
         const titleOverlay = player.addChild('TitleOverlay', {});
         function setPlayerTitle(text) { if (titleOverlay) titleOverlay.set(text); }
 
+        /* ===========================
+           Netflix-style Skip Intro Overlay
+           =========================== */
+        class SkipIntroOverlay extends BaseComp {
+          constructor(player, options) {
+            super(player, options);
+            this.addClass('vjs-skip-intro-overlay');
+            this.el().setAttribute('type', 'button');
+            this.el().setAttribute('aria-label', 'Skip Intro');
+            this.el().setAttribute('title', 'Skip Intro');
+            this.el().textContent = 'Skip Intro';
+
+            this.introAt = (options && options.introAt) || 24;   // seconds
+            this.showFrom = (options && options.showFrom) || 0.5;
+            this.autoHideAfter = (options && options.autoHideAfter) || 8; // seconds
+            this._hidet = null;
+
+            this.on('click', () => {
+              try { this.player_.currentTime(this.introAt); } catch {}
+              this.hide();
+            });
+
+            this._toggle = () => {
+              const t = player.currentTime() || 0;
+              const d = player.duration() || Infinity;
+
+              // If the intro marker is invalid or we've passed it, hide.
+              if (this.introAt >= d || t >= this.introAt) { this.hide(); return; }
+
+              // Show after a short moment, before introAt.
+              if (t >= this.showFrom && t < this.introAt) {
+                this.show();
+                // brief appearance like Netflix
+                clearTimeout(this._hidet);
+                this._hidet = setTimeout(() => this.hide(), this.autoHideAfter * 1000);
+              } else {
+                this.hide();
+              }
+            };
+
+            player.on('timeupdate', this._toggle);
+            player.on('seeking', this._toggle);
+            player.on('loadedmetadata', () => { this.show(); this._toggle(); });
+            player.on('ended', () => this.hide());
+          }
+
+          createEl() {
+            return videojs.dom.createEl('button', { className: 'vjs-skip-intro-overlay' });
+          }
+
+          setIntroAt(sec) {
+            this.introAt = Number(sec) || 24;
+            this._toggle();
+          }
+
+          dispose() {
+            clearTimeout(this._hidet);
+            super.dispose();
+          }
+        }
+        videojs.registerComponent('SkipIntroOverlay', SkipIntroOverlay);
+        const skipOverlay = player.addChild('SkipIntroOverlay', {
+          introAt: 24,
+          showFrom: 0.5,
+          autoHideAfter: 8
+        });
+
         // Persist caption ON/OFF
         player.on('texttrackchange', () => {
           const on = Array.from(player.textTracks()).some(t => t.mode === 'showing');
@@ -425,6 +512,7 @@
           const savedVol = parseFloat(localStorage.getItem(VOL_KEY));
           try { player.muted(false); } catch {}
           player.volume(!isNaN(savedVol) ? savedVol : 0.8);
+          // (Removed old control-bar Skip Intro button injection)
         });
         player.on('volumechange', () => {
           localStorage.setItem(VOL_KEY, String(player.volume()));
@@ -657,7 +745,13 @@
           const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
           if (selectedEpisodeItem) selectedEpisodeItem.classList.add('selected');
 
+          // Update overlays
           renderOverlay(episode);
+
+          // Set per-episode intro mark (adjust here if you have real timestamps)
+          if (typeof skipOverlay?.setIntroAt === 'function') {
+            skipOverlay.setIntroAt(24);
+          }
         }
 
         // Ensure the correct season button is highlighted for the given episode

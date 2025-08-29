@@ -377,11 +377,15 @@
                   request.media.contentId = window.__castMP4;
                   request.media.contentType = 'video/mp4';
                 }
-                // Ensure poster artwork
+                // Ensure metadata is present (do NOT blow away existing)
+                const md = request.media.metadata || new chrome.cast.media.GenericMediaMetadata();
+                // md.metadataType = chrome.cast.media.MetadataType.GENERIC; // optional
+                md.title = window.__castTitle || document.title || 'Bluey';
+                md.subtitle = window.__castSubtitle || '';
                 if (window.__castPoster) {
-                  request.media.metadata = request.media.metadata || new chrome.cast.media.GenericMediaMetadata();
-                  request.media.metadata.images = [{ url: window.__castPoster }];
+                  md.images = [{ url: window.__castPoster }];
                 }
+                request.media.metadata = md;
                 request.autoplay = true;
                 return request;
               }
@@ -441,10 +445,13 @@
           try {
             const ctx = cast && cast.framework && cast.framework.CastContext.getInstance();
             const session = ctx && ctx.getCurrentSession();
-            castMedia = session && session.getMediaSession();
-            if (castMedia) {
-              castMedia.addUpdateListener(castMediaUpdate);
-            }
+            const media = session && session.getMediaSession();
+            if (!media) return;
+            // Rebind only if the MediaSession changed
+            if (castMedia === media) return;
+            detachCastMediaListener();
+            castMedia = media;
+            castMedia.addUpdateListener(castMediaUpdate);
           } catch {}
         }
         function detachCastMediaListener() {
@@ -574,6 +581,9 @@
           setPlayerTitle(niceTitle);
           document.title = `Watch Bluey! | ${niceTitle}`;
 
+          // Keep the season button in sync even on cast / shuffle / cross-season jumps
+          syncSeasonHighlight(episode);
+
           // >>> CAST metadata defaults (poster/title); MP4 assigned after URL build
           const poster = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
           window.__castTitle = niceTitle;
@@ -617,6 +627,12 @@
           player.poster(poster);
           player.src({ src: hls, type: 'application/x-mpegURL' });
 
+          // When casting, the MediaSession object is recreated on each load.
+          // Re-attach our FINISHED listener to the *current* MediaSession.
+          if (window.__isCasting) {
+            setTimeout(attachCastMediaListener, 250);
+          }
+
           // Add VTT (English as default subs track path)
           const vtt = `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/2/0/Stream.vtt?api_key=${apiKey}`;
           try { player.addRemoteTextTrack({ kind: 'subtitles', src: vtt, srclang: 'en', label: 'English' }, false); } catch {}
@@ -642,6 +658,20 @@
           if (selectedEpisodeItem) selectedEpisodeItem.classList.add('selected');
 
           renderOverlay(episode);
+        }
+
+        // Ensure the correct season button is highlighted for the given episode
+        function syncSeasonHighlight(episode) {
+          if (!episode || !seasonsList || !seasonsList.length) return;
+          const season = seasonsList.find(s => s.Id === episode.SeasonId);
+          if (!season) return;
+          const btn = document.querySelector(`.season-selector__button[data-season-id="${season.Id}"]`);
+          if (btn && !btn.classList.contains('selected')) {
+            document.querySelectorAll('.season-selector__button').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            currentSeason = season;
+            currentSeasonIndex = seasonsList.indexOf(season);
+          }
         }
 
         function queueNextEpisode() {

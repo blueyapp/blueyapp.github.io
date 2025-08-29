@@ -141,6 +141,26 @@
       .vjs-user-inactive .vjs-episode-title { opacity: 0; }
       .vjs-user-active .vjs-episode-title { opacity: 1; }
       body.dark .vjs-episode-title { background: rgba(25,29,37,0.6); color: #fbbf24; }
+
+      /* Toast (for language fallback + notices) */
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 20px;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.88);
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-family: 'Hello Headline', sans-serif;
+        font-size: 14px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .25s, transform .25s;
+        z-index: 9999;
+      }
+      .toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
+      body.dark .toast { background: rgba(25,29,37,0.95); color: #fbbf24; }
     </style>
   </head>
   <body>
@@ -229,6 +249,9 @@
         </div>
       </div>
 
+      <!-- Toast container -->
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
       <!-- ---- DARK MODE SCRIPT ---- -->
       <script>
         const themeKey = "bluey-site-theme";
@@ -247,6 +270,56 @@
 
       <!-- App Scripts (Video.js + VHS + Cast wiring) -->
       <script>
+        // Toast helper
+        function showToast(msg, duration = 2500) {
+          const t = document.getElementById('toast');
+          if (!t) return;
+          t.textContent = msg;
+          t.classList.add('show');
+          clearTimeout(showToast._t);
+          showToast._t = setTimeout(() => t.classList.remove('show'), duration);
+        }
+
+        // Map UI select -> possible language codes/tokens found in Emby streams
+        const PREFERRED_LANGS = {
+          '1': ['eng','en','english'],
+          '3': ['msa','may','zsm','ms','malay','bahasa melayu'],
+          '4': ['ara','ar','arabic','العربية'],
+          '5': ['tgl','fil','tl','tagalog','filipino']
+        };
+
+        function normalizeLangHint(stream) {
+          const a = [
+            stream.Language,
+            stream.DisplayLanguage,
+            stream.DisplayTitle,
+            stream.Title,
+            stream.Codec
+          ].filter(Boolean).join(' ').toLowerCase();
+          return a;
+        }
+
+        function pickAudioStreamIndex(audioStreams, preferredKey) {
+          if (!audioStreams || audioStreams.length === 0) return { index: null, reason: 'none' };
+
+          const hints = PREFERRED_LANGS[String(preferredKey)] || [];
+          const want = (s) => {
+            const h = normalizeLangHint(s);
+            return hints.some(code => h.includes(code));
+          };
+
+          // 1) exact preference
+          const pref = audioStreams.find(want);
+          if (pref) return { index: pref.Index, reason: 'pref' };
+
+          // 2) English fallback
+          const eng = audioStreams.find(s => /(^|[^a-z])(eng|english|en)([^a-z]|$)/.test(normalizeLangHint(s)));
+          if (eng) return { index: eng.Index, reason: 'fallback_en' };
+
+          // 3) whatever is first
+          return { index: audioStreams[0].Index, reason: 'fallback_first' };
+        }
+
         // Global configuration and state variables
         const serverUrl = "https://blueynet.org:443";
         const apiKey = "6b2548952ea2439ea800b8cd3f1072d1";
@@ -254,8 +327,9 @@
         const LANG_STORAGE_KEY = "bluey_watch_selected_language_episodes";
 
         // Language selection state
-        let selectedAudioStreamIndex = 1; // default to English
+        let selectedAudioStreamIndex = 1; // default to English (user preference key)
         let userPreferredLanguage = selectedAudioStreamIndex;
+        let currentAudioStreamIndexUsed = null; // actual Emby stream Index chosen for current episode
 
         // Episode and season state
         let selectedSeason = null;
@@ -468,22 +542,24 @@
           }
         }
 
-        // Build CMAF HLS url for Emby
-        function buildHlsUrl(episode, mediaSourceId, PlaySessionId, VideoBitRate, AudioBitRate) {
-          return `${serverUrl}/emby/videos/${episode.Id}/master.m3u8` +
-                 `?MediaSourceId=${mediaSourceId}` +
-                 `&PlaySessionId=${PlaySessionId}` +
-                 `&api_key=${apiKey}` +
-                 `&VideoCodec=h264&AudioCodec=aac` +
-                 `&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}` +
-                 `&AudioStreamIndex=${selectedAudioStreamIndex}` +
-                 `&TranscodingMaxAudioChannels=2` +
-                 `&SegmentContainer=fmp4&MinSegments=2&h264-profile=main`;
+        // Build URLs for Emby (with optional audio stream index)
+        function buildHlsUrl(episode, mediaSourceId, PlaySessionId, VideoBitRate, AudioBitRate, audioIndex) {
+          let url = `${serverUrl}/emby/videos/${episode.Id}/master.m3u8` +
+                    `?MediaSourceId=${mediaSourceId}` +
+                    `&PlaySessionId=${PlaySessionId}` +
+                    `&api_key=${apiKey}` +
+                    `&VideoCodec=h264&AudioCodec=aac` +
+                    `&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}` +
+                    `&TranscodingMaxAudioChannels=2` +
+                    `&SegmentContainer=fmp4&MinSegments=2&h264-profile=main`;
+          if (typeof audioIndex === 'number') url += `&AudioStreamIndex=${audioIndex}`;
+          return url;
         }
 
-        // Progressive fallback
-        function buildMp4Url(episode) {
-          return `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`;
+        function buildMp4Url(episode, audioIndex) {
+          let url = `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`;
+          if (typeof audioIndex === 'number') url += `&AudioStreamIndex=${audioIndex}`;
+          return url;
         }
 
         // Current time
@@ -498,12 +574,11 @@
           setPlayerTitle(niceTitle);
           document.title = `Watch Bluey! | ${niceTitle}`;
 
-          // >>> CAST: push metadata for receiver + prefer MP4 on cast
+          // >>> CAST metadata defaults (poster/title); MP4 assigned after URL build
           const poster = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
           window.__castTitle = niceTitle;
           window.__castSubtitle = `Bluey | Season ${episode.ParentIndexNumber}`;
           window.__castPoster = poster;
-          window.__castMP4 = buildMp4Url(episode); // used by modifyLoadRequestFn
 
           // Show player area
           document.querySelector('.player-wrapper').style.display = 'block';
@@ -512,14 +587,27 @@
           const timestamp = Date.now();
           const info = await fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources&t=${timestamp}`).then(r => r.json());
           const ms = info.MediaSources[0];
+
+          // Decide which audio stream to use for this episode
+          const audioStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Audio');
+          const pick = pickAudioStreamIndex(audioStreams, userPreferredLanguage);
+          currentAudioStreamIndexUsed = pick.index;
+          if (pick.reason === 'fallback_en' && String(userPreferredLanguage) !== '1') {
+            showToast('Selected language not available for this episode — using English.');
+          } else if (pick.reason === 'fallback_first') {
+            showToast('Selected language not available — using default audio.');
+          }
+
           const mediaSourceId = ms.Id;
           const PlaySessionId = info.PlaySessionId;
           const VideoBitRate = ms.MediaStreams[0]?.BitRate || 5000000;
-          const AudioBitRate = ms.MediaStreams[1]?.BitRate || 192000;
+          const AudioBitRate = (audioStreams.find(s => s.Index === currentAudioStreamIndexUsed)?.BitRate) || 192000;
 
-          const hls = buildHlsUrl(episode, mediaSourceId, PlaySessionId, VideoBitRate, AudioBitRate);
-          const progressive = buildMp4Url(episode);
-          const vtt = `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/2/0/Stream.vtt?api_key=${apiKey}`;
+          const hls = buildHlsUrl(episode, mediaSourceId, PlaySessionId, VideoBitRate, AudioBitRate, currentAudioStreamIndexUsed);
+          const progressive = buildMp4Url(episode, currentAudioStreamIndexUsed);
+
+          // >>> CAST: ensure receiver uses same audio selection
+          window.__castMP4 = progressive;
 
           // Remove previous tracks
           const rtt = player.remoteTextTracks();
@@ -529,7 +617,8 @@
           player.poster(poster);
           player.src({ src: hls, type: 'application/x-mpegURL' });
 
-          // Add VTT
+          // Add VTT (English as default subs track path)
+          const vtt = `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/2/0/Stream.vtt?api_key=${apiKey}`;
           try { player.addRemoteTextTrack({ kind: 'subtitles', src: vtt, srclang: 'en', label: 'English' }, false); } catch {}
 
           // Apply subtitle preference

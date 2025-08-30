@@ -182,6 +182,31 @@
       .vjs-skip-intro-overlay:hover { background: rgba(0,0,0,0.75); }
       body.dark .vjs-skip-intro-overlay { background: rgba(25,29,37,0.6); color: #fbbf24; }
       body.dark .vjs-skip-intro-overlay:hover { background: rgba(25,29,37,0.85); }
+
+      /* ===== Up Next overlay (bottom-left) ===== */
+      .vjs-upnext-overlay{
+        position:absolute; left:35px; bottom:35px; z-index:4;
+        display:none; align-items:center; gap:12px;
+        background:rgba(0,0,0,.65); backdrop-filter: blur(4px);
+        color:#fff; border-radius:10px; padding:10px 12px;
+        box-shadow:0 8px 20px rgba(0,0,0,.35);
+        font-family:'Hello Headline', sans-serif;
+      }
+      .vjs-upnext-overlay img{
+        width:120px; height:68px; object-fit:cover; border-radius:6px;
+      }
+      .vjs-upnext-meta{ display:flex; flex-direction:column; line-height:1.2 }
+      .vjs-upnext-label{ font-size:12px; opacity:.9; margin-bottom:4px }
+      .vjs-upnext-title{ font-size:14px; font-weight:700; margin-bottom:6px }
+      .vjs-upnext-btn{
+        border:0; border-radius:6px; padding:8px 10px; cursor:pointer;
+        background:#e2793b; color:#fff; font-family:'Hello Headline', sans-serif;
+        font-size:14px;
+      }
+      .vjs-upnext-btn:focus, .vjs-upnext-btn:hover{ filter:brightness(1.05) }
+      .vjs-upnext-count{ font-weight:800 }
+      body.dark .vjs-upnext-overlay{ background:rgba(25,29,37,.7); color:#fbbf24 }
+      body.dark .vjs-upnext-btn{ background:#394867; color:#ffd700 }
     </style>
   </head>
   <body>
@@ -435,6 +460,222 @@
         function setPlayerTitle(text) { if (titleOverlay) titleOverlay.set(text); }
 
         /* ===========================
+           Up Next overlay + prefetch
+           =========================== */
+        let nextPrepared = null;            // { episode, season, seasonIndex, epIndex, poster, hls, mp4 }
+        let suppressEndedOnce = false;      // prevent double-advance when we autostart early
+        let nextPrepToken = 0;              // race-guard for async prepare
+
+        class UpNextOverlay extends BaseComp {
+          constructor(player, options){
+            super(player, options);
+            this.addClass('vjs-upnext-overlay');
+            this.showAt = (options && options.showAt) || 10;  // seconds before end
+            this._visible = false;
+
+            // Build UI
+            this.thumb = document.createElement('img');
+            this.meta  = document.createElement('div');
+            this.meta.className = 'vjs-upnext-meta';
+
+            this.label = document.createElement('div');
+            this.label.className = 'vjs-upnext-label';
+            this.label.textContent = 'Playing next in ';
+            this.count = document.createElement('span');
+            this.count.className = 'vjs-upnext-count';
+            this.count.textContent = '10';
+            this.label.append(this.count, 's');
+
+            this.title = document.createElement('div');
+            this.title.className = 'vjs-upnext-title';
+
+            this.btn = document.createElement('button');
+            this.btn.className = 'vjs-upnext-btn';
+            this.btn.type = 'button';
+            this.btn.textContent = 'Play now';
+            this.btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              if (nextPrepared) { playNextPrepared(false); }
+            });
+
+            this.meta.append(this.label, this.title, this.btn);
+            this.el().append(this.thumb, this.meta);
+
+            const update = () => {
+              if (!nextPrepared) { return this.hide(); }
+              const d = player.duration() || 0;
+              const t = player.currentTime() || 0;
+              if (!isFinite(d) || d === 0) return this.hide();
+
+              const remaining = d - t;
+              if (remaining <= this.showAt && remaining > 0 && !player.paused()){
+                if (!this._visible) this.show();
+                this.count.textContent = String(Math.ceil(remaining));
+              } else {
+                this.hide();
+              }
+            };
+
+            this.onPlayerEvents = () => update();
+            player.on('timeupdate', this.onPlayerEvents);
+            player.on('seeking',   this.onPlayerEvents);
+            player.on('pause',     this.onPlayerEvents);
+            player.on('play',      this.onPlayerEvents);
+            player.on('loadedmetadata', () => { this.hide(); });
+            player.on('ended', () => { this.hide(); });
+          }
+
+          createEl(){
+            return videojs.dom.createEl('div', { className: 'vjs-upnext-overlay' });
+          }
+
+          setNext(data){
+            if (!data) { this.hide(); return; }
+            this.thumb.src = data.poster;
+            const s = data.episode.ParentIndexNumber, e = data.episode.IndexNumber;
+            this.title.textContent = `S${s}E${e}: ${data.episode.Name}`;
+          }
+
+          show(){ this._visible = true; this.el().style.display = 'flex'; }
+          hide(){ this._visible = false; this.el().style.display = 'none'; }
+        }
+        videojs.registerComponent('UpNextOverlay', UpNextOverlay);
+        const upNextOverlay = player.addChild('UpNextOverlay', { showAt: 10 });
+
+        function findNextCandidate(){
+          if (!seasonsList.length || currentEpisodeIndex < 0) return null;
+
+          if (shuffleMode && allEpisodes.length > 0){
+            if (allEpisodes.length === 1) return null;
+            let nextIndex; const currentId = episodes[currentEpisodeIndex]?.Id;
+            do { nextIndex = Math.floor(Math.random()*allEpisodes.length); } while (allEpisodes[nextIndex].Id === currentId);
+            const ep = allEpisodes[nextIndex];
+            const season = seasonsList.find(s => s.Id === ep.SeasonId);
+            if (!season) return null;
+            return { episode: ep, season };
+          }
+
+          // Sequential case
+          if (currentEpisodeIndex + 1 < episodes.length){
+            return { episode: episodes[currentEpisodeIndex + 1], season: currentSeason };
+          }
+          // First of next season (no cache requirement here; we'll fetch if needed)
+          if (currentSeasonIndex < seasonsList.length - 1){
+            const season = seasonsList[currentSeasonIndex + 1];
+            return { episode: null, season };
+          }
+          return null;
+        }
+
+        async function prepareNextEpisodePreview(){
+          const token = ++nextPrepToken;
+          const cand = findNextCandidate();
+          if (!cand){ nextPrepared = null; upNextOverlay.setNext(null); return; }
+
+          // Ensure we have episodes list for that season to compute indices
+          if (!episodesCache[cand.season.Id]){
+            try { await fetchEpisodes(cand.season); } catch {}
+          }
+          const list = episodesCache[cand.season.Id] || [];
+
+          // If candidate episode was null (first of next season), pick it now
+          let ep = cand.episode || (list.length ? list[0] : null);
+          if (!ep){ nextPrepared = null; upNextOverlay.setNext(null); return; }
+
+          const seasonIndex = seasonsList.indexOf(cand.season);
+          const epIndex = list.findIndex(x => x.Id === ep.Id);
+          const poster = `${serverUrl}/emby/Items/${ep.Id}/Images/Primary?api_key=${apiKey}`;
+
+          // Try to fetch PlaybackInfo early to compute URLs and pre-warm
+          let prepared = { episode: ep, season: cand.season, seasonIndex, epIndex, poster, hls:null, mp4:null, audioIndex:null, mediaSourceId:null, subIndex:null };
+          try{
+            const timestamp = Date.now();
+            const info = await fetch(`${serverUrl}/emby/Items/${ep.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources&t=${timestamp}`).then(r=>r.json());
+            const ms = info.MediaSources[0];
+            const audioStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Audio');
+            const pick = pickAudioStreamIndex(audioStreams, userPreferredLanguage);
+            const mediaSourceId = ms.Id;
+            const VideoBitRate = ms.MediaStreams[0]?.BitRate || 5000000;
+            const AudioBitRate = (audioStreams.find(s => s.Index === pick.index)?.BitRate) || 192000;
+            const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
+            const subPick = subStreams.find(s => /(^|[^a-z])(eng|english|en)([^a-z]|$)/.test(((s.Language||s.DisplayLanguage||s.Title)||'').toLowerCase())) || subStreams[0];
+
+            const hls = buildHlsUrl(ep, mediaSourceId, info.PlaySessionId, VideoBitRate, AudioBitRate, pick.index);
+            const mp4 = buildMp4Url(ep, pick.index);
+
+            try { const img = new Image(); img.src = poster; } catch {}
+            try { fetch(hls, { mode:'no-cors' }); } catch {}
+
+            prepared.hls = hls; prepared.mp4 = mp4; prepared.audioIndex = pick.index; prepared.mediaSourceId = mediaSourceId; prepared.subIndex = subPick ? subPick.Index : null;
+          }catch{}
+
+          if (token !== nextPrepToken) return; // a newer prepare superseded this one
+          nextPrepared = prepared;
+          upNextOverlay.setNext(nextPrepared);
+        }
+
+        function playNextPrepared(fromEnded){
+          if (!nextPrepared) return;
+
+          currentSeason       = nextPrepared.season;
+          currentSeasonIndex  = nextPrepared.seasonIndex;
+          episodes            = episodesCache[currentSeason.Id] || episodes;
+          // FIX #1: set index BEFORE rendering so highlight aligns
+          currentEpisodeIndex = nextPrepared.epIndex >= 0 ? nextPrepared.epIndex : 0;
+          renderEpisodes(episodes);
+
+          // Only suppress if we started early (button click / before natural end)
+          suppressEndedOnce = !!fromEnded ? false : true;
+
+          if (nextPrepared.hls){
+            window.__castTitle    = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
+            window.__castSubtitle = `Bluey | Season ${nextPrepared.episode.ParentIndexNumber}`;
+            window.__castPoster   = nextPrepared.poster;
+            window.__castMP4      = nextPrepared.mp4 || '';
+
+            player.poster(nextPrepared.poster);
+            player.src({ src: nextPrepared.hls, type: 'application/x-mpegURL' });
+
+            // Ensure audio index is tracked for error fallback
+            currentAudioStreamIndexUsed = nextPrepared.audioIndex;
+
+            // Replace any previous remote text tracks and add the prepared subtitle (if available)
+            try {
+              const rtt = player.remoteTextTracks();
+              for (let i = rtt.length - 1; i >= 0; i--) player.removeRemoteTextTrack(rtt[i]);
+            } catch {}
+            if (nextPrepared.subIndex != null && nextPrepared.mediaSourceId) {
+              const vtt = `${serverUrl}/emby/Videos/${nextPrepared.episode.Id}/${nextPrepared.mediaSourceId}/Subtitles/${nextPrepared.subIndex}/0/Stream.vtt?api_key=${apiKey}`;
+              try { player.addRemoteTextTrack({ kind: 'subtitles', src: vtt, srclang: 'en', label: 'Subtitles' }, false); } catch {}
+              const tt = player.textTracks();
+              for (let i = 0; i < tt.length; i++) { tt[i].mode = subsWanted ? 'showing' : 'disabled'; }
+            }
+
+            // FIX #2: immediately sync UI (title/overlay/highlight) when not calling playEpisode()
+            const niceTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
+            setPlayerTitle(niceTitle);
+            document.title = `Watch Bluey! | ${niceTitle}`;
+            try { wireMediaSession(nextPrepared.episode); } catch {}
+            syncSeasonHighlight(nextPrepared.episode);
+            const prevSelected = document.querySelector('#episodes li.selected');
+            if (prevSelected) prevSelected.classList.remove('selected');
+            const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${currentEpisodeIndex + 1})`);
+            if (selectedEpisodeItem) selectedEpisodeItem.classList.add('selected');
+            renderOverlay(nextPrepared.episode);
+
+            player.one('loadedmetadata', async () => { try{ player.muted(false); }catch{}; await autoPlayMaybe(0); showInfo(); });
+          }else{
+            // Fallback to full pipeline (reuses existing UI logic)
+            playEpisode(nextPrepared.episode, currentEpisodeIndex, 0);
+          }
+
+          upNextOverlay.hide();
+          nextPrepared = null;
+          // Prepare next preview for the newly started episode soon after metadata
+          player.one('loadedmetadata', () => prepareNextEpisodePreview());
+        }
+
+        /* ===========================
            Netflix-style Skip Intro Overlay
            =========================== */
         class SkipIntroOverlay extends BaseComp {
@@ -449,7 +690,6 @@
             this.introAt = (options && options.introAt) || 24;   // seconds
             this.showFrom = (options && options.showFrom) || 0.5;
             this.autoHideAfter = (options && options.autoHideAfter) || 8; // seconds
-            this._hidet = null;
 
             this.on('click', () => {
               try { this.player_.currentTime(this.introAt); } catch {}
@@ -460,15 +700,10 @@
               const t = player.currentTime() || 0;
               const d = player.duration() || Infinity;
 
-              // If the intro marker is invalid or we've passed it, hide.
               if (this.introAt >= d || t >= this.introAt) { this.hide(); return; }
-
-              // Show after a short moment, before introAt.
               if (t >= this.showFrom && t < this.introAt) {
                 this.show();
-                // brief appearance like Netflix
-                clearTimeout(this._hidet);
-                this._hidet = setTimeout(() => this.hide(), this.autoHideAfter * 1000);
+                setTimeout(() => this.hide(), this.autoHideAfter * 1000);
               } else {
                 this.hide();
               }
@@ -487,11 +722,6 @@
           setIntroAt(sec) {
             this.introAt = Number(sec) || 24;
             this._toggle();
-          }
-
-          dispose() {
-            clearTimeout(this._hidet);
-            super.dispose();
           }
         }
         videojs.registerComponent('SkipIntroOverlay', SkipIntroOverlay);
@@ -512,7 +742,6 @@
           const savedVol = parseFloat(localStorage.getItem(VOL_KEY));
           try { player.muted(false); } catch {}
           player.volume(!isNaN(savedVol) ? savedVol : 0.8);
-          // (Removed old control-bar Skip Intro button injection)
         });
         player.on('volumechange', () => {
           localStorage.setItem(VOL_KEY, String(player.volume()));
@@ -521,7 +750,7 @@
         // >>> CAST: connected / disconnected flags + robust auto-next fallback
         player.on('chromecastConnected', () => {
           window.__isCasting = true;
-          attachCastMediaListener(); // fallback listener to detect FINISHED
+          attachCastMediaListener();
         });
         player.on('chromecastDisconnected', () => {
           window.__isCasting = false;
@@ -535,7 +764,6 @@
             const session = ctx && ctx.getCurrentSession();
             const media = session && session.getMediaSession();
             if (!media) return;
-            // Rebind only if the MediaSession changed
             if (castMedia === media) return;
             detachCastMediaListener();
             castMedia = media;
@@ -546,12 +774,12 @@
           try { if (castMedia) castMedia.removeUpdateListener(castMediaUpdate); } catch {}
           castMedia = null;
         }
-        function castMediaUpdate(/*isAlive*/) {
+        function castMediaUpdate() {
           try {
             if (!castMedia) return;
             if (castMedia.playerState === chrome.cast.media.PlayerState.IDLE &&
                 castMedia.idleReason === chrome.cast.media.IdleReason.FINISHED) {
-              queueNextEpisode(); // fallback trigger (in case 'ended' didn't bubble)
+              queueNextEpisode();
             }
           } catch {}
         }
@@ -569,7 +797,8 @@
           document.getElementById('episodes').innerHTML = '';
 
           window.addEventListener('resize', updateOrientationUI);
-          document.addEventListener('DOMContentLoaded', updateOrientationUI);
+          // FIX: call directly instead of adding a nested DOMContentLoaded listener
+          updateOrientationUI();
         });
 
         // MediaSession prev/next hooks (local device)
@@ -605,6 +834,10 @@
           }
         }
         function jumpNext() {
+          if (nextPrepared) { // honor the preview when user taps Next
+            playNextPrepared(false);
+            return;
+          }
           if (shuffleMode && allEpisodes.length > 1) {
             let nextIndex; const currentId = episodes[currentEpisodeIndex]?.Id;
             do { nextIndex = Math.floor(Math.random() * allEpisodes.length); } while (allEpisodes[nextIndex].Id === currentId);
@@ -715,28 +948,34 @@
           player.poster(poster);
           player.src({ src: hls, type: 'application/x-mpegURL' });
 
-          // When casting, the MediaSession object is recreated on each load.
-          // Re-attach our FINISHED listener to the *current* MediaSession.
           if (window.__isCasting) {
             setTimeout(attachCastMediaListener, 250);
           }
 
           // Add VTT (English as default subs track path)
-          const vtt = `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/2/0/Stream.vtt?api_key=${apiKey}`;
-          try { player.addRemoteTextTrack({ kind: 'subtitles', src: vtt, srclang: 'en', label: 'English' }, false); } catch {}
+          const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
+          const subPick = subStreams.find(s => /(^|[^a-z])(eng|english|en)([^a-z]|$)/.test(((s.Language||s.DisplayLanguage||s.Title)||'').toLowerCase())) || subStreams[0];
+          if (subPick) {
+            const vtt = `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/${subPick.Index}/0/Stream.vtt?api_key=${apiKey}`;
+            try { player.addRemoteTextTrack({ kind: 'subtitles', src: vtt, srclang: (subPick.Language || 'en'), label: subPick.DisplayTitle || 'Subtitles' }, false); } catch {}
+          }
 
           // Apply subtitle preference
           const tt = player.textTracks();
           for (let i = 0; i < tt.length; i++) { tt[i].mode = subsWanted ? 'showing' : 'disabled'; }
 
-          // Ready to play (Chromecast tech fires 'loadeddata', HTML5 fires 'loadedmetadata')
           const onReadyToPlay = async () => { try { player.muted(false); } catch {}; await autoPlayMaybe(seekTime); showInfo(); };
           player.one('loadedmetadata', onReadyToPlay);
           player.one('loadeddata', onReadyToPlay);
 
           // Robust auto-advance (re-bind our own handler only)
           if (onEndedHandler) player.off('ended', onEndedHandler);
-          onEndedHandler = () => queueNextEpisode();
+          onEndedHandler = () => {
+            if (suppressEndedOnce){ suppressEndedOnce = false; return; }
+            // If we have a prepared next (e.g., from shuffle), honor it so overlay matches
+            if (nextPrepared) { playNextPrepared(true); return; }
+            queueNextEpisode();
+          };
           player.on('ended', onEndedHandler);
 
           // Highlight current episode in list
@@ -748,7 +987,9 @@
           // Update overlays
           renderOverlay(episode);
 
-          // Set per-episode intro mark (adjust here if you have real timestamps)
+          // Prepare Up Next preview for smoother auto-advance
+          prepareNextEpisodePreview();
+
           if (typeof skipOverlay?.setIntroAt === 'function') {
             skipOverlay.setIntroAt(24);
           }
@@ -769,6 +1010,9 @@
         }
 
         function queueNextEpisode() {
+          // If a preview exists (especially in shuffle), always use it so overlay == next
+          if (nextPrepared) { playNextPrepared(true); return; }
+
           if (shuffleMode && allEpisodes.length > 0) {
             let nextIndex; const currentId = episodes[currentEpisodeIndex]?.Id;
             do { nextIndex = Math.floor(Math.random() * allEpisodes.length); } while (allEpisodes.length > 1 && allEpisodes[nextIndex].Id === currentId);
@@ -779,9 +1023,12 @@
               document.querySelectorAll('.season-selector__button').forEach(btn => btn.classList.remove('selected'));
               const seasonBtn = document.querySelector(`.season-selector__button[data-season-id="${season.Id}"]`);
               if (seasonBtn) seasonBtn.classList.add('selected');
-              episodes = episodesCache[season.Id] || []; renderEpisodes(episodes);
-              const epIndex = episodes.findIndex(e => e.Id === ep.Id);
-              if (epIndex !== -1) { currentEpisodeIndex = epIndex; playEpisode(ep, epIndex); }
+              const ensure = episodesCache[season.Id] ? Promise.resolve(episodesCache[season.Id]) : fetchEpisodes(season);
+              ensure.then(list => {
+                episodes = list; renderEpisodes(episodes);
+                const epIndex = episodes.findIndex(e => e.Id === ep.Id);
+                if (epIndex !== -1) { currentEpisodeIndex = epIndex; playEpisode(ep, epIndex); }
+              }).catch(() => showToast('Could not load next episode. Tap any episode to continue.'));
             }
             return;
           }
@@ -792,8 +1039,10 @@
             document.querySelectorAll('.season-selector__button').forEach(btn => btn.classList.remove('selected'));
             const nextSeasonButton = document.querySelector(`.season-selector__button[data-season-id="${currentSeason.Id}"]`);
             if (nextSeasonButton) nextSeasonButton.classList.add('selected');
-            if (episodesCache[currentSeason.Id]) { episodes = episodesCache[currentSeason.Id]; renderEpisodes(episodes); currentEpisodeIndex = 0; playEpisode(episodes[0], 0); }
-            else { fetchEpisodes(currentSeason); }
+            const ensure = episodesCache[currentSeason.Id] ? Promise.resolve(episodesCache[currentSeason.Id]) : fetchEpisodes(currentSeason);
+            ensure.then(list => {
+              episodes = list; renderEpisodes(episodes); currentEpisodeIndex = 0; playEpisode(episodes[0], 0);
+            }).catch(() => showToast('Could not load next episode. Tap any episode to continue.'));
           }
         }
 
@@ -825,6 +1074,7 @@
                   handleSeasonClick(seasonBtn, season, i);
                   if (episodesCache[season.Id]) { episodes = episodesCache[season.Id]; renderEpisodes(episodes); }
                   else { fetchEpisodes(season); }
+                  prepareNextEpisodePreview();
                 });
                 seasonsContainer.appendChild(seasonBtn);
               });
@@ -833,14 +1083,15 @@
         }
 
         function fetchEpisodes(season) {
-          fetch(`${serverUrl}/emby/Shows/${itemId}/Episodes?SeasonId=${season.Id}&api_key=${apiKey}&Fields=Overview`)
+          return fetch(`${serverUrl}/emby/Shows/${itemId}/Episodes?SeasonId=${season.Id}&api_key=${apiKey}&Fields=Overview`)
             .then(r => r.json())
             .then(data => {
               episodesCache[season.Id] = data.Items; episodes = data.Items;
               data.Items.forEach(ep => { if (!allEpisodes.find(e => e.Id === ep.Id)) { allEpisodes.push(ep); } });
               renderEpisodes(episodes);
+              return data.Items;
             })
-            .catch(err => console.error('episodes error:', err));
+            .catch(err => { console.error('episodes error:', err); throw err; });
         }
 
         function handleSeasonClick(button, season, seasonIndex) {
@@ -915,6 +1166,7 @@
           if (episodes.length > 0 && currentEpisodeIndex >= 0) {
             playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex, seekTime);
           }
+          prepareNextEpisodePreview();
         }
 
         function updateOrientationUI() {
@@ -940,7 +1192,34 @@
           shuffleMode = !shuffleMode;
           const shuffleIcon = document.getElementById('shuffle-icon');
           if (shuffleMode) shuffleIcon.classList.add('active'); else shuffleIcon.classList.remove('active');
+          prepareNextEpisodePreview();
         }
+
+        // --- Resilient error handling (EOS hiccups, transient HLS issues) ---
+        let consecutiveErrors = 0;
+        player.on('playing', () => { consecutiveErrors = 0; });
+        player.on('vhs-error', (_evt, data) => {
+          console.warn('vhs-error', data);
+          player.trigger('error');
+        });
+        player.on('error', () => {
+          const err = player.error();
+          console.warn('videojs error:', err);
+          if (episodes[currentEpisodeIndex] && consecutiveErrors === 0) {
+            consecutiveErrors++;
+            const ep = episodes[currentEpisodeIndex];
+            const mp4 = buildMp4Url(ep, currentAudioStreamIndexUsed);
+            window.__castMP4 = mp4; // keep Cast in sync
+            showToast('Stream hiccup — switching to fallback.');
+            try { player.src({ src: mp4, type: 'video/mp4' }); } catch {}
+            player.one('loadedmetadata', () => autoPlayMaybe(getCurrentTime()));
+            return;
+          }
+          consecutiveErrors = 0;
+          showToast('That episode failed to load — jumping to the next.');
+          // keep overlay/preview in sync
+          if (nextPrepared) { playNextPrepared(true); } else { queueNextEpisode(); }
+        });
       </script>
     </div>
   </body>

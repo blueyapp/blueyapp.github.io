@@ -366,6 +366,25 @@
           return { index: audioStreams[0].Index, reason: 'fallback_first' };
         }
 
+        /* ===== Clean language labels for subtitle menu ===== */
+        function niceLangLabelFrom(stream) {
+          const raw = ((stream.Language || stream.DisplayLanguage || stream.DisplayTitle || stream.Title) || '').toLowerCase();
+          if (/(^|[^a-z])(eng|english|en)([^a-z]|$)/.test(raw)) return 'English';
+          if (/(msa|may|zsm|ms|malay|bahasa melayu)/.test(raw))   return 'Malay';
+          if (/(ara|ar|arabic|العربية)/.test(raw))                return 'Arabic';
+          if (/(tgl|fil|tl|tagalog|filipino)/.test(raw))          return 'Tagalog';
+          return 'Subtitles';
+        }
+        function srclangFromLabel(label) {
+          switch (label) {
+            case 'English': return 'en';
+            case 'Malay':   return 'ms';
+            case 'Arabic':  return 'ar';
+            case 'Tagalog': return 'tl';
+            default:        return 'en';
+          }
+        }
+
         // Global configuration and state variables
         const serverUrl = "https://blueynet.org:443";
         const apiKey = "6b2548952ea2439ea800b8cd3f1072d1";
@@ -462,7 +481,7 @@
         /* ===========================
            Up Next overlay + prefetch
            =========================== */
-        let nextPrepared = null;            // { episode, season, seasonIndex, epIndex, poster, hls, mp4 }
+        let nextPrepared = null;            // { episode, season, seasonIndex, epIndex, poster, hls, mp4, subIndex, subLabel, subSrclang }
         let suppressEndedOnce = false;      // prevent double-advance when we autostart early
         let nextPrepToken = 0;              // race-guard for async prepare
 
@@ -559,7 +578,7 @@
           if (currentEpisodeIndex + 1 < episodes.length){
             return { episode: episodes[currentEpisodeIndex + 1], season: currentSeason };
           }
-          // First of next season (no cache requirement here; we'll fetch if needed)
+          // First of next season
           if (currentSeasonIndex < seasonsList.length - 1){
             const season = seasonsList[currentSeasonIndex + 1];
             return { episode: null, season };
@@ -572,7 +591,7 @@
           const cand = findNextCandidate();
           if (!cand){ nextPrepared = null; upNextOverlay.setNext(null); return; }
 
-          // Ensure we have episodes list for that season to compute indices
+          // Ensure we have episodes for that season
           if (!episodesCache[cand.season.Id]){
             try { await fetchEpisodes(cand.season); } catch {}
           }
@@ -586,8 +605,8 @@
           const epIndex = list.findIndex(x => x.Id === ep.Id);
           const poster = `${serverUrl}/emby/Items/${ep.Id}/Images/Primary?api_key=${apiKey}`;
 
-          // Try to fetch PlaybackInfo early to compute URLs and pre-warm
-          let prepared = { episode: ep, season: cand.season, seasonIndex, epIndex, poster, hls:null, mp4:null, audioIndex:null, mediaSourceId:null, subIndex:null };
+          // Prefetch playback info to pre-warm + capture a clean subtitle label
+          let prepared = { episode: ep, season: cand.season, seasonIndex, epIndex, poster, hls:null, mp4:null, audioIndex:null, mediaSourceId:null, subIndex:null, subLabel:'English', subSrclang:'en' };
           try{
             const timestamp = Date.now();
             const info = await fetch(`${serverUrl}/emby/Items/${ep.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources&t=${timestamp}`).then(r=>r.json());
@@ -606,10 +625,18 @@
             try { const img = new Image(); img.src = poster; } catch {}
             try { fetch(hls, { mode:'no-cors' }); } catch {}
 
-            prepared.hls = hls; prepared.mp4 = mp4; prepared.audioIndex = pick.index; prepared.mediaSourceId = mediaSourceId; prepared.subIndex = subPick ? subPick.Index : null;
+            prepared.hls = hls;
+            prepared.mp4 = mp4;
+            prepared.audioIndex = pick.index;
+            prepared.mediaSourceId = mediaSourceId;
+            prepared.subIndex = subPick ? subPick.Index : null;
+            if (subPick) {
+              prepared.subLabel = niceLangLabelFrom(subPick);
+              prepared.subSrclang = srclangFromLabel(prepared.subLabel);
+            }
           }catch{}
 
-          if (token !== nextPrepToken) return; // a newer prepare superseded this one
+          if (token !== nextPrepToken) return; // superseded
           nextPrepared = prepared;
           upNextOverlay.setNext(nextPrepared);
         }
@@ -620,11 +647,9 @@
           currentSeason       = nextPrepared.season;
           currentSeasonIndex  = nextPrepared.seasonIndex;
           episodes            = episodesCache[currentSeason.Id] || episodes;
-          // FIX #1: set index BEFORE rendering so highlight aligns
           currentEpisodeIndex = nextPrepared.epIndex >= 0 ? nextPrepared.epIndex : 0;
           renderEpisodes(episodes);
 
-          // Only suppress if we started early (button click / before natural end)
           suppressEndedOnce = !!fromEnded ? false : true;
 
           if (nextPrepared.hls){
@@ -636,22 +661,22 @@
             player.poster(nextPrepared.poster);
             player.src({ src: nextPrepared.hls, type: 'application/x-mpegURL' });
 
-            // Ensure audio index is tracked for error fallback
             currentAudioStreamIndexUsed = nextPrepared.audioIndex;
 
-            // Replace any previous remote text tracks and add the prepared subtitle (if available)
+            // Replace previous remote text tracks and add the prepared subtitle (if available)
             try {
               const rtt = player.remoteTextTracks();
               for (let i = rtt.length - 1; i >= 0; i--) player.removeRemoteTextTrack(rtt[i]);
             } catch {}
             if (nextPrepared.subIndex != null && nextPrepared.mediaSourceId) {
               const vtt = `${serverUrl}/emby/Videos/${nextPrepared.episode.Id}/${nextPrepared.mediaSourceId}/Subtitles/${nextPrepared.subIndex}/0/Stream.vtt?api_key=${apiKey}`;
-              try { player.addRemoteTextTrack({ kind: 'subtitles', src: vtt, srclang: 'en', label: 'Subtitles' }, false); } catch {}
+              const niceLabel = nextPrepared.subLabel || 'English';
+              const langCode  = nextPrepared.subSrclang || 'en';
+              try { player.addRemoteTextTrack({ kind: 'subtitles', src: vtt, srclang: langCode, label: niceLabel }, false); } catch {}
               const tt = player.textTracks();
               for (let i = 0; i < tt.length; i++) { tt[i].mode = subsWanted ? 'showing' : 'disabled'; }
             }
 
-            // FIX #2: immediately sync UI (title/overlay/highlight) when not calling playEpisode()
             const niceTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
             setPlayerTitle(niceTitle);
             document.title = `Watch Bluey! | ${niceTitle}`;
@@ -665,13 +690,12 @@
 
             player.one('loadedmetadata', async () => { try{ player.muted(false); }catch{}; await autoPlayMaybe(0); showInfo(); });
           }else{
-            // Fallback to full pipeline (reuses existing UI logic)
+            // Fallback to full pipeline
             playEpisode(nextPrepared.episode, currentEpisodeIndex, 0);
           }
 
           upNextOverlay.hide();
           nextPrepared = null;
-          // Prepare next preview for the newly started episode soon after metadata
           player.one('loadedmetadata', () => prepareNextEpisodePreview());
         }
 
@@ -797,7 +821,6 @@
           document.getElementById('episodes').innerHTML = '';
 
           window.addEventListener('resize', updateOrientationUI);
-          // FIX: call directly instead of adding a nested DOMContentLoaded listener
           updateOrientationUI();
         });
 
@@ -834,7 +857,7 @@
           }
         }
         function jumpNext() {
-          if (nextPrepared) { // honor the preview when user taps Next
+          if (nextPrepared) {
             playNextPrepared(false);
             return;
           }
@@ -952,12 +975,16 @@
             setTimeout(attachCastMediaListener, 250);
           }
 
-          // Add VTT (English as default subs track path)
+          // Add VTT with clean label
           const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
           const subPick = subStreams.find(s => /(^|[^a-z])(eng|english|en)([^a-z]|$)/.test(((s.Language||s.DisplayLanguage||s.Title)||'').toLowerCase())) || subStreams[0];
           if (subPick) {
             const vtt = `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/${subPick.Index}/0/Stream.vtt?api_key=${apiKey}`;
-            try { player.addRemoteTextTrack({ kind: 'subtitles', src: vtt, srclang: (subPick.Language || 'en'), label: subPick.DisplayTitle || 'Subtitles' }, false); } catch {}
+            const niceLabel = niceLangLabelFrom(subPick);
+            const langCode  = srclangFromLabel(niceLabel);
+            try {
+              player.addRemoteTextTrack({ kind: 'subtitles', src: vtt, srclang: langCode, label: niceLabel }, false);
+            } catch {}
           }
 
           // Apply subtitle preference
@@ -972,7 +999,6 @@
           if (onEndedHandler) player.off('ended', onEndedHandler);
           onEndedHandler = () => {
             if (suppressEndedOnce){ suppressEndedOnce = false; return; }
-            // If we have a prepared next (e.g., from shuffle), honor it so overlay matches
             if (nextPrepared) { playNextPrepared(true); return; }
             queueNextEpisode();
           };
@@ -987,7 +1013,7 @@
           // Update overlays
           renderOverlay(episode);
 
-          // Prepare Up Next preview for smoother auto-advance
+          // Prepare Up Next preview
           prepareNextEpisodePreview();
 
           if (typeof skipOverlay?.setIntroAt === 'function') {
@@ -1010,7 +1036,6 @@
         }
 
         function queueNextEpisode() {
-          // If a preview exists (especially in shuffle), always use it so overlay == next
           if (nextPrepared) { playNextPrepared(true); return; }
 
           if (shuffleMode && allEpisodes.length > 0) {
@@ -1217,7 +1242,6 @@
           }
           consecutiveErrors = 0;
           showToast('That episode failed to load — jumping to the next.');
-          // keep overlay/preview in sync
           if (nextPrepared) { playNextPrepared(true); } else { queueNextEpisode(); }
         });
       </script>

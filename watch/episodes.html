@@ -402,10 +402,9 @@
 
         // Device/engine feature detection
         const UA = navigator.userAgent || '';
-const IS_TIZEN5 = /Tizen 5/i.test(UA);
-const IS_IOS = /iP(hone|od|ad)/i.test(UA) || (/Macintosh/i.test(UA) && 'ontouchend' in document);
-const NEEDS_SAFE_MODE = IS_TIZEN5 || !('MediaSource' in window) || !('fetch' in window);
-const TECHS = NEEDS_SAFE_MODE ? ['html5'] : ['chromecast','html5'];
+        const IS_TIZEN5 = /Tizen 5/i.test(UA);
+        const NEEDS_SAFE_MODE = IS_TIZEN5 || !('MediaSource' in window) || !('fetch' in window);
+        const TECHS = NEEDS_SAFE_MODE ? ['html5'] : ['chromecast','html5'];
 
         // Language selection state
         let selectedAudioStreamIndex = 1; // default to English (user preference key)
@@ -938,7 +937,7 @@ const TECHS = NEEDS_SAFE_MODE ? ['html5'] : ['chromecast','html5'];
         function getCurrentTime() { return player.currentTime() || 0; }
 
         // ===== Robust "auto-next" watchdog + Xiaomi nudge =====
-        const END_EPSILON = (IS_IOS ? 0.2 : 1.5); // tighter on iOS to avoid premature skip
+        const END_EPSILON = 1.5; // seconds from the end counts as "done"
         let endWatch = { timer: null, fired: false };
         function nearEnd() {
           const d = player.duration() || 0; const t = player.currentTime() || 0;
@@ -948,33 +947,24 @@ const TECHS = NEEDS_SAFE_MODE ? ['html5'] : ['chromecast','html5'];
           if (endWatch.fired) return; endWatch.fired = true;
           setTimeout(() => { if (nextPrepared) { playNextPrepared(true); } else { queueNextEpisode(); } }, 100);
         }
-        function armEndWatchdog() {
-  if (IS_IOS) { return; }
-  clearInterval(endWatch.timer);
-  endWatch.fired = false;
-  endWatch.timer = setInterval(() => {
-    if (!player.paused() && nearEnd()) safeAutoNext('watchdog');
-  }, 500);
-}
+        function armEndWatchdog() { clearInterval(endWatch.timer); endWatch.fired = false; endWatch.timer = setInterval(() => { if (!player.paused() && nearEnd()) safeAutoNext('watchdog'); }, 500); }
         function cancelEndWatchdog() { clearInterval(endWatch.timer); }
         player.on('loadedmetadata', armEndWatchdog);
         player.on('play',             armEndWatchdog);
         player.on('seeked',           armEndWatchdog);
         player.on('pause',            cancelEndWatchdog);
-        player.on('waiting', () => { if (!IS_IOS && nearEnd()) safeAutoNext('waiting-near-end'); });
+        player.on('waiting', () => { if (nearEnd()) safeAutoNext('waiting-near-end'); });
         player.on('ended',   () => safeAutoNext('ended'));
 
         // Xiaomi/AndroidTV "stuck clock" nudge near the end (~2s of no progress)
-if (!IS_IOS) {
-  let lastT = 0, stillCount = 0;
-  player.on('timeupdate', () => {
-    const t = player.currentTime() || 0;
-    if (Math.abs(t - lastT) < 0.01 && nearEnd() && !player.paused()) {
-      if (++stillCount >= 4) { try { player.currentTime(t + 0.5); } catch {} stillCount = 0; }
-    } else { stillCount = 0; }
-    lastT = t;
-  });
-}
+        let lastT = 0, stillCount = 0;
+        player.on('timeupdate', () => {
+          const t = player.currentTime() || 0;
+          if (Math.abs(t - lastT) < 0.01 && nearEnd() && !player.paused()) {
+            if (++stillCount >= 4) { try { player.currentTime(t + 0.5); } catch {} stillCount = 0; }
+          } else { stillCount = 0; }
+          lastT = t;
+        });
 
         // PLAY EPISODE
         let onEndedHandler = null;

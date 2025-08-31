@@ -306,6 +306,33 @@
 
       <!-- Toast container -->
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      <!-- Force-redirect Safari on Apple devices to /watch/iostest -->
+      <script>
+        (function () {
+          var ua = navigator.userAgent || "";
+
+          // Apple devices (incl. iPadOS that pretends to be Mac)
+          var isAppleDevice =
+            /iPhone|iPad|iPod/.test(ua) ||
+            (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) ||
+            /Macintosh/.test(ua);
+
+          // True Safari (has Safari+Version, excludes Chrome/Edge/Firefox shells on iOS/macOS)
+          var isSafari =
+            /Safari\//.test(ua) &&
+            /Version\//.test(ua) &&
+            !/(Chrome|CriOS|CrMo|Edg|EdgiOS|OPR|OPiOS|FxiOS|Firefox|Brave)/i.test(ua);
+
+          // Avoid redirecting if we're already there
+          var alreadyOnTarget = location.pathname.startsWith("/watch/iostest");
+
+          if (isAppleDevice && isSafari && !alreadyOnTarget) {
+            var target = "/watch/iostest" + (location.search || "") + (location.hash || "");
+            // replace() avoids an annoying back-button loop
+            location.replace(target);
+          }
+        })();
+      </script>
 
       <!-- ---- DARK MODE SCRIPT ---- -->
       <script>

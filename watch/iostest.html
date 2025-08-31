@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Watch Bluey!</title>
+
+    <!-- Meta / OpenGraph -->
+    <meta name="title" content="Watch Bluey!" />
+    <meta name="description" content="Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures, developing her imagination as well as her mental, physical and emotional resilience." />
+    <meta name="keywords" content="bluey, children's show, family entertainment" />
+    <meta name="robots" content="index, follow" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="language" content="English" />
+    <meta name="author" content="Bluey Heeler" />
+    <meta property="og:title" content="Watch Bluey!" />
+    <meta property="og:description" content="Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures, developing her imagination as well as her mental, physical and emotional resilience." />
+    <meta property="og:image" content="https://cdn.iview.abc.net.au/thumbs/1200/ch/CH2003Q_66399c133e743_1920.jpg" />
+    <meta property="og:url" content="https://pages.blueynet.org/watch/episodes" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Watch Bluey!" />
+    <meta name="twitter:description" content="Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures, developing her imagination as well as her mental, physical and emotional resilience." />
+    <meta name="twitter:image" content="https://cdn.iview.abc.net.au/thumbs/1200/ch/CH2003Q_66399c133e743_1920.jpg" />
+    <link rel="icon" href="/bluey-star.ico" type="image/x-icon" />
+
+    <!-- Fonts -->
+    <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css" />
+
+    <!-- Video.js core -->
+    <link href="https://vjs.zencdn.net/8.16.0/video-js.css" rel="stylesheet" />
+    <script src="https://vjs.zencdn.net/8.16.0/video.min.js"></script>
+
+    <!-- Chromecast plugin for Video.js + Cast Sender SDK -->
+    <link rel="stylesheet" href="https://unpkg.com/@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css" />
+    <script>
+      /* Optional global config hook the plugin supports */
+      window.SILVERMINE_VIDEOJS_CHROMECAST_CONFIG = { preloadWebComponents: false };
+    </script>
+    <script src="https://unpkg.com/@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.min.js"></script>
+    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: "Hello Headline", Arial, sans-serif !important; background-color: #87c0e8 !important; transition: background 0.3s, color 0.3s; }
+      .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+      .header { display: flex; align-items: center; justify-content: space-between; }
+      .logo { width: 150px; border-radius: 0px; }
+      .nav { display: flex; list-style: none; }
+      .nav li { margin-left: 20px; display: flex; align-items: center; }
+      .nav a { text-decoration: none; color: #ffffff; font-weight: bold; }
+      .main { display: flex; gap: 45px; margin-top: 30px; }
+      .main-left, .main-right { flex: 1; }
+
+      .player-wrapper { display: none; width: 100%; margin: 0 auto; box-shadow: 0 0 30px rgba(0, 0, 0, 0.7); }
+      #player { width: 100%; height: auto; background-color: #000; }
+
+      .video-js { width: 100%; height: 100%; border-radius: 6px; background: #000; position: relative; }
+
+      #content { margin-top: 10px; position: relative; }
+      #seasons-container { display: flex; margin: 0 auto; justify-content: space-between; padding: 10px 0; background-color: #87c0e8; text-align: center; max-width: 700px; flex-wrap: wrap; }
+      .season-selector__button { margin: 5px; cursor: pointer; color: #ffffff; border: none; background-color: transparent; padding: 10px 10px; border-radius: 5px; font-family: 'Hello Headline', sans-serif; }
+      .season-selector__button.selected { color: #000000; background-color: #ffffff; }
+      #info-button { margin: 5px; cursor: pointer; color: #ffffff; background-color: #edcc6f; padding: 10px 10px; border: none; border-radius: 5px; font-family: 'Hello Headline', sans-serif; }
+      #shuffle-button { margin: 5px; cursor: pointer; background: none; border: none; padding: 0; }
+      #shuffle-icon { color: #fff; background: transparent; border-radius: 8px; transition: color 0.2s, background 0.2s, box-shadow 0.2s; }
+      body.dark #shuffle-icon { color: #fbbf24; background: #191d25; }
+      #shuffle-icon.active { color: #23293a !important; background: #ffe066 !important; box-shadow: 0 0 8px 2px #ffe066; }
+      body.dark #shuffle-icon.active { color: #23293a !important; background: #ffe066 !important; box-shadow: 0 0 8px 2px #ffe066; }
+
+      #episodes { overflow-y: scroll; scrollbar-width: thin; scrollbar-color: transparent transparent; max-height: 500px; max-width: 700px; padding: 5px 0; background-color: #87c0e8; margin: 0 auto; }
+      #episodes::-webkit-scrollbar { width: 6px; }
+      #episodes::-webkit-scrollbar-thumb { background-color: transparent; }
+      #episodes li { margin: 5px; list-style-type: none; cursor: pointer; border: 1px solid #dee2e6; border-radius: 5px; padding: 10px; color: #fff; background-color: #404066; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); display: flex; align-items: flex-start; }
+      #episodes img { margin-right: 15px; display: block; width: 100px; height: auto; max-width: 100%; max-height: 90px; object-fit: cover; }
+      #episodes li div { flex: 1; text-align: left; }
+      #episodes h2 { font-size: 20px; font-weight: bold; margin: 0; }
+      #episodes p { font-size: 12px; margin: 0; }
+      #episodes li.selected { background-color: #ffffff; color: #000000; }
+
+      .overlay { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); z-index: 1; overflow: hidden; border-radius: 10px; }
+      .overlay-content { text-align: left; color: #fff; padding: 20px; display: flex; align-items: center; }
+      .overlay img { max-width: 50%; margin-right: 15px; height: auto; max-height: 200px; border-radius: 5px; }
+      .close-overlay { position: absolute; top: 10px; right: 10px; cursor: pointer; color: #fff; font-size: 20px; }
+      .overlay-content-text { flex: 1; }
+      #overlay-title { margin-bottom: 10px; }
+      #download-button { margin-top: 10px; cursor: pointer; color: #ffffff; background-color: #e2793b; padding: 10px 20px; border: none; border-radius: 5px; font-family: 'Hello Headline', sans-serif; }
+
+      #language-select { margin: 5px; cursor: pointer; color: #ffffff; background-color: #404066; padding: 10px; border: none; border-radius: 5px; font-family: 'Hello Headline', sans-serif; appearance: none; -webkit-appearance: none; -moz-appearance: none; }
+      #language-select option { color: #000000; background-color: #ffffff; }
+
+      @media (orientation: portrait) {
+        .header { flex-direction: column; }
+        .nav { margin-top: 20px; }
+        .main { flex-direction: column; gap: 20px; }
+        .main-left, .main-right { width: 100%; }
+        .overlay-content { text-align: center; color: #fff; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .overlay-content-text { flex: 1; padding: 20px; }
+        #download-button { margin-top: 10px; cursor: pointer; color: #ffffff; background-color: #e2793b; padding: 10px 20px; border: none; border-radius: 5px; font-family: 'Hello Headline', sans-serif; }
+        #seasons-container { flex-direction: column; align-items: center; }
+      }
+      @media (orientation: landscape) {
+        .player-wrapper { margin-top: 25px; }
+        .overlay { display: none !important; }
+        #info-button { display: none; }
+      }
+
+      /* Dark mode styles */
+      body.dark { background: #191d25 !important; color: #dbeafe !important; }
+      body.dark .header { background: #191d25 !important; }
+      body.dark .nav a { color: #fbbf24 !important; }
+      body.dark .main { background: none !important; }
+      body.dark #seasons-container { background: #191d25 !important; }
+      body.dark .season-selector__button { color: #fbbf24; background: #191d25; }
+      body.dark .season-selector__button.selected { color: #23293a; background: #fbbf24; }
+      body.dark #episodes { background: #191d25 !important; }
+      body.dark #episodes li { background: #32436a !important; color: #fbbf24 !important; border-color: #394867; }
+      body.dark #episodes li.selected { background: #fbbf24 !important; color: #23293a !important; }
+      body.dark .overlay { background: rgba(0,0,0,0.92); }
+      body.dark .overlay-content { color: #fbbf24; }
+      body.dark #download-button, body.dark #download-button-landscape { background: #394867 !important; color: #ffd700 !important; }
+      body.dark #language-select { background: #394867; color: #fbbf24; }
+
+      /* Dark mode toggle */
+      .darkmode-toggle { background: none; border: none; cursor: pointer; border-radius: 50%; margin-left: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; outline: none; padding: 2px; transition: background 0.2s; }
+      .darkmode-toggle:focus, .darkmode-toggle:hover { background: rgba(128, 128, 128, 0.12); }
+      .darkmode-toggle svg { width: 24px; height: 24px; display: block; pointer-events: none; }
+      .dark .darkmode-toggle .sun { display: none; }
+      .dark .darkmode-toggle .moon { display: block; }
+      .darkmode-toggle .moon { display: none; }
+      .darkmode-toggle .sun { display: block; }
+
+      /* Episode title overlay (on local player UI – shown when controls are visible) */
+      .vjs-episode-title {
+        position: absolute; left: 12px; top: 12px; z-index: 3;
+        padding: 6px 10px; border-radius: 6px;
+        background: rgba(0,0,0,0.55); color: #fff;
+        font-family: 'Hello Headline', sans-serif; font-size: 14px;
+        pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+        opacity: 0; transition: opacity .2s ease;
+      }
+      .vjs-user-inactive .vjs-episode-title { opacity: 0; }
+      .vjs-user-active .vjs-episode-title { opacity: 1; }
+      body.dark .vjs-episode-title { background: rgba(25,29,37,0.6); color: #fbbf24; }
+
+      /* Toast (for language fallback + notices) */
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 20px;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.88);
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-family: 'Hello Headline', sans-serif;
+        font-size: 14px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .25s, transform .25s;
+        z-index: 9999;
+      }
+      .toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
+      body.dark .toast { background: rgba(25,29,37,0.95); color: #fbbf24; }
+
+      /* Netflix-style Skip Intro overlay (bottom-right) */
+      .vjs-skip-intro-overlay {
+        position: absolute;
+        right: 35px;
+        bottom: 35px;
+        z-index: 4;
+        background: rgba(0,0,0,0.55);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 14px;
+        font-family: 'Hello Headline', sans-serif;
+        font-size: 14px;
+        cursor: pointer;
+        display: none;
+      }
+      .vjs-skip-intro-overlay:focus,
+      .vjs-skip-intro-overlay:hover { background: rgba(0,0,0,0.75); }
+      body.dark .vjs-skip-intro-overlay { background: rgba(25,29,37,0.6); color: #fbbf24; }
+      body.dark .vjs-skip-intro-overlay:hover { background: rgba(25,29,37,0.85); }
+
+      /* ===== Up Next overlay (bottom-left) ===== */
+      .vjs-upnext-overlay{
+        position:absolute; right:35px; bottom:35px; z-index:4;
+        display:none; align-items:center; gap:12px;
+        background:rgba(0,0,0,.65); backdrop-filter: blur(4px);
+        color:#fff; border-radius:10px; padding:10px 12px;
+        box-shadow:0 8px 20px rgba(0,0,0,.35);
+        font-family:'Hello Headline', sans-serif;
+      }
+      .vjs-upnext-overlay img{
+        width:120px; height:68px; object-fit:cover; border-radius:6px;
+      }
+      .vjs-upnext-meta{ display:flex; flex-direction:column; line-height:1.2 }
+      .vjs-upnext-label{ font-size:12px; opacity:.9; margin-bottom:4px }
+      .vjs-upnext-title{ font-size:14px; font-weight:700; margin-bottom:6px }
+      .vjs-upnext-btn{
+        border:0; border-radius:6px; padding:8px 10px; cursor:pointer;
+        background:#e2793b; color:#fff; font-family:'Hello Headline', sans-serif;
+        font-size:14px;
+      }
+      .vjs-upnext-btn:focus, .vjs-upnext-btn:hover{ filter:brightness(1.05) }
+      .vjs-upnext-count{ font-weight:800 }
+      body.dark .vjs-upnext-overlay{ background:rgba(25,29,37,.7); color:#fbbf24 }
+      body.dark .vjs-upnext-btn{ background:#394867; color:#ffd700 }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <img src="/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo" />
+        <ul class="nav">
+          <li><a href="/">Home</a></li>
+          <li><a href="/watch">Watch</a></li>
+          <li><a href="/music">Music</a></li>
+          <li><a href="/audiobooks">Audio Books</a></li>
+          <li><a href="/download">App</a></li>
+          <li>
+            <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+              <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"/>
+                <g>
+                  <line x1="12" y1="1" x2="12" y2="3"/>
+                  <line x1="12" y1="21" x2="12" y2="23"/>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                  <line x1="1" y1="12" x2="3" y2="12"/>
+                  <line x1="21" y1="12" x2="23" y2="12"/>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </g>
+              </svg>
+              <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main">
+        <!-- Left: Player & Landscape Description -->
+        <div class="main-left">
+          <div class="player-wrapper">
+            <div id="player">
+              <!-- NOTE: default unmuted + autoplay (browsers may block until user gesture) -->
+              <video id="bluey" class="video-js vjs-default-skin vjs-fluid" controls preload="auto" playsinline autoplay></video>
+            </div>
+          </div>
+          <div id="landscape-description" style="display: none; margin-top: 10px; background-color: rgba(0,0,0,0.8); color: #fff; padding: 10px; border-radius: 10px;"></div>
+        </div>
+
+        <!-- Right: Seasons, Episodes & Overlay -->
+        <div class="main-right">
+          <div id="content">
+            <div id="seasons-container">
+              <div id="seasons"></div>
+              <button id="shuffle-button" onclick="toggleShuffleMode()">
+                <svg id="shuffle-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; border-radius:8px; transition:color 0.2s, background 0.2s, box-shadow 0.2s;">
+                  <polyline points="16 3 21 3 21 8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                  <line x1="4" y1="20" x2="21" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="21 16 21 21 16 21" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                  <line x1="15" y1="15" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <select id="language-select" onchange="setLanguage(this.value, getCurrentTime())">
+                <option value="4">Arabic</option>
+                <option value="1" selected>English</option>
+                <option value="3">Malay</option>
+                <option value="5">Tagalog</option>
+              </select>
+              <button id="info-button" onclick="showInfo()">Info</button>
+            </div>
+            <ul id="episodes"></ul>
+
+            <div class="overlay" id="overlay">
+              <div class="overlay-content">
+                <img id="overlay-image" alt="Episode Thumbnail" />
+                <div class="overlay-content-text">
+                  <h2 id="overlay-episode-number"></h2>
+                  <h2 id="overlay-title"></h2>
+                  <p id="overlay-description"></p>
+                  <button id="download-button" onclick="downloadEpisode()">Download</button>
+                </div>
+              </div>
+              <div class="close-overlay" onclick="closeOverlay()">X</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast container -->
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+      <!-- ---- DARK MODE SCRIPT ---- -->
+      <script>
+        const themeKey = "bluey-site-theme";
+        const root = document.body;
+        const darkToggle = document.getElementById("darkToggle");
+        function setTheme(dark) {
+          if (dark) { root.classList.add('dark'); localStorage.setItem(themeKey, "dark"); }
+          else { root.classList.remove('dark'); localStorage.setItem(themeKey, "light"); }
+        }
+        (() => {
+          const saved = localStorage.getItem(themeKey);
+          if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) { setTheme(true); } else { setTheme(false); }
+        })();
+        darkToggle.onclick = () => setTheme(!root.classList.contains('dark'));
+      </script>
+
+      <!-- App Scripts (Video.js + VHS + Cast wiring) -->
+      <script>
+        // Toast helper
+        function showToast(msg, duration = 2500) {
+          const t = document.getElementById('toast');
+          if (!t) return;
+          t.textContent = msg;
+          t.classList.add('show');
+          clearTimeout(showToast._t);
+          showToast._t = setTimeout(() => t.classList.remove('show'), duration);
+        }
+
+        // Map UI select -> possible language codes/tokens found in Emby streams
+        const PREFERRED_LANGS = {
+          '1': ['eng','en','english'],
+          '3': ['msa','may','zsm','ms','malay','bahasa melayu'],
+          '4': ['ara','ar','arabic','العربية'],
+          '5': ['tgl','fil','tl','tagalog','filipino']
+        };
+
+        function normalizeLangHint(stream) {
+          const a = [
+            stream.Language,
+            stream.DisplayLanguage,
+            stream.DisplayTitle,
+            stream.Title,
+            stream.Codec
+          ].filter(Boolean).join(' ').toLowerCase();
+          return a;
+        }
+
+        function pickAudioStreamIndex(audioStreams, preferredKey) {
+          if (!audioStreams || audioStreams.length === 0) return { index: null, reason: 'none' };
+
+          const hints = PREFERRED_LANGS[String(preferredKey)] || [];
+          const want = (s) => {
+            const h = normalizeLangHint(s);
+            return hints.some(code => h.includes(code));
+          };
+
+          // 1) exact preference
+          const pref = audioStreams.find(want);
+          if (pref) return { index: pref.Index, reason: 'pref' };
+
+          // 2) English fallback
+          const eng = audioStreams.find(s => /(^|[^a-z])(eng|english|en)([^a-z]|$)/.test(normalizeLangHint(s)));
+          if (eng) return { index: eng.Index, reason: 'fallback_en' };
+
+          // 3) whatever is first
+          return { index: audioStreams[0].Index, reason: 'fallback_first' };
+        }
+
+        /* ===== Clean language labels for subtitle menu ===== */
+        function niceLangLabelFrom(stream) {
+          const raw = ((stream.Language || stream.DisplayLanguage || stream.DisplayTitle || stream.Title) || '').toLowerCase();
+          if (/(^|[^a-z])(eng|english|en)([^a-z]|$)/.test(raw)) return 'English';
+          if (/(msa|may|zsm|ms|malay|bahasa melayu)/.test(raw))   return 'Malay';
+          if (/(ara|ar|arabic|العربية)/.test(raw))                return 'Arabic';
+          if (/(tgl|fil|tl|tagalog|filipino)/.test(raw))          return 'Tagalog';
+          return 'Subtitles';
+        }
+        function srclangFromLabel(label) {
+          switch (label) {
+            case 'English': return 'en';
+            case 'Malay':   return 'ms';
+            case 'Arabic':  return 'ar';
+            case 'Tagalog': return 'tl';
+            default:        return 'en';
+          }
+        }
+
+        // Global configuration and state variables
+        const serverUrl = "https://blueynet.org:443";
+        const apiKey = "6b2548952ea2439ea800b8cd3f1072d1";
+        const itemId = "11";
+        const LANG_STORAGE_KEY = "bluey_watch_selected_language_episodes";
+
+        // Language selection state
+        let selectedAudioStreamIndex = 1; // default to English (user preference key)
+        let userPreferredLanguage = selectedAudioStreamIndex;
+        let currentAudioStreamIndexUsed = null; // actual Emby stream Index chosen for current episode
+
+        // Episode and season state
+        let selectedSeason = null;
+        let episodes = [];
+        let currentEpisodeIndex = -1;
+        let episodesCache = {};
+
+        let seasonsList = [];
+        let currentSeason = null;
+        let currentSeasonIndex = -1;
+
+        // Shuffle state
+        let allEpisodes = [];
+        let shuffleMode = false;
+
+        // Subtitles persistence
+        let subsWanted = localStorage.getItem('bluey_subtitle_on') === '1';
+
+        // --- Player init (unmuted by default) ---
+        const VOL_KEY = 'bluey_vol';
+
+        // >>> CAST: metadata holders the Chromecast plugin will read
+        window.__castTitle = '';
+        window.__castSubtitle = '';
+        window.__castPoster = '';
+        window.__castMP4 = '';
+        window.__isCasting = false;
+
+        const player = videojs('bluey', {
+          controls: true,
+          preload: 'auto',
+          muted: false,
+          fluid: true,
+          techOrder: ['chromecast', 'html5'],
+          plugins: {
+            // >>> CAST: feed title/subtitle & tweak what the Cast receiver loads
+            chromecast: {
+              receiverAppID: 'CC1AD845',
+              addButtonToControlBar: true,
+              requestTitleFn: () => window.__castTitle || document.title,
+              requestSubtitleFn: () => window.__castSubtitle || '',
+              modifyLoadRequestFn: (request) => {
+                // Prefer MP4 for maximum Cast compatibility.
+                if (window.__castMP4) {
+                  request.media.contentId = window.__castMP4;
+                  request.media.contentType = 'video/mp4';
+                }
+                // Ensure metadata is present (do NOT blow away existing)
+                const md = request.media.metadata || new chrome.cast.media.GenericMediaMetadata();
+                md.title = window.__castTitle || document.title || 'Bluey';
+                md.subtitle = window.__castSubtitle || '';
+                if (window.__castPoster) {
+                  md.images = [{ url: window.__castPoster }];
+                }
+                request.media.metadata = md;
+                request.autoplay = true;
+                return request;
+              }
+            }
+          },
+          html5: {
+            vhs: {
+              smoothQualityChange: true,
+              limitRenditionByPlayerDimensions: true,
+              overrideNative: false
+            }
+          }
+        });
+
+        // Episode title overlay component (shows only when controls are visible)
+        const BaseComp = videojs.getComponent('Component');
+        class TitleOverlay extends BaseComp {
+          createEl() {
+            const el = videojs.dom.createEl('div', { className: 'vjs-episode-title' });
+            el.textContent = '';
+            return el;
+          }
+          set(text) { this.el().textContent = text || ''; }
+        }
+        videojs.registerComponent('TitleOverlay', TitleOverlay);
+        const titleOverlay = player.addChild('TitleOverlay', {});
+        function setPlayerTitle(text) { if (titleOverlay) titleOverlay.set(text); }
+
+        /* ===========================
+           Up Next overlay + prefetch
+           =========================== */
+        let nextPrepared = null;            // { episode, season, seasonIndex, epIndex, poster, hls, mp4, subIndex, subLabel, subSrclang }
+        let suppressEndedOnce = false;      // prevent double-advance when we autostart early
+        let nextPrepToken = 0;              // race-guard for async prepare
+
+        class UpNextOverlay extends BaseComp {
+          constructor(player, options){
+            super(player, options);
+            this.addClass('vjs-upnext-overlay');
+            this.showAt = (options && options.showAt) || 10;  // seconds before end
+            this._visible = false;
+
+            // Build UI
+            this.thumb = document.createElement('img');
+            this.meta  = document.createElement('div');
+            this.meta.className = 'vjs-upnext-meta';
+
+            this.label = document.createElement('div');
+            this.label.className = 'vjs-upnext-label';
+            this.label.textContent = 'Playing next in ';
+            this.count = document.createElement('span');
+            this.count.className = 'vjs-upnext-count';
+            this.count.textContent = '10';
+            this.label.append(this.count, 's');
+
+            this.title = document.createElement('div');
+            this.title.className = 'vjs-upnext-title';
+
+            this.btn = document.createElement('button');
+            this.btn.className = 'vjs-upnext-btn';
+            this.btn.type = 'button';
+            this.btn.textContent = 'Play now';
+            this.btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              if (nextPrepared) { playNextPrepared(false); }
+            });
+
+            this.meta.append(this.label, this.title, this.btn);
+            this.el().append(this.thumb, this.meta);
+
+            const update = () => {
+              if (!nextPrepared) { return this.hide(); }
+              const d = player.duration() || 0;
+              const t = player.currentTime() || 0;
+              if (!isFinite(d) || d === 0) return this.hide();
+
+              const remaining = d - t;
+              if (remaining <= this.showAt && remaining > 0 && !player.paused()){
+                if (!this._visible) this.show();
+                this.count.textContent = String(Math.ceil(remaining));
+              } else {
+                this.hide();
+              }
+            };
+
+            this.onPlayerEvents = () => update();
+            player.on('timeupdate', this.onPlayerEvents);
+            player.on('seeking',   this.onPlayerEvents);
+            player.on('pause',     this.onPlayerEvents);
+            player.on('play',      this.onPlayerEvents);
+            player.on('loadedmetadata', () => { this.hide(); });
+            player.on('ended', () => { this.hide(); });
+          }
+
+          createEl(){
+            return videojs.dom.createEl('div', { className: 'vjs-upnext-overlay' });
+          }
+
+          setNext(data){
+            if (!data) { this.hide(); return; }
+            this.thumb.src = data.poster;
+            const s = data.episode.ParentIndexNumber, e = data.episode.IndexNumber;
+            this.title.textContent = `S${s}E${e}: ${data.episode.Name}`;
+          }
+
+          show(){ this._visible = true; this.el().style.display = 'flex'; }
+          hide(){ this._visible = false; this.el().style.display = 'none'; }
+        }
+        videojs.registerComponent('UpNextOverlay', UpNextOverlay);
+        const upNextOverlay = player.addChild('UpNextOverlay', { showAt: 10 });
+
+        function findNextCandidate(){
+          if (!seasonsList.length || currentEpisodeIndex < 0) return null;
+
+          if (shuffleMode && allEpisodes.length > 0){
+            if (allEpisodes.length === 1) return null;
+            let nextIndex; const currentId = episodes[currentEpisodeIndex]?.Id;
+            do { nextIndex = Math.floor(Math.random()*allEpisodes.length); } while (allEpisodes[nextIndex].Id === currentId);
+            const ep = allEpisodes[nextIndex];
+            const season = seasonsList.find(s => s.Id === ep.SeasonId);
+            if (!season) return null;
+            return { episode: ep, season };
+          }
+
+          // Sequential case
+          if (currentEpisodeIndex + 1 < episodes.length){
+            return { episode: episodes[currentEpisodeIndex + 1], season: currentSeason };
+          }
+          // First of next season
+          if (currentSeasonIndex < seasonsList.length - 1){
+            const season = seasonsList[currentSeasonIndex + 1];
+            return { episode: null, season };
+          }
+          return null;
+        }
+
+        async function prepareNextEpisodePreview(){
+          const token = ++nextPrepToken;
+          const cand = findNextCandidate();
+          if (!cand){ nextPrepared = null; upNextOverlay.setNext(null); return; }
+
+          // Ensure we have episodes for that season
+          if (!episodesCache[cand.season.Id]){
+            try { await fetchEpisodes(cand.season); } catch {}
+          }
+          const list = episodesCache[cand.season.Id] || [];
+
+          // If candidate episode was null (first of next season), pick it now
+          let ep = cand.episode || (list.length ? list[0] : null);
+          if (!ep){ nextPrepared = null; upNextOverlay.setNext(null); return; }
+
+          const seasonIndex = seasonsList.indexOf(cand.season);
+          const epIndex = list.findIndex(x => x.Id === ep.Id);
+          const poster = `${serverUrl}/emby/Items/${ep.Id}/Images/Primary?api_key=${apiKey}`;
+
+          // Prefetch playback info to pre-warm + capture a clean subtitle label
+          let prepared = { episode: ep, season: cand.season, seasonIndex, epIndex, poster, hls:null, mp4:null, audioIndex:null, mediaSourceId:null, subIndex:null, subLabel:'English', subSrclang:'en' };
+          try{
+            const timestamp = Date.now();
+            const info = await fetch(`${serverUrl}/emby/Items/${ep.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources&t=${timestamp}`).then(r=>r.json());
+            const ms = info.MediaSources[0];
+            const audioStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Audio');
+            const pick = pickAudioStreamIndex(audioStreams, userPreferredLanguage);
+            const mediaSourceId = ms.Id;
+            const VideoBitRate = ms.MediaStreams[0]?.BitRate || 5000000;
+            const AudioBitRate = (audioStreams.find(s => s.Index === pick.index)?.BitRate) || 192000;
+            const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
+            const subPick = subStreams.find(s => /(^|[^a-z])(eng|english|en)([^a-z]|$)/.test(((s.Language||s.DisplayLanguage||s.Title)||'').toLowerCase())) || subStreams[0];
+
+            const hls = buildHlsUrl(ep, mediaSourceId, info.PlaySessionId, VideoBitRate, AudioBitRate, pick.index);
+            const mp4 = buildMp4Url(ep, pick.index);
+
+            try { const img = new Image(); img.src = poster; } catch {}
+            try { fetch(hls, { mode:'no-cors' }); } catch {}
+
+            prepared.hls = hls;
+            prepared.mp4 = mp4;
+            prepared.audioIndex = pick.index;
+            prepared.mediaSourceId = mediaSourceId;
+            prepared.subIndex = subPick ? subPick.Index : null;
+            if (subPick) {
+              prepared.subLabel = niceLangLabelFrom(subPick);
+              prepared.subSrclang = srclangFromLabel(prepared.subLabel);
+            }
+          }catch{}
+
+          if (token !== nextPrepToken) return; // superseded
+          nextPrepared = prepared;
+          upNextOverlay.setNext(nextPrepared);
+        }
+
+        function playNextPrepared(fromEnded){
+          if (!nextPrepared) return;
+
+          currentSeason       = nextPrepared.season;
+          currentSeasonIndex  = nextPrepared.seasonIndex;
+          episodes            = episodesCache[currentSeason.Id] || episodes;
+          currentEpisodeIndex = nextPrepared.epIndex >= 0 ? nextPrepared.epIndex : 0;
+          renderEpisodes(episodes);
+
+          suppressEndedOnce = !!fromEnded ? false : true;
+
+          if (nextPrepared.hls){
+            window.__castTitle    = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
+            window.__castSubtitle = `Bluey | Season ${nextPrepared.episode.ParentIndexNumber}`;
+            window.__castPoster   = nextPrepared.poster;
+            window.__castMP4      = nextPrepared.mp4 || '';
+
+            player.poster(nextPrepared.poster);
+            player.src({ src: nextPrepared.hls, type: 'application/x-mpegURL' });
+
+            currentAudioStreamIndexUsed = nextPrepared.audioIndex;
+
+            // Replace previous remote text tracks and add the prepared subtitle (if available)
+            try {
+              const rtt = player.remoteTextTracks();
+              for (let i = rtt.length - 1; i >= 0; i--) player.removeRemoteTextTrack(rtt[i]);
+            } catch {}
+            if (nextPrepared.subIndex != null && nextPrepared.mediaSourceId) {
+              const vtt = `${serverUrl}/emby/Videos/${nextPrepared.episode.Id}/${nextPrepared.mediaSourceId}/Subtitles/${nextPrepared.subIndex}/0/Stream.vtt?api_key=${apiKey}`;
+              const niceLabel = nextPrepared.subLabel || 'English';
+              const langCode  = nextPrepared.subSrclang || 'en';
+              try { player.addRemoteTextTrack({ kind: 'subtitles', src: vtt, srclang: langCode, label: niceLabel }, false); } catch {}
+              const tt = player.textTracks();
+              for (let i = 0; i < tt.length; i++) { tt[i].mode = subsWanted ? 'showing' : 'disabled'; }
+            }
+
+            const niceTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
+            setPlayerTitle(niceTitle);
+            document.title = `Watch Bluey! | ${niceTitle}`;
+            try { wireMediaSession(nextPrepared.episode); } catch {}
+            syncSeasonHighlight(nextPrepared.episode);
+            const prevSelected = document.querySelector('#episodes li.selected');
+            if (prevSelected) prevSelected.classList.remove('selected');
+            const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${currentEpisodeIndex + 1})`);
+            if (selectedEpisodeItem) selectedEpisodeItem.classList.add('selected');
+            renderOverlay(nextPrepared.episode);
+
+            player.one('loadedmetadata', async () => { try{ player.muted(false); }catch{}; await autoPlayMaybe(0); showInfo(); });
+          }else{
+            // Fallback to full pipeline
+            playEpisode(nextPrepared.episode, currentEpisodeIndex, 0);
+          }
+
+          upNextOverlay.hide();
+          nextPrepared = null;
+          player.one('loadedmetadata', () => prepareNextEpisodePreview());
+        }
+
+        /* ===========================
+           Netflix-style Skip Intro Overlay
+           =========================== */
+        class SkipIntroOverlay extends BaseComp {
+          constructor(player, options) {
+            super(player, options);
+            this.addClass('vjs-skip-intro-overlay');
+            this.el().setAttribute('type', 'button');
+            this.el().setAttribute('aria-label', 'Skip Intro');
+            this.el().setAttribute('title', 'Skip Intro');
+            this.el().textContent = 'Skip Intro';
+
+            this.introAt = (options && options.introAt) || 24;   // seconds
+            this.showFrom = (options && options.showFrom) || 0.5;
+            this.autoHideAfter = (options && options.autoHideAfter) || 8; // seconds
+
+            this.on('click', () => {
+              try { this.player_.currentTime(this.introAt); } catch {}
+              this.hide();
+            });
+
+            this._toggle = () => {
+              const t = player.currentTime() || 0;
+              const d = player.duration() || Infinity;
+
+              if (this.introAt >= d || t >= this.introAt) { this.hide(); return; }
+              if (t >= this.showFrom && t < this.introAt) {
+                this.show();
+                setTimeout(() => this.hide(), this.autoHideAfter * 1000);
+              } else {
+                this.hide();
+              }
+            };
+
+            player.on('timeupdate', this._toggle);
+            player.on('seeking', this._toggle);
+            player.on('loadedmetadata', () => { this.show(); this._toggle(); });
+            player.on('ended', () => this.hide());
+          }
+
+          createEl() {
+            return videojs.dom.createEl('button', { className: 'vjs-skip-intro-overlay' });
+          }
+
+          setIntroAt(sec) {
+            this.introAt = Number(sec) || 24;
+            this._toggle();
+          }
+        }
+        videojs.registerComponent('SkipIntroOverlay', SkipIntroOverlay);
+        const skipOverlay = player.addChild('SkipIntroOverlay', {
+          introAt: 24,
+          showFrom: 0.5,
+          autoHideAfter: 8
+        });
+
+        // Persist caption ON/OFF
+        player.on('texttrackchange', () => {
+          const on = Array.from(player.textTracks()).some(t => t.mode === 'showing');
+          subsWanted = on; localStorage.setItem('bluey_subtitle_on', on ? '1' : '0');
+        });
+
+        // Default volume + persist (and ensure not muted)
+        player.ready(() => {
+          const savedVol = parseFloat(localStorage.getItem(VOL_KEY));
+          try { player.muted(false); } catch {}
+          player.volume(!isNaN(savedVol) ? savedVol : 0.8);
+        });
+        player.on('volumechange', () => {
+          localStorage.setItem(VOL_KEY, String(player.volume()));
+        });
+
+        // >>> CAST: connected / disconnected flags + robust auto-next fallback
+        player.on('chromecastConnected', () => {
+          window.__isCasting = true;
+          attachCastMediaListener();
+        });
+        player.on('chromecastDisconnected', () => {
+          window.__isCasting = false;
+          detachCastMediaListener();
+        });
+
+        let castMedia = null;
+        function attachCastMediaListener() {
+          try {
+            const ctx = cast && cast.framework && cast.framework.CastContext.getInstance();
+            const session = ctx && ctx.getCurrentSession();
+            const media = session && session.getMediaSession();
+            if (!media) return;
+            if (castMedia === media) return;
+            detachCastMediaListener();
+            castMedia = media;
+            castMedia.addUpdateListener(castMediaUpdate);
+          } catch {}
+        }
+        function detachCastMediaListener() {
+          try { if (castMedia) castMedia.removeUpdateListener(castMediaUpdate); } catch {}
+          castMedia = null;
+        }
+        function castMediaUpdate() {
+          try {
+            if (!castMedia) return;
+            if (castMedia.playerState === chrome.cast.media.PlayerState.IDLE &&
+                castMedia.idleReason === chrome.cast.media.IdleReason.FINISHED) {
+              queueNextEpisode();
+            }
+          } catch {}
+        }
+
+        // Load saved language
+        document.addEventListener('DOMContentLoaded', () => {
+          const saved = localStorage.getItem(LANG_STORAGE_KEY);
+          if (saved !== null) {
+            selectedAudioStreamIndex = parseInt(saved, 10);
+            userPreferredLanguage = selectedAudioStreamIndex;
+            document.getElementById('language-select').value = saved;
+          }
+
+          fetchSeasons();
+          document.getElementById('episodes').innerHTML = '';
+
+          window.addEventListener('resize', updateOrientationUI);
+          updateOrientationUI();
+        });
+
+        // MediaSession prev/next hooks (local device)
+        function wireMediaSession(episode) {
+          if (!('mediaSession' in navigator)) return;
+          navigator.mediaSession.metadata = new MediaMetadata({
+            title: `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`,
+            artist: 'Bluey',
+            album: `Season ${episode.ParentIndexNumber}`,
+            artwork: [{ src: `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`, sizes: '1920x1080', type: 'image/png' }]
+          });
+          navigator.mediaSession.setActionHandler('previoustrack', () => jumpPrev());
+          navigator.mediaSession.setActionHandler('nexttrack', () => jumpNext());
+        }
+        function jumpPrev() {
+          if (shuffleMode && allEpisodes.length > 1) {
+            let prevIndex; const currentId = episodes[currentEpisodeIndex]?.Id;
+            do { prevIndex = Math.floor(Math.random() * allEpisodes.length); } while (allEpisodes[prevIndex].Id === currentId);
+            const prevEp = allEpisodes[prevIndex];
+            const season = seasonsList.find(s => s.Id === prevEp.SeasonId);
+            if (season) {
+              currentSeason = season; currentSeasonIndex = seasonsList.indexOf(season);
+              episodes = episodesCache[season.Id] || []; renderEpisodes(episodes);
+              const epIndex = episodes.findIndex(e => e.Id === prevEp.Id);
+              if (epIndex !== -1) { currentEpisodeIndex = epIndex; playEpisode(prevEp, epIndex); }
+            }
+          } else if (currentEpisodeIndex > 0) {
+            currentEpisodeIndex--; playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+          } else if (currentSeasonIndex > 0) {
+            currentSeasonIndex--; currentSeason = seasonsList[currentSeasonIndex];
+            episodes = episodesCache[currentSeason.Id] || []; renderEpisodes(episodes);
+            currentEpisodeIndex = episodes.length - 1; playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+          }
+        }
+        function jumpNext() {
+          if (nextPrepared) {
+            playNextPrepared(false);
+            return;
+          }
+          if (shuffleMode && allEpisodes.length > 1) {
+            let nextIndex; const currentId = episodes[currentEpisodeIndex]?.Id;
+            do { nextIndex = Math.floor(Math.random() * allEpisodes.length); } while (allEpisodes[nextIndex].Id === currentId);
+            const nextEp = allEpisodes[nextIndex];
+            const season = seasonsList.find(s => s.Id === nextEp.SeasonId);
+            if (season) {
+              currentSeason = season; currentSeasonIndex = seasonsList.indexOf(season);
+              episodes = episodesCache[season.Id] || []; renderEpisodes(episodes);
+              const epIndex = episodes.findIndex(e => e.Id === nextEp.Id);
+              if (epIndex !== -1) { currentEpisodeIndex = epIndex; playEpisode(nextEp, epIndex); }
+            }
+          } else if (currentEpisodeIndex < episodes.length - 1) {
+            currentEpisodeIndex++; playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+          } else if (currentSeasonIndex < seasonsList.length - 1) {
+            currentSeasonIndex++; currentSeason = seasonsList[currentSeasonIndex];
+            episodes = episodesCache[currentSeason.Id] || []; renderEpisodes(episodes);
+            currentEpisodeIndex = 0; playEpisode(episodes[0], 0);
+          }
+        }
+
+        // Autoplay helper handling browser policies (unmuted)
+        async function autoPlayMaybe(seek) {
+          if (typeof seek === 'number') { try { player.currentTime(seek); } catch {} }
+          try {
+            await player.play(); // try with sound
+          } catch (e) {
+            try { player.muted(false); } catch {}
+            player.bigPlayButton.show(); // wait for user gesture; keep unmuted
+            player.one('play', () => player.muted(false));
+          }
+        }
+
+        // Build URLs for Emby (with optional audio stream index)
+        function buildHlsUrl(episode, mediaSourceId, PlaySessionId, VideoBitRate, AudioBitRate, audioIndex) {
+          let url = `${serverUrl}/emby/videos/${episode.Id}/master.m3u8` +
+                    `?MediaSourceId=${mediaSourceId}` +
+                    `&PlaySessionId=${PlaySessionId}` +
+                    `&api_key=${apiKey}` +
+                    `&VideoCodec=h264&AudioCodec=aac` +
+                    `&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}` +
+                    `&TranscodingMaxAudioChannels=2` +
+                    `&SegmentContainer=fmp4&MinSegments=2&h264-profile=main`;
+          if (typeof audioIndex === 'number') url += `&AudioStreamIndex=${audioIndex}`;
+          return url;
+        }
+
+        function buildMp4Url(episode, audioIndex) {
+          let url = `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`;
+          if (typeof audioIndex === 'number') url += `&AudioStreamIndex=${audioIndex}`;
+          return url;
+        }
+
+        // Current time
+        function getCurrentTime() { return player.currentTime() || 0; }
+
+        // PLAY EPISODE
+        let onEndedHandler = null;
+        async function playEpisode(episode, index, seekTime) {
+          wireMediaSession(episode);
+
+          const niceTitle = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
+          setPlayerTitle(niceTitle);
+          document.title = `Watch Bluey! | ${niceTitle}`;
+
+          // Keep the season button in sync even on cast / shuffle / cross-season jumps
+          syncSeasonHighlight(episode);
+
+          // >>> CAST metadata defaults (poster/title); MP4 assigned after URL build
+          const poster = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
+          window.__castTitle = niceTitle;
+          window.__castSubtitle = `Bluey | Season ${episode.ParentIndexNumber}`;
+          window.__castPoster = poster;
+
+          // Show player area
+          document.querySelector('.player-wrapper').style.display = 'block';
+
+          // Fetch Emby playback info
+          const timestamp = Date.now();
+          const info = await fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources&t=${timestamp}`).then(r => r.json());
+          const ms = info.MediaSources[0];
+
+          // Decide which audio stream to use for this episode
+          const audioStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Audio');
+          const pick = pickAudioStreamIndex(audioStreams, userPreferredLanguage);
+          currentAudioStreamIndexUsed = pick.index;
+          if (pick.reason === 'fallback_en' && String(userPreferredLanguage) !== '1') {
+            showToast('Selected language not available for this episode — using English.');
+          } else if (pick.reason === 'fallback_first') {
+            showToast('Selected language not available — using default audio.');
+          }
+
+          const mediaSourceId = ms.Id;
+          const PlaySessionId = info.PlaySessionId;
+          const VideoBitRate = ms.MediaStreams[0]?.BitRate || 5000000;
+          const AudioBitRate = (audioStreams.find(s => s.Index === currentAudioStreamIndexUsed)?.BitRate) || 192000;
+
+          const hls = buildHlsUrl(episode, mediaSourceId, PlaySessionId, VideoBitRate, AudioBitRate, currentAudioStreamIndexUsed);
+          const progressive = buildMp4Url(episode, currentAudioStreamIndexUsed);
+
+          // >>> CAST: ensure receiver uses same audio selection
+          window.__castMP4 = progressive;
+
+          // Remove previous tracks
+          const rtt = player.remoteTextTracks();
+          for (let i = rtt.length - 1; i >= 0; i--) player.removeRemoteTextTrack(rtt[i]);
+
+          // Set poster & source (HLS for local; Cast will swap to MP4 via modifyLoadRequestFn)
+          player.poster(poster);
+          player.src({ src: hls, type: 'application/x-mpegURL' });
+
+          if (window.__isCasting) {
+            setTimeout(attachCastMediaListener, 250);
+          }
+
+          // Add VTT with clean label
+          const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
+          const subPick = subStreams.find(s => /(^|[^a-z])(eng|english|en)([^a-z]|$)/.test(((s.Language||s.DisplayLanguage||s.Title)||'').toLowerCase())) || subStreams[0];
+          if (subPick) {
+            const vtt = `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/${subPick.Index}/0/Stream.vtt?api_key=${apiKey}`;
+            const niceLabel = niceLangLabelFrom(subPick);
+            const langCode  = srclangFromLabel(niceLabel);
+            try {
+              player.addRemoteTextTrack({ kind: 'subtitles', src: vtt, srclang: langCode, label: niceLabel }, false);
+            } catch {}
+          }
+
+          // Apply subtitle preference
+          const tt = player.textTracks();
+          for (let i = 0; i < tt.length; i++) { tt[i].mode = subsWanted ? 'showing' : 'disabled'; }
+
+          const onReadyToPlay = async () => { try { player.muted(false); } catch {}; await autoPlayMaybe(seekTime); showInfo(); };
+          player.one('loadedmetadata', onReadyToPlay);
+          player.one('loadeddata', onReadyToPlay);
+
+          // Robust auto-advance (re-bind our own handler only)
+          if (onEndedHandler) player.off('ended', onEndedHandler);
+          onEndedHandler = () => {
+            if (suppressEndedOnce){ suppressEndedOnce = false; return; }
+            if (nextPrepared) { playNextPrepared(true); return; }
+            queueNextEpisode();
+          };
+          player.on('ended', onEndedHandler);
+
+          // Highlight current episode in list
+          const prevSelected = document.querySelector('#episodes li.selected');
+          if (prevSelected) prevSelected.classList.remove('selected');
+          const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
+          if (selectedEpisodeItem) selectedEpisodeItem.classList.add('selected');
+
+          // Update overlays
+          renderOverlay(episode);
+
+          // Prepare Up Next preview
+          prepareNextEpisodePreview();
+
+          if (typeof skipOverlay?.setIntroAt === 'function') {
+            skipOverlay.setIntroAt(24);
+          }
+        }
+
+        // Ensure the correct season button is highlighted for the given episode
+        function syncSeasonHighlight(episode) {
+          if (!episode || !seasonsList || !seasonsList.length) return;
+          const season = seasonsList.find(s => s.Id === episode.SeasonId);
+          if (!season) return;
+          const btn = document.querySelector(`.season-selector__button[data-season-id="${season.Id}"]`);
+          if (btn && !btn.classList.contains('selected')) {
+            document.querySelectorAll('.season-selector__button').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            currentSeason = season;
+            currentSeasonIndex = seasonsList.indexOf(season);
+          }
+        }
+
+        function queueNextEpisode() {
+          if (nextPrepared) { playNextPrepared(true); return; }
+
+          if (shuffleMode && allEpisodes.length > 0) {
+            let nextIndex; const currentId = episodes[currentEpisodeIndex]?.Id;
+            do { nextIndex = Math.floor(Math.random() * allEpisodes.length); } while (allEpisodes.length > 1 && allEpisodes[nextIndex].Id === currentId);
+            const ep = allEpisodes[nextIndex];
+            const season = seasonsList.find(s => s.Id === ep.SeasonId);
+            if (season) {
+              currentSeason = season; currentSeasonIndex = seasonsList.indexOf(season);
+              document.querySelectorAll('.season-selector__button').forEach(btn => btn.classList.remove('selected'));
+              const seasonBtn = document.querySelector(`.season-selector__button[data-season-id="${season.Id}"]`);
+              if (seasonBtn) seasonBtn.classList.add('selected');
+              const ensure = episodesCache[season.Id] ? Promise.resolve(episodesCache[season.Id]) : fetchEpisodes(season);
+              ensure.then(list => {
+                episodes = list; renderEpisodes(episodes);
+                const epIndex = episodes.findIndex(e => e.Id === ep.Id);
+                if (epIndex !== -1) { currentEpisodeIndex = epIndex; playEpisode(ep, epIndex); }
+              }).catch(() => showToast('Could not load next episode. Tap any episode to continue.'));
+            }
+            return;
+          }
+          if (currentEpisodeIndex >= 0 && currentEpisodeIndex + 1 < episodes.length) {
+            currentEpisodeIndex++; playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+          } else if (currentEpisodeIndex >= 0 && currentSeasonIndex < seasonsList.length - 1) {
+            currentSeasonIndex++; currentSeason = seasonsList[currentSeasonIndex];
+            document.querySelectorAll('.season-selector__button').forEach(btn => btn.classList.remove('selected'));
+            const nextSeasonButton = document.querySelector(`.season-selector__button[data-season-id="${currentSeason.Id}"]`);
+            if (nextSeasonButton) nextSeasonButton.classList.add('selected');
+            const ensure = episodesCache[currentSeason.Id] ? Promise.resolve(episodesCache[currentSeason.Id]) : fetchEpisodes(currentSeason);
+            ensure.then(list => {
+              episodes = list; renderEpisodes(episodes); currentEpisodeIndex = 0; playEpisode(episodes[0], 0);
+            }).catch(() => showToast('Could not load next episode. Tap any episode to continue.'));
+          }
+        }
+
+        function prefetchEpisodes(season) {
+          if (!episodesCache[season.Id]) {
+            fetch(`${serverUrl}/emby/Shows/${itemId}/Episodes?SeasonId=${season.Id}&api_key=${apiKey}&Fields=Overview`)
+              .then(r => r.json())
+              .then(data => {
+                episodesCache[season.Id] = data.Items;
+                data.Items.forEach(ep => { if (!allEpisodes.find(e => e.Id === ep.Id)) { allEpisodes.push(ep); } });
+              })
+              .catch(err => console.error('prefetch error:', err));
+          }
+        }
+
+        function fetchSeasons() {
+          fetch(`${serverUrl}/emby/Shows/${itemId}/Seasons?api_key=${apiKey}`)
+            .then(r => r.json())
+            .then(seasons => {
+              const seasonsContainer = document.getElementById('seasons');
+              seasonsList = seasons.Items.filter(season => season.SeriesId === itemId);
+              seasonsList.forEach((season, i) => {
+                prefetchEpisodes(season);
+                const seasonBtn = document.createElement('button');
+                seasonBtn.classList.add('season-selector__button');
+                seasonBtn.innerText = `Season ${season.IndexNumber}`;
+                seasonBtn.setAttribute('data-season-id', season.Id);
+                seasonBtn.addEventListener('click', () => {
+                  handleSeasonClick(seasonBtn, season, i);
+                  if (episodesCache[season.Id]) { episodes = episodesCache[season.Id]; renderEpisodes(episodes); }
+                  else { fetchEpisodes(season); }
+                  prepareNextEpisodePreview();
+                });
+                seasonsContainer.appendChild(seasonBtn);
+              });
+            })
+            .catch(err => console.error('seasons error:', err));
+        }
+
+        function fetchEpisodes(season) {
+          return fetch(`${serverUrl}/emby/Shows/${itemId}/Episodes?SeasonId=${season.Id}&api_key=${apiKey}&Fields=Overview`)
+            .then(r => r.json())
+            .then(data => {
+              episodesCache[season.Id] = data.Items; episodes = data.Items;
+              data.Items.forEach(ep => { if (!allEpisodes.find(e => e.Id === ep.Id)) { allEpisodes.push(ep); } });
+              renderEpisodes(episodes);
+              return data.Items;
+            })
+            .catch(err => { console.error('episodes error:', err); throw err; });
+        }
+
+        function handleSeasonClick(button, season, seasonIndex) {
+          if (selectedSeason) selectedSeason.classList.remove('selected');
+          selectedSeason = button; selectedSeason.classList.add('selected');
+          currentSeason = season; currentSeasonIndex = seasonIndex; currentEpisodeIndex = -1;
+        }
+
+        function renderEpisodes(episodesArr) {
+          const episodeList = document.getElementById('episodes');
+          episodeList.innerHTML = '';
+          episodesArr.forEach((episode, index) => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+              <img src="${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="Episode Thumbnail">
+              <div>
+                <h2>Episode ${episode.IndexNumber}: ${episode.Name}</h2>
+                <p>${episode.Overview}</p>
+              </div>
+            `;
+            li.addEventListener('click', () => { currentEpisodeIndex = index; playEpisode(episode, index); });
+            if (currentEpisodeIndex === index) li.classList.add('selected');
+            episodeList.appendChild(li);
+          });
+        }
+
+        function renderOverlay(episode) {
+          if (window.innerHeight > window.innerWidth) {
+            const overlay = document.getElementById('overlay');
+            const overlayImage = document.getElementById('overlay-image');
+            const overlayTitle = document.getElementById('overlay-title');
+            const overlayDescription = document.getElementById('overlay-description');
+            const overlayEpisodeNumber = document.getElementById('overlay-episode-number');
+            overlayImage.src = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
+            overlayEpisodeNumber.innerText = `S${episode.ParentIndexNumber}E${episode.IndexNumber}`;
+            overlayTitle.innerText = episode.Name;
+            overlayDescription.innerText = episode.Overview;
+            overlay.style.display = 'block';
+            const desc = document.getElementById('landscape-description');
+            if (desc) desc.style.display = 'none';
+          } else {
+            const desc = document.getElementById('landscape-description');
+            desc.innerHTML = `
+              <img src="${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="Episode Thumbnail" style="width:120px; height:auto; float:left; margin-right:15px;">
+              <div style="overflow: hidden;">
+                <h2 style="margin-bottom:10px;">S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}</h2>
+                <p>${episode.Overview}</p>
+                <button id="download-button-landscape" onclick="downloadEpisode()" style="cursor:pointer; color:#ffffff; background-color:#e2793b; padding:10px 20px; border:none; border-radius:5px; font-family:'Hello Headline', sans-serif; margin-top:10px;">Download</button>
+              </div>
+              <div style="clear: both;"></div>
+            `;
+            desc.style.display = 'block';
+            document.getElementById('overlay').style.display = 'none';
+          }
+        }
+
+        function closeOverlay() { document.getElementById('overlay').style.display = 'none'; }
+        function showInfo() { if (currentEpisodeIndex >= 0 && episodes[currentEpisodeIndex]) renderOverlay(episodes[currentEpisodeIndex]); }
+
+        function downloadEpisode() {
+          if (currentEpisodeIndex >= 0 && episodes[currentEpisodeIndex]) {
+            const episode = episodes[currentEpisodeIndex];
+            const downloadUrl = `${serverUrl}/emby/Items/${episode.Id}/Download?api_key=${apiKey}`;
+            window.location.href = downloadUrl;
+          }
+        }
+
+        function setLanguage(value, seekTime) {
+          selectedAudioStreamIndex = parseInt(value, 10);
+          userPreferredLanguage = selectedAudioStreamIndex;
+          localStorage.setItem(LANG_STORAGE_KEY, value);
+          if (episodes.length > 0 && currentEpisodeIndex >= 0) {
+            playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex, seekTime);
+          }
+          prepareNextEpisodePreview();
+        }
+
+        function updateOrientationUI() {
+          const infoButton = document.getElementById('info-button');
+          const landscapeDesc = document.getElementById('landscape-description');
+          if (window.innerHeight > window.innerWidth) {
+            infoButton.style.display = 'block'; if (landscapeDesc) landscapeDesc.style.display = 'none';
+          } else {
+            infoButton.style.display = 'none';
+            if (currentEpisodeIndex >= 0 && episodes[currentEpisodeIndex]) renderOverlay(episodes[currentEpisodeIndex]);
+          }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+          if (document.fullscreenElement) {
+            if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {});
+          } else {
+            if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+          }
+        });
+
+        function toggleShuffleMode() {
+          shuffleMode = !shuffleMode;
+          const shuffleIcon = document.getElementById('shuffle-icon');
+          if (shuffleMode) shuffleIcon.classList.add('active'); else shuffleIcon.classList.remove('active');
+          prepareNextEpisodePreview();
+        }
+
+        // --- Resilient error handling (EOS hiccups, transient HLS issues) ---
+        let consecutiveErrors = 0;
+        player.on('playing', () => { consecutiveErrors = 0; });
+        player.on('vhs-error', (_evt, data) => {
+          console.warn('vhs-error', data);
+          player.trigger('error');
+        });
+        player.on('error', () => {
+          const err = player.error();
+          console.warn('videojs error:', err);
+          if (episodes[currentEpisodeIndex] && consecutiveErrors === 0) {
+            consecutiveErrors++;
+            const ep = episodes[currentEpisodeIndex];
+            const mp4 = buildMp4Url(ep, currentAudioStreamIndexUsed);
+            window.__castMP4 = mp4; // keep Cast in sync
+            showToast('Stream hiccup — switching to fallback.');
+            try { player.src({ src: mp4, type: 'video/mp4' }); } catch {}
+            player.one('loadedmetadata', () => autoPlayMaybe(getCurrentTime()));
+            return;
+          }
+          consecutiveErrors = 0;
+          showToast('That episode failed to load — jumping to the next.');
+          if (nextPrepared) { playNextPrepared(true); } else { queueNextEpisode(); }
+        });
+      </script>
+    </div>
+  </body>
+</html>

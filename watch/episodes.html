@@ -26,6 +26,15 @@
     <!-- Fonts -->
     <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css" />
 
+    <!-- Tizen/legacy friendly polyfills (loaded only on old engines) -->
+    <script nomodule src="https://cdn.jsdelivr.net/npm/core-js-bundle/minified.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/whatwg-fetch@3.6.20/dist/fetch.umd.js"></script>
+    <script nomodule>
+      // Minimal helpers for very old engines
+      if (!Array.prototype.find) Object.defineProperty(Array.prototype,'find',{value:function(p,thisArg){for(let i=0;i<this.length;i++){if(p.call(thisArg,this[i],i,this)) return this[i];}}, writable:true});
+      if (!Array.prototype.findIndex) Object.defineProperty(Array.prototype,'findIndex',{value:function(p,thisArg){for(let i=0;i<this.length;i++){if(p.call(thisArg,this[i],i,this)) return i;} return -1;}, writable:true});
+    </script>
+
     <!-- Video.js core -->
     <link href="https://vjs.zencdn.net/8.16.0/video-js.css" rel="stylesheet" />
     <script src="https://vjs.zencdn.net/8.16.0/video.min.js"></script>
@@ -391,6 +400,12 @@
         const itemId = "11";
         const LANG_STORAGE_KEY = "bluey_watch_selected_language_episodes";
 
+        // Device/engine feature detection
+        const UA = navigator.userAgent || '';
+        const IS_TIZEN5 = /Tizen 5/i.test(UA);
+        const NEEDS_SAFE_MODE = IS_TIZEN5 || !('MediaSource' in window) || !('fetch' in window);
+        const TECHS = NEEDS_SAFE_MODE ? ['html5'] : ['chromecast','html5'];
+
         // Language selection state
         let selectedAudioStreamIndex = 1; // default to English (user preference key)
         let userPreferredLanguage = selectedAudioStreamIndex;
@@ -428,8 +443,8 @@
           preload: 'auto',
           muted: false,
           fluid: true,
-          techOrder: ['chromecast', 'html5'],
-          plugins: {
+          techOrder: TECHS,
+          plugins: NEEDS_SAFE_MODE ? {} : {
             // >>> CAST: feed title/subtitle & tweak what the Cast receiver loads
             chromecast: {
               receiverAppID: 'CC1AD845',
@@ -455,7 +470,7 @@
               }
             }
           },
-          html5: {
+          html5: NEEDS_SAFE_MODE ? {} : {
             vhs: {
               smoothQualityChange: true,
               limitRenditionByPlayerDimensions: true,
@@ -589,7 +604,7 @@
         async function prepareNextEpisodePreview(){
           const token = ++nextPrepToken;
           const cand = findNextCandidate();
-          if (!cand){ nextPrepared = null; upNextOverlay.setNext(null); return; }
+          if (!cand){ nextPrepared = null; if (upNextOverlay) upNextOverlay.setNext(null); return; }
 
           // Ensure we have episodes for that season
           if (!episodesCache[cand.season.Id]){
@@ -599,7 +614,7 @@
 
           // If candidate episode was null (first of next season), pick it now
           let ep = cand.episode || (list.length ? list[0] : null);
-          if (!ep){ nextPrepared = null; upNextOverlay.setNext(null); return; }
+          if (!ep){ nextPrepared = null; if (upNextOverlay) upNextOverlay.setNext(null); return; }
 
           const seasonIndex = seasonsList.indexOf(cand.season);
           const epIndex = list.findIndex(x => x.Id === ep.Id);
@@ -623,7 +638,7 @@
             const mp4 = buildMp4Url(ep, pick.index);
 
             try { const img = new Image(); img.src = poster; } catch {}
-            try { fetch(hls, { mode:'no-cors' }); } catch {}
+            if (!NEEDS_SAFE_MODE) { try { fetch(hls, { mode:'no-cors' }); } catch {} }
 
             prepared.hls = hls;
             prepared.mp4 = mp4;
@@ -638,7 +653,7 @@
 
           if (token !== nextPrepToken) return; // superseded
           nextPrepared = prepared;
-          upNextOverlay.setNext(nextPrepared);
+          if (upNextOverlay) upNextOverlay.setNext(nextPrepared);
         }
 
         function playNextPrepared(fromEnded){
@@ -652,14 +667,19 @@
 
           suppressEndedOnce = !!fromEnded ? false : true;
 
-          if (nextPrepared.hls){
+          const useMp4 = NEEDS_SAFE_MODE || window.__isCasting;
+
+          if (nextPrepared.hls || nextPrepared.mp4){
             window.__castTitle    = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
             window.__castSubtitle = `Bluey | Season ${nextPrepared.episode.ParentIndexNumber}`;
             window.__castPoster   = nextPrepared.poster;
             window.__castMP4      = nextPrepared.mp4 || '';
 
             player.poster(nextPrepared.poster);
-            player.src({ src: nextPrepared.hls, type: 'application/x-mpegURL' });
+            player.src(useMp4
+              ? { src: nextPrepared.mp4, type: 'video/mp4' }
+              : { src: nextPrepared.hls, type: 'application/x-mpegURL' }
+            );
 
             currentAudioStreamIndexUsed = nextPrepared.audioIndex;
 
@@ -694,7 +714,7 @@
             playEpisode(nextPrepared.episode, currentEpisodeIndex, 0);
           }
 
-          upNextOverlay.hide();
+          if (upNextOverlay) upNextOverlay.hide();
           nextPrepared = null;
           player.one('loadedmetadata', () => prepareNextEpisodePreview());
         }
@@ -916,6 +936,36 @@
         // Current time
         function getCurrentTime() { return player.currentTime() || 0; }
 
+        // ===== Robust "auto-next" watchdog + Xiaomi nudge =====
+        const END_EPSILON = 1.5; // seconds from the end counts as "done"
+        let endWatch = { timer: null, fired: false };
+        function nearEnd() {
+          const d = player.duration() || 0; const t = player.currentTime() || 0;
+          return isFinite(d) && d > 0 && (d - t) <= END_EPSILON;
+        }
+        function safeAutoNext(reason) {
+          if (endWatch.fired) return; endWatch.fired = true;
+          setTimeout(() => { if (nextPrepared) { playNextPrepared(true); } else { queueNextEpisode(); } }, 100);
+        }
+        function armEndWatchdog() { clearInterval(endWatch.timer); endWatch.fired = false; endWatch.timer = setInterval(() => { if (!player.paused() && nearEnd()) safeAutoNext('watchdog'); }, 500); }
+        function cancelEndWatchdog() { clearInterval(endWatch.timer); }
+        player.on('loadedmetadata', armEndWatchdog);
+        player.on('play',             armEndWatchdog);
+        player.on('seeked',           armEndWatchdog);
+        player.on('pause',            cancelEndWatchdog);
+        player.on('waiting', () => { if (nearEnd()) safeAutoNext('waiting-near-end'); });
+        player.on('ended',   () => safeAutoNext('ended'));
+
+        // Xiaomi/AndroidTV "stuck clock" nudge near the end (~2s of no progress)
+        let lastT = 0, stillCount = 0;
+        player.on('timeupdate', () => {
+          const t = player.currentTime() || 0;
+          if (Math.abs(t - lastT) < 0.01 && nearEnd() && !player.paused()) {
+            if (++stillCount >= 4) { try { player.currentTime(t + 0.5); } catch {} stillCount = 0; }
+          } else { stillCount = 0; }
+          lastT = t;
+        });
+
         // PLAY EPISODE
         let onEndedHandler = null;
         async function playEpisode(episode, index, seekTime) {
@@ -967,13 +1017,13 @@
           const rtt = player.remoteTextTracks();
           for (let i = rtt.length - 1; i >= 0; i--) player.removeRemoteTextTrack(rtt[i]);
 
-          // Set poster & source (HLS for local; Cast will swap to MP4 via modifyLoadRequestFn)
+          // Set poster & source (choose MP4 for safe-mode or Cast)
+          const useMp4 = NEEDS_SAFE_MODE || window.__isCasting;
           player.poster(poster);
-          player.src({ src: hls, type: 'application/x-mpegURL' });
+          player.src(useMp4 ? { src: progressive, type: 'video/mp4' }
+                            : { src: hls,         type: 'application/x-mpegURL' });
 
-          if (window.__isCasting) {
-            setTimeout(attachCastMediaListener, 250);
-          }
+          if (window.__isCasting) { setTimeout(attachCastMediaListener, 250); }
 
           // Add VTT with clean label
           const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
@@ -1230,6 +1280,10 @@
         player.on('error', () => {
           const err = player.error();
           console.warn('videojs error:', err);
+          // If the error happens basically at the end, just advance.
+          const d = player.duration() || 0; const t = player.currentTime() || 0;
+          if (d && (d - t) <= END_EPSILON) { safeAutoNext('error-near-end'); return; }
+
           if (episodes[currentEpisodeIndex] && consecutiveErrors === 0) {
             consecutiveErrors++;
             const ep = episodes[currentEpisodeIndex];

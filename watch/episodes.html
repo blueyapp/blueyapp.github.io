@@ -42,7 +42,7 @@
       * { box-sizing: border-box; margin: 0; padding: 0; }
       body {
         font-family: "Hello Headline", Arial, sans-serif !important;
-        background-color: #2d3047 !important;
+        background-color: #87c0e8 !important;
         color: #fff;
         transition: background 0.3s, color 0.3s;
         overflow-x: hidden;
@@ -55,6 +55,7 @@
         justify-content: flex-end;
         padding: 12px 30px;
         gap: 20px;
+        position: relative;
       }
       .top-nav a {
         text-decoration: none;
@@ -62,7 +63,30 @@
         font-weight: bold;
         font-size: 16px;
       }
-      .top-nav a:hover { color: #00e5ff; }
+      .top-nav a:hover { color: #e0e0e0; }
+
+      /* Hamburger menu button - hidden on desktop */
+      .hamburger-btn {
+        display: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 6px;
+        z-index: 1001;
+      }
+      .hamburger-btn svg { width: 28px; height: 28px; stroke: #fff; }
+      body.dark .hamburger-btn svg { stroke: #fbbf24; }
+      .nav-links { display: contents; }
+
+      /* Mobile menu overlay */
+      .mobile-menu-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+      }
+      .mobile-menu-overlay.open { display: block; }
 
       /* ===== MAIN LAYOUT ===== */
       .app-layout {
@@ -98,7 +122,7 @@
         padding: 14px 20px;
         border: none;
         background: transparent;
-        color: #ccc;
+        color: #fff;
         font-family: 'Hello Headline', sans-serif;
         font-size: 18px;
         cursor: pointer;
@@ -106,7 +130,7 @@
         transition: background 0.2s, color 0.2s;
       }
       .season-selector__button:hover {
-        background: rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.15);
         color: #fff;
       }
       .season-selector__button.selected {
@@ -137,7 +161,7 @@
         padding: 10px 14px;
         border: none;
         border-radius: 8px;
-        background: rgba(255,255,255,0.1);
+        background: #404066;
         color: #fff;
         font-family: 'Hello Headline', sans-serif;
         font-size: 15px;
@@ -155,11 +179,11 @@
         height: 42px;
         border: none;
         border-radius: 8px;
-        background: rgba(255,255,255,0.1);
+        background: #404066;
         cursor: pointer;
         transition: background 0.2s, box-shadow 0.2s;
       }
-      #shuffle-button:hover { background: rgba(255,255,255,0.18); }
+      #shuffle-button:hover { background: #52527a; }
       #shuffle-icon {
         color: #fff;
         transition: color 0.2s, background 0.2s, box-shadow 0.2s;
@@ -222,7 +246,7 @@
       }
       #episodes li .ep-info p {
         font-size: 14px;
-        color: #b0b8c8;
+        color: #dce4ee;
         line-height: 1.5;
         display: -webkit-box;
         -webkit-line-clamp: 3;
@@ -237,7 +261,7 @@
       }
       #episodes li .ep-duration {
         font-size: 14px;
-        color: #8899aa;
+        color: #ccd6e0;
         font-weight: bold;
       }
 
@@ -488,8 +512,24 @@
         }
       }
       @media (max-width: 600px) {
-        .top-nav { padding: 10px 16px; gap: 12px; flex-wrap: wrap; justify-content: center; }
-        .top-nav a { font-size: 14px; }
+        .top-nav { padding: 10px 16px; justify-content: space-between; }
+        .hamburger-btn { display: block; }
+        .nav-links {
+          display: none;
+          position: fixed;
+          top: 0; left: 0;
+          width: 220px; height: 100vh;
+          background: #5a9fc6;
+          flex-direction: column;
+          padding: 60px 24px 24px;
+          gap: 20px;
+          z-index: 1000;
+          box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+        }
+        body.dark .nav-links { background: #191d25; }
+        .nav-links.open { display: flex; }
+        .nav-links a { font-size: 18px; }
+        .nav-links .darkmode-toggle { align-self: flex-start; }
         .sidebar { padding: 16px 12px; }
         .sidebar .logo { width: 120px; margin-bottom: 14px; }
         .season-list { gap: 6px; }
@@ -515,12 +555,20 @@
   <body>
     <!-- Top Navigation -->
     <nav class="top-nav">
-      <a href="/">Home</a>
-      <a href="/watch">Watch</a>
-      <a href="/music">Music</a>
-      <a href="/audiobooks">Audio Books</a>
-      <a href="/download">App</a>
-      <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <div class="nav-links" id="navLinks">
+        <a href="/">Home</a>
+        <a href="/watch">Watch</a>
+        <a href="/music">Music</a>
+        <a href="/audiobooks">Audio Books</a>
+        <a href="/download">App</a>
+        <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
         <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="5"/>
           <g>
@@ -538,7 +586,30 @@
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
         </svg>
       </button>
+      </div><!-- /nav-links -->
     </nav>
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+    <!-- Hamburger menu script -->
+    <script>
+      const hamburgerBtn = document.getElementById('hamburgerBtn');
+      const navLinks = document.getElementById('navLinks');
+      const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+      hamburgerBtn.addEventListener('click', () => {
+        navLinks.classList.toggle('open');
+        mobileMenuOverlay.classList.toggle('open');
+      });
+      mobileMenuOverlay.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+        mobileMenuOverlay.classList.remove('open');
+      });
+      navLinks.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', () => {
+          navLinks.classList.remove('open');
+          mobileMenuOverlay.classList.remove('open');
+        });
+      });
+    </script>
 
     <!-- Main Layout -->
     <div class="app-layout">

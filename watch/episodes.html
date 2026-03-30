@@ -1428,6 +1428,20 @@
               });
               seasonsContainer.appendChild(seasonBtn);
             });
+            // Auto-select the first season
+            if (seasonsList.length > 0) {
+              const firstBtn = seasonsContainer.querySelector('.season-selector__button');
+              const firstSeason = seasonsList[0];
+              if (firstBtn) {
+                handleSeasonClick(firstBtn, firstSeason, 0);
+                if (episodesCache[firstSeason.Id]) {
+                  episodes = episodesCache[firstSeason.Id];
+                  renderEpisodes(episodes);
+                } else {
+                  fetchEpisodes(firstSeason);
+                }
+              }
+            }
           })
           .catch(err => console.error('seasons error:', err));
       }

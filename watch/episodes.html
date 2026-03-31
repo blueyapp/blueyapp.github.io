@@ -55,11 +55,11 @@
         justify-content: flex-end;
         padding: 12px 30px;
         gap: 20px;
-        position: absolute;
+        position: fixed;
         top: 0;
         left: 0;
         right: 0;
-        z-index: 100;
+        z-index: 5000;
       }
       .top-nav a {
         text-decoration: none;
@@ -109,6 +109,7 @@
         inset: 0;
         background: linear-gradient(to right, rgba(135,192,232,0.85) 0%, rgba(135,192,232,0.45) 50%, transparent 100%),
                     linear-gradient(to bottom, transparent 0%, transparent 50%, rgba(135,192,232,0.7) 70%, rgba(135,192,232,1) 100%);
+        pointer-events: none;
       }
       .hero-content {
         position: relative;
@@ -142,11 +143,13 @@
       .hero-scroll-hint {
         position: absolute;
         bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 1;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        width: fit-content;
+        z-index: 2;
         font-size: 14px;
-        color: rgba(26,58,74,0.6);
+        color: #1a3a4a;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -156,7 +159,7 @@
       }
       .hero-scroll-hint svg {
         width: 24px; height: 24px;
-        stroke: rgba(26,58,74,0.6);
+        stroke: #1a3a4a;
       }
 
       /* Dark mode hero */
@@ -167,8 +170,8 @@
       body.dark .hero-content .hero-label { color: #fbbf24; }
       body.dark .hero-content .hero-desc { color: #b0c4d8; }
       body.dark .hero-content .hero-tagline { color: #fff; }
-      body.dark .hero-scroll-hint { color: rgba(255,255,255,0.5); }
-      body.dark .hero-scroll-hint svg { stroke: rgba(255,255,255,0.5); }
+      body.dark .hero-scroll-hint { color: rgba(255,255,255,0.7); }
+      body.dark .hero-scroll-hint svg { stroke: rgba(255,255,255,0.7); }
       @keyframes bounceDown {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(8px); }
@@ -214,9 +217,13 @@
         border-radius: 10px;
         transition: background 0.2s, color 0.2s;
       }
-      .season-selector__button:hover {
+      .season-selector__button:hover, .season-selector__button:focus {
         background: rgba(255,255,255,0.15);
         color: #fff;
+        outline: none;
+      }
+      .season-selector__button:focus {
+        box-shadow: inset 0 0 0 2px #00e5ff;
       }
       .season-selector__button.selected {
         background: #00e5ff;
@@ -268,7 +275,8 @@
         cursor: pointer;
         transition: background 0.2s, box-shadow 0.2s;
       }
-      #shuffle-button:hover { background: #52527a; }
+      #shuffle-button:hover, #shuffle-button:focus { background: #52527a; outline: none; box-shadow: 0 0 0 2px #00e5ff; }
+      #language-select:focus { outline: none; box-shadow: 0 0 0 2px #00e5ff; }
       #shuffle-icon {
         color: #fff;
         transition: color 0.2s, background 0.2s, box-shadow 0.2s;
@@ -304,9 +312,13 @@
         padding: 0;
         transition: background 0.2s, transform 0.15s;
       }
-      #episodes li:hover {
+      #episodes li:hover, #episodes li:focus {
         background: rgba(255,255,255,0.05);
         transform: translateY(-1px);
+        outline: none;
+      }
+      #episodes li:focus {
+        box-shadow: inset 0 0 0 2px #00e5ff;
       }
       #episodes li.selected {
         background: rgba(0,229,255,0.1);
@@ -557,7 +569,11 @@
       body.dark #shuffle-button { background: rgba(255,255,255,0.08); }
       body.dark #shuffle-icon { color: #fbbf24; }
       body.dark #shuffle-icon.active { color: #1a1a2e !important; background: #fbbf24 !important; box-shadow: 0 0 10px 2px rgba(251,191,36,0.4); }
-      body.dark #episodes li:hover { background: rgba(255,255,255,0.04); }
+      body.dark #episodes li:hover, body.dark #episodes li:focus { background: rgba(255,255,255,0.04); }
+      body.dark #episodes li:focus { box-shadow: inset 0 0 0 2px #fbbf24; }
+      body.dark .season-selector__button:focus { box-shadow: inset 0 0 0 2px #fbbf24; }
+      body.dark #shuffle-button:focus { box-shadow: 0 0 0 2px #fbbf24; }
+      body.dark #language-select:focus { box-shadow: 0 0 0 2px #fbbf24; }
       body.dark #episodes li.selected { background: rgba(251,191,36,0.1); }
       body.dark #episodes li .ep-info h2 { color: #fbbf24; }
       body.dark #episodes li .ep-info p { color: #8899aa; }
@@ -708,7 +724,7 @@
         <p class="hero-desc">Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures...</p>
         <div class="hero-tagline">The Biggest Little Show!</div>
       </div>
-      <div class="hero-scroll-hint" onclick="document.getElementById('episode-section').scrollIntoView({behavior:'smooth'})">
+      <div class="hero-scroll-hint" tabindex="0" role="button" onclick="document.getElementById('episode-section').scrollIntoView({behavior:'smooth'})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('episode-section').scrollIntoView({behavior:'smooth'})}">
         Scroll down to see episode list
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="6 9 12 15 18 9"/>
@@ -1358,6 +1374,74 @@
         }
       });
 
+      // ===== REMOTE / ARROW KEY NAVIGATION =====
+      document.addEventListener('keydown', (e) => {
+        // Don't intercept when player overlay is active or typing in a form field
+        const overlay = document.getElementById('playerOverlay');
+        if (overlay.classList.contains('active') && !overlay.classList.contains('pip')) return;
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        const focused = document.activeElement;
+        const isEpisode = focused && focused.closest('#episodes');
+        const isSeason = focused && focused.classList.contains('season-selector__button');
+        const isSidebar = focused && focused.closest('.sidebar');
+        const isNav = focused && focused.closest('.top-nav');
+
+        // Gather navigable groups
+        const seasonBtns = Array.from(document.querySelectorAll('.season-selector__button'));
+        const epItems = Array.from(document.querySelectorAll('#episodes li'));
+        const sidebarControls = [
+          document.getElementById('language-select'),
+          document.getElementById('shuffle-button')
+        ].filter(Boolean);
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (isSeason) {
+            const idx = seasonBtns.indexOf(focused);
+            if (idx < seasonBtns.length - 1) seasonBtns[idx + 1].focus();
+            else if (sidebarControls.length) sidebarControls[0].focus();
+          } else if (isSidebar && !isSeason) {
+            const idx = sidebarControls.indexOf(focused);
+            if (idx < sidebarControls.length - 1) sidebarControls[idx + 1].focus();
+          } else if (isEpisode) {
+            const idx = epItems.indexOf(focused);
+            if (idx < epItems.length - 1) { epItems[idx + 1].focus(); epItems[idx + 1].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+          } else {
+            // Nothing focused in app — focus first season or first episode
+            if (seasonBtns.length) seasonBtns[0].focus();
+            else if (epItems.length) epItems[0].focus();
+          }
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (isSeason) {
+            const idx = seasonBtns.indexOf(focused);
+            if (idx > 0) seasonBtns[idx - 1].focus();
+          } else if (isSidebar && !isSeason) {
+            const idx = sidebarControls.indexOf(focused);
+            if (idx > 0) sidebarControls[idx - 1].focus();
+            else if (seasonBtns.length) seasonBtns[seasonBtns.length - 1].focus();
+          } else if (isEpisode) {
+            const idx = epItems.indexOf(focused);
+            if (idx > 0) { epItems[idx - 1].focus(); epItems[idx - 1].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+          }
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          if (isSeason || isSidebar) {
+            // Jump from sidebar to episode list
+            if (epItems.length) { epItems[0].focus(); epItems[0].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+          }
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          if (isEpisode) {
+            // Jump from episode list back to sidebar
+            const sel = document.querySelector('.season-selector__button.selected');
+            if (sel) sel.focus();
+            else if (seasonBtns.length) seasonBtns[0].focus();
+          }
+        }
+      });
+
       // Click PiP body to expand (but not on buttons)
       document.getElementById('playerOverlay').addEventListener('click', (e) => {
         const overlay = document.getElementById('playerOverlay');
@@ -1585,7 +1669,11 @@
               </div>
             </div>
           `;
+          li.setAttribute('tabindex', '0');
           li.addEventListener('click', () => { currentEpisodeIndex = index; playEpisode(episode, index); });
+          li.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); currentEpisodeIndex = index; playEpisode(episode, index); }
+          });
           if (currentEpisodeIndex === index) li.classList.add('selected');
           episodeList.appendChild(li);
         });

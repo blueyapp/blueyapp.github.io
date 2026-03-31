@@ -851,7 +851,7 @@
       const serverUrl = "https://blueynet.org:443";
       const apiKey = "6b2548952ea2439ea800b8cd3f1072d1";
       const itemId = "48548";
-      const LANG_STORAGE_KEY = "bluey_minisodes_selected_language_episodes";
+      const LANG_STORAGE_KEY = "bluey_watch_selected_language_episodes";
 
       let selectedAudioStreamIndex = 1;
       let userPreferredLanguage = selectedAudioStreamIndex;
@@ -1125,7 +1125,7 @@
         suppressEndedOnce = !!fromEnded ? false : true;
         if (nextPrepared.hls){
           window.__castTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
-          window.__castSubtitle = `Bluey | Season ${nextPrepared.episode.ParentIndexNumber}`;
+          window.__castSubtitle = `Bluey Minisodes | Season ${nextPrepared.episode.ParentIndexNumber}`;
           window.__castPoster = nextPrepared.poster;
           window.__castMP4 = nextPrepared.mp4 || '';
           player.poster(nextPrepared.poster);
@@ -1145,7 +1145,7 @@
           }
           const niceTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
           setPlayerTitle(niceTitle);
-          document.title = `Watch Bluey! | ${niceTitle}`;
+          document.title = `Watch Bluey Minisodes | ${niceTitle}`;
           try { wireMediaSession(nextPrepared.episode); } catch {}
           syncSeasonHighlight(nextPrepared.episode);
           const prevSelected = document.querySelector('#episodes li.selected');
@@ -1169,29 +1169,60 @@
           this.el().setAttribute('aria-label', 'Skip Intro');
           this.el().setAttribute('title', 'Skip Intro');
           this.el().textContent = 'Skip Intro';
-          this.introAt = (options && options.introAt) || 24;
-          this.showFrom = (options && options.showFrom) || 0.5;
-          this.autoHideAfter = (options && options.autoHideAfter) || 8;
-          this.on('click', () => { try { this.player_.currentTime(this.introAt); } catch {} this.hide(); });
+          this.introAt = (options && options.introAt) || 0;  // <-- EDIT THIS to change skip time
+          this.showFrom = (options && options.showFrom) || 0;
+          this.autoHideAfter = (options && options.autoHideAfter) || 0;
+          this._visible = false;
+          this._hideTimer = null;
+          this._dismissed = false;
+          this.on('click', () => {
+            try { this.player_.currentTime(this.introAt); } catch {}
+            this._dismissed = true;
+            this._setVisible(false);
+          });
+          this._setVisible = (show) => {
+            if (show && !this._visible) {
+              this._visible = true;
+              this.show();
+              clearTimeout(this._hideTimer);
+              this._hideTimer = setTimeout(() => {
+                this._dismissed = true;
+                this._setVisible(false);
+              }, this.autoHideAfter * 1000);
+            } else if (!show && this._visible) {
+              this._visible = false;
+              clearTimeout(this._hideTimer);
+              this.hide();
+            }
+          };
           this._toggle = () => {
             const t = player.currentTime() || 0;
             const d = player.duration() || Infinity;
-            if (this.introAt >= d || t >= this.introAt) { this.hide(); return; }
+            if (this._dismissed || this.introAt >= d || t >= this.introAt) {
+              this._setVisible(false);
+              return;
+            }
             if (t >= this.showFrom && t < this.introAt) {
-              this.show();
-              setTimeout(() => this.hide(), this.autoHideAfter * 1000);
-            } else { this.hide(); }
+              this._setVisible(true);
+            } else {
+              this._setVisible(false);
+            }
           };
           player.on('timeupdate', this._toggle);
-          player.on('seeking', this._toggle);
-          player.on('loadedmetadata', () => { this.show(); this._toggle(); });
-          player.on('ended', () => this.hide());
+          player.on('seeking', () => {
+            // If user seeks back before intro, allow showing again
+            const t = player.currentTime() || 0;
+            if (t < this.introAt) this._dismissed = false;
+            this._toggle();
+          });
+          player.on('loadedmetadata', () => { this._dismissed = false; this._toggle(); });
+          player.on('ended', () => this._setVisible(false));
         }
         createEl() { return videojs.dom.createEl('button', { className: 'vjs-skip-intro-overlay' }); }
-        setIntroAt(sec) { this.introAt = Number(sec) || 24; this._toggle(); }
+        setIntroAt(sec) { this.introAt = Number(sec) || 24; this._dismissed = false; this._toggle(); }
       }
       videojs.registerComponent('SkipIntroOverlay', SkipIntroOverlay);
-      const skipOverlay = player.addChild('SkipIntroOverlay', { introAt: 24, showFrom: 0.5, autoHideAfter: 8 });
+      const skipOverlay = player.addChild('SkipIntroOverlay', { introAt: 0, showFrom: 0, autoHideAfter: 0 });
 
       // Persist captions
       player.on('texttrackchange', () => {
@@ -1457,12 +1488,12 @@
 
         const niceTitle = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
         setPlayerTitle(niceTitle);
-        document.title = `Bluey Minisodes | ${niceTitle}`;
+        document.title = `Watch Bluey! | ${niceTitle}`;
         syncSeasonHighlight(episode);
 
         const poster = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
         window.__castTitle = niceTitle;
-        window.__castSubtitle = `Bluey Minisodes | Season ${episode.ParentIndexNumber}`;
+        window.__castSubtitle = `Bluey | Season ${episode.ParentIndexNumber}`;
         window.__castPoster = poster;
 
         const timestamp = Date.now();

@@ -624,7 +624,6 @@
           .then(r => r.json())
           .then(data => {
             movieMetadata = data;
-            document.getElementById('heroTitle').textContent = data.Name || "Bluey's Big Play";
             document.getElementById('heroDesc').textContent = data.Overview || '';
             document.getElementById('infoThumb').src = `${serverUrl}/emby/Items/${data.Id}/Images/Primary?X-Emby-Token=${apiKey}`;
             document.getElementById('infoTitle').textContent = data.Name || "Bluey's Big Play";
@@ -679,7 +678,7 @@
               navigator.mediaSession.setActionHandler("pause", () => player.pause());
             }
 
-            document.title = `Bluey's Big PLay`;
+            document.title = `Bluey's Big Play`;
           })
           .catch(err => console.error("Error retrieving playback info:", err));
       }

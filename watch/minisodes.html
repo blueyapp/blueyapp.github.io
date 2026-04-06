@@ -1289,7 +1289,7 @@
           }
           const niceTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
           setPlayerTitle(niceTitle);
-          document.title = `Watch Bluey! | ${niceTitle}`;
+          document.title = `Watch Bluey Minisodes | ${niceTitle}`;
           try { wireMediaSession(nextPrepared.episode); } catch {}
           syncSeasonHighlight(nextPrepared.episode);
           const prevSelected = document.querySelector('#episodes li.selected');
@@ -1313,7 +1313,7 @@
           this.el().setAttribute('aria-label', 'Skip Intro');
           this.el().setAttribute('title', 'Skip Intro');
           this.el().textContent = 'Skip Intro';
-          this.introAt = (options && options.introAt) || 0-;  // <-- EDIT THIS to change skip time
+          this.introAt = (options && options.introAt) || 0;  // <-- EDIT THIS to change skip time
           this.showFrom = (options && options.showFrom) || 0;
           this.autoHideAfter = (options && options.autoHideAfter) || 0;
           this._visible = false;

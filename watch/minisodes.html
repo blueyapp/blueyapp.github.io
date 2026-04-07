@@ -543,6 +543,42 @@
         }
       }
 
+      /* Small landscape: keep side-by-side so info panel stays visible */
+      @media (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
+        .player-inner {
+          flex-direction: row !important;
+          height: 100vh;
+        }
+        .player-overlay .player-container {
+          flex: 1;
+          min-width: 0;
+        }
+        .player-overlay .video-js {
+          aspect-ratio: unset !important;
+          height: 100% !important;
+        }
+        .player-info {
+          width: 200px !important;
+          min-width: 180px;
+          flex: none !important;
+          padding: 14px 12px;
+          overflow-y: auto;
+          flex-direction: column !important;
+        }
+        .player-info .info-thumb {
+          width: 70px;
+        }
+        .player-info .info-title { font-size: 13px; }
+        .player-info .info-desc { font-size: 11px; -webkit-line-clamp: 3; }
+        .player-info .info-duration { font-size: 11px; }
+        .player-info .info-download { font-size: 11px; padding: 5px 10px; }
+        .player-overlay .close-player {
+          top: 6px; right: 6px;
+          width: 32px; height: 32px;
+          font-size: 20px;
+        }
+      }
+
       /* PiP mini player */
       .player-overlay.pip {
         display: flex;
@@ -852,7 +888,7 @@
     <!-- Hero Banner -->
     <div class="hero-banner">
       <div class="hero-content">
-        <img src="/images/jTjeYzB7yHDkxGdYFfA1gQqAwn.png" alt="Bluey" class="hero-logo" />
+        <img src="/images/jTjeYzB7yHDkxGdYFfA1gQqAwn.png" alt="Bluey Minisodes" class="hero-logo" />
         <div class="hero-label">All Episodes</div>
         <p class="hero-desc">The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together.</p>
         <div class="hero-tagline">The Biggest Little Show!</div>
@@ -869,7 +905,7 @@
     <div class="app-layout" id="episode-section">
       <!-- Left Sidebar -->
       <div class="sidebar">
-        <img src="/images/jTjeYzB7yHDkxGdYFfA1gQqAwn.png" alt="Bluey" class="logo" />
+        <img src="/images/jTjeYzB7yHDkxGdYFfA1gQqAwn.png" alt="Bluey Minisodes" class="logo" />
         <div class="season-list" id="seasons"></div>
 
         <!-- Language & Shuffle -->
@@ -995,7 +1031,7 @@
       const serverUrl = "https://blueynet.org:443";
       const apiKey = "6b2548952ea2439ea800b8cd3f1072d1";
       const itemId = "48548";
-      const LANG_STORAGE_KEY = "bluey_minisodes_selected_language_episodes";
+      const LANG_STORAGE_KEY = "bluey_watch_selected_language_episodes";
 
       let selectedAudioStreamIndex = 1;
       let userPreferredLanguage = selectedAudioStreamIndex;
@@ -1042,7 +1078,7 @@
                 request.media.contentType = 'video/mp4';
               }
               const md = request.media.metadata || new chrome.cast.media.GenericMediaMetadata();
-              md.title = window.__castTitle || document.title || 'Bluey Minisodes';
+              md.title = window.__castTitle || document.title || 'Bluey';
               md.subtitle = window.__castSubtitle || '';
               if (window.__castPoster) { md.images = [{ url: window.__castPoster }]; }
               request.media.metadata = md;
@@ -1290,6 +1326,13 @@
           const niceTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
           setPlayerTitle(niceTitle);
           document.title = `Watch Bluey Minisodes | ${niceTitle}`;
+          // Update info panel
+          const ep = nextPrepared.episode;
+          const runtime = ep.RunTimeTicks ? Math.round(ep.RunTimeTicks / 600000000) : 7;
+          document.getElementById('infoThumb').src = nextPrepared.poster;
+          document.getElementById('infoTitle').textContent = niceTitle;
+          document.getElementById('infoDesc').textContent = ep.Overview || '';
+          document.getElementById('infoDuration').textContent = `${runtime}m`;
           try { wireMediaSession(nextPrepared.episode); } catch {}
           syncSeasonHighlight(nextPrepared.episode);
           const prevSelected = document.querySelector('#episodes li.selected');

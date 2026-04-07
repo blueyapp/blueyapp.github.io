@@ -542,6 +542,42 @@
         }
       }
 
+      /* Small landscape: keep side-by-side so info panel stays visible */
+      @media (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
+        .player-inner {
+          flex-direction: row !important;
+          height: 100vh;
+        }
+        .player-overlay .player-container {
+          flex: 1;
+          min-width: 0;
+        }
+        .player-overlay .video-js {
+          aspect-ratio: unset !important;
+          height: 100% !important;
+        }
+        .player-info {
+          width: 200px !important;
+          min-width: 180px;
+          flex: none !important;
+          padding: 14px 12px;
+          overflow-y: auto;
+          flex-direction: column !important;
+        }
+        .player-info .info-thumb {
+          width: 70px;
+        }
+        .player-info .info-title { font-size: 13px; }
+        .player-info .info-desc { font-size: 11px; -webkit-line-clamp: 3; }
+        .player-info .info-duration { font-size: 11px; }
+        .player-info .info-download { font-size: 11px; padding: 5px 10px; }
+        .player-overlay .close-player {
+          top: 6px; right: 6px;
+          width: 32px; height: 32px;
+          font-size: 20px;
+        }
+      }
+
       /* PiP mini player */
       .player-overlay.pip {
         display: flex;
@@ -1291,6 +1327,13 @@
           const niceTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
           setPlayerTitle(niceTitle);
           document.title = `Watch Bluey! | ${niceTitle}`;
+          // Update info panel
+          const ep = nextPrepared.episode;
+          const runtime = ep.RunTimeTicks ? Math.round(ep.RunTimeTicks / 600000000) : 7;
+          document.getElementById('infoThumb').src = nextPrepared.poster;
+          document.getElementById('infoTitle').textContent = niceTitle;
+          document.getElementById('infoDesc').textContent = ep.Overview || '';
+          document.getElementById('infoDuration').textContent = `${runtime}m`;
           try { wireMediaSession(nextPrepared.episode); } catch {}
           syncSeasonHighlight(nextPrepared.episode);
           const prevSelected = document.querySelector('#episodes li.selected');

@@ -19,6 +19,7 @@
       <meta name="twitter:title" content="Bluey Listen Along">
       <meta name="twitter:description" content="Listen up, squirts! The biggest little show on earth has landed at ABC listen and Kids listen. Audio-only versions of your favourite Bluey episodes are available for families as screen-free entertainment.&#10;&#10;Designed to relax, engage and ignite the imaginations of children, Bluey Listen Along is the perfect soundtrack to car trips and the ultimate companion for bedtime. Mixed by Bluey’s own sound designer, Dan Brumm, twenty episodes are available on ABC platforms as Australian exclusives.&#10;&#10;Our Bluey Listen Along series is comprised of fan favourites from seasons 1-3 including Cricket, Granny Mobile, Fairytale, Promises, Relax, Stickbird, Dragon, Sleepytime, Duck Cake, Double Babysitter, Muffin Cone, Bin Night, Piggyback, Baby Race, Camping, The Creek, The Dump, Grannies, Early Baby, Takeaway.&#10;&#10;Bluey Listen Along is presented by BBC Studios Distribution Kids & Family and ABC in association with Ludo Studio.">
       <meta name="twitter:image" content="https://live-production.wcms.abc-cdn.net.au/f6e2c2a4d8e9e5b7ff040b3749aa1375">
+      <!-- URL to your image -->
       <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
       <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
       <style>
@@ -360,7 +361,7 @@
          </div>
          <div class="album">
             <div class="img-container">
-               <img src="https://live-production.wcms.abc-cdn.net.au/f6e2c2a4d8e9e5b7ff040b3749aa1375" alt="Logo">
+               <img src="https://live-production.wcms.abc-cdn.net.au/ffcb470f2d3b8a77df6164cdfe6a9c79" alt="Logo">
             </div>
          </div>
          <div class="music-player">
@@ -464,7 +465,7 @@
           async function fetchMusicData() {
               loadingContainer.style.display = 'inline-flex';
               try {
-                  const response = await fetch(`${EMBY_URL}/emby/Users/${EMBY_USER_ID}/Items?ParentId=${parentID}&Fields=BasicSyncInfo,CanDelete,PrimaryImageAspectRatio,SyncStatus&ImageTypeLimit=1&EnableTotalRecordCount=false&X-Emby-Token=${EMBY_API_TOKEN}`);
+                  const response = await fetch(`${EMBY_URL}/emby/Users/${EMBY_USER_ID}/Items?ParentId=${parentID}&Fields=BasicSyncInfo,CanDelete,PrimaryImageAspectRatio,SyncStatus&ImageTypeLimit=1&EnableTotalRecordCount=false&SortBy=IndexNumber&SortOrder=Descending&X-Emby-Token=${EMBY_API_TOKEN}`);
                   const data = await response.json();
                   return data.Items;
               } catch (error) {
@@ -480,7 +481,7 @@
               li.className = 'music-item';
 
               const title = document.createElement('span');
-              title.textContent = `Episode ${musicItem.IndexNumber}: ${musicItem.Name}`;
+              title.textContent = `${musicItem.Name}`;
 
               const downloadButton = document.createElement('button');
               downloadButton.className = 'control-button download-button';
@@ -520,13 +521,21 @@
               const musicId = musicItems[index].Id;
               const musicUrl = `${EMBY_URL}/emby/Audio/${musicId}/universal?UserId=${EMBY_USER_ID}&MaxStreamingBitrate=4000000&Container=opus,mp3|mp3,mp2,mp3|mp2,m4a|aac,mp4|aac,flac,webma,webm,wav|PCM_S16LE,wav|PCM_S24LE,ogg&TranscodingContainer=aac&TranscodingProtocol=hls&AudioCodec=aac&api_key=${EMBY_API_TOKEN}`;
               const musicItem = musicItems[index];
+              const musicTag = musicItem.ImageTags.Primary;
+              const formattedArtists = (musicItem.AlbumArtists || []).join(', '); // Format Artists with proper spacing
 
               if ('mediaSession' in navigator) {
                   navigator.mediaSession.metadata = new MediaMetadata({
                       title: musicItem.Name || 'Unknown Title',
-                      artist: musicItem.Album || 'Unknown Artist',
-                      album: `Episode ${musicItem.IndexNumber}` || musicItem.Album || 'Unknown Album',
-                      artwork: [{ src: `https://live-production.wcms.abc-cdn.net.au/f6e2c2a4d8e9e5b7ff040b3749aa1375`, sizes: '512x512', type: 'image/jpeg',}],
+                      artist: musicItem.Album || 'Behind Bluey',
+                      album: musicItem.Album || 'Behind Bluey',
+                      artwork: [
+                          {
+                              src: `${EMBY_URL}/emby/Items/${musicId}/Images/Primary?tag=${musicTag}&api_key=${EMBY_API_TOKEN}`,
+                              sizes: '512x512',
+                              type: 'image/png',
+                          },
+                      ],
                   });
                   navigator.mediaSession.setActionHandler('play', () => audioPlayer.play());
                   navigator.mediaSession.setActionHandler('pause', () => audioPlayer.pause());

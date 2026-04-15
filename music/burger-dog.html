@@ -638,7 +638,7 @@
         // Sort by IndexNumber
         items.sort((a, b) => (a.IndexNumber || 0) - (b.IndexNumber || 0));
         listHeader.textContent = isDolby ? `Tracks (${items.length}) - Dolby Atmos` : `Tracks (${items.length})`;
-        albumMeta.textContent = `Album \u2022 ${items.length} songs${isDolby ? ' \u2022 Dolby Atmos' : ''}`;
+        albumMeta.textContent = `Single \u2022 ${items.length} songs${isDolby ? ' \u2022 Dolby Atmos' : ''}`;
 
         const srv = getServer();
         items.forEach((item, idx) => {

@@ -248,10 +248,15 @@
         width: 100%;
         flex-wrap: wrap;
       }
-      #language-select {
+      /* Custom dropdown */
+      .custom-dropdown {
+        position: relative;
         flex: 1;
         min-width: 120px;
-        padding: 10px 14px;
+      }
+      .custom-dropdown__trigger {
+        width: 100%;
+        padding: 10px 36px 10px 14px;
         border: none;
         border-radius: 8px;
         background: #404066;
@@ -259,11 +264,50 @@
         font-family: 'Hello Headline', sans-serif;
         font-size: 15px;
         cursor: pointer;
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
+        text-align: left;
+        position: relative;
       }
-      #language-select option { color: #000; background: #fff; }
+      .custom-dropdown__trigger::after {
+        content: '';
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 6px solid #fff;
+        pointer-events: none;
+      }
+      .custom-dropdown__menu {
+        display: none;
+        position: absolute;
+        bottom: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        background: #404066;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        z-index: 200;
+        list-style: none;
+      }
+      .custom-dropdown.open .custom-dropdown__menu { display: block; }
+      .custom-dropdown__item {
+        padding: 10px 14px;
+        color: #fff;
+        font-family: 'Hello Headline', sans-serif;
+        font-size: 15px;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .custom-dropdown__item:hover,
+      .custom-dropdown__item:focus {
+        background: rgba(255,255,255,0.15);
+        outline: none;
+      }
+      .custom-dropdown__item.selected {
+        background: rgba(255,255,255,0.2);
+      }
       #shuffle-button {
         display: flex;
         align-items: center;
@@ -277,7 +321,7 @@
         transition: background 0.2s, box-shadow 0.2s;
       }
       #shuffle-button:hover, #shuffle-button:focus { background: #52527a; outline: none; box-shadow: 0 0 0 2px #00e5ff; }
-      #language-select:focus { outline: none; box-shadow: 0 0 0 2px #00e5ff; }
+      .custom-dropdown__trigger:focus { outline: none; box-shadow: 0 0 0 2px #00e5ff; }
       #shuffle-icon {
         color: #fff;
         transition: color 0.2s, background 0.2s, box-shadow 0.2s;
@@ -734,7 +778,13 @@
       body.dark .season-selector__button { color: #8899aa; }
       body.dark .season-selector__button:hover { color: #fbbf24; background: rgba(255,255,255,0.05); }
       body.dark .season-selector__button.selected { background: #fbbf24; color: #1a1a2e; }
-      body.dark #language-select { background: rgba(255,255,255,0.08); color: #fbbf24; }
+      body.dark .custom-dropdown__trigger { background: rgba(255,255,255,0.08); color: #fbbf24; }
+      body.dark .custom-dropdown__trigger::after { border-top-color: #fbbf24; }
+      body.dark .custom-dropdown__menu { background: #1e2230; }
+      body.dark .custom-dropdown__item { color: #fbbf24; }
+      body.dark .custom-dropdown__item:hover,
+      body.dark .custom-dropdown__item:focus { background: rgba(251,191,36,0.15); }
+      body.dark .custom-dropdown__item.selected { background: rgba(251,191,36,0.2); }
       body.dark #shuffle-button { background: rgba(255,255,255,0.08); }
       body.dark #shuffle-icon { color: #fbbf24; }
       body.dark #shuffle-icon.active { color: #1a1a2e !important; background: #fbbf24 !important; box-shadow: 0 0 10px 2px rgba(251,191,36,0.4); }
@@ -742,7 +792,7 @@
       body.dark #episodes li:focus { box-shadow: inset 0 0 0 2px #fbbf24; }
       body.dark .season-selector__button:focus { box-shadow: inset 0 0 0 2px #fbbf24; }
       body.dark #shuffle-button:focus { box-shadow: 0 0 0 2px #fbbf24; }
-      body.dark #language-select:focus { box-shadow: 0 0 0 2px #fbbf24; }
+      body.dark .custom-dropdown__trigger:focus { box-shadow: 0 0 0 2px #fbbf24; }
       body.dark #episodes li.selected { background: rgba(251,191,36,0.1); }
       body.dark #episodes li .ep-info h2 { color: #fbbf24; }
       body.dark #episodes li .ep-info p { color: #8899aa; }
@@ -817,7 +867,8 @@
           font-size: 12px;
         }
         .sidebar-controls { gap: 8px; margin-top: 14px; }
-        #language-select { padding: 8px 10px; font-size: 13px; }
+        .custom-dropdown__trigger { padding: 8px 10px; font-size: 13px; }
+        .custom-dropdown__item { padding: 8px 10px; font-size: 13px; }
         #shuffle-button { width: 36px; height: 36px; }
         #episodes li { flex-direction: column; gap: 8px; }
         #episodes li .ep-thumb { width: 100%; min-width: unset; height: auto; }
@@ -890,7 +941,7 @@
       <div class="hero-content">
         <img src="/images/jTjeYzB7yHDkxGdYFfA1gQqAwn.png" alt="Bluey Minisodes" class="hero-logo" />
         <div class="hero-label">All Episodes</div>
-        <p class="hero-desc">The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together.</p>
+        <p class="hero-desc">The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together.The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together.</p>
         <div class="hero-tagline">The Biggest Little Show!</div>
       </div>
       <div class="hero-scroll-hint" tabindex="0" role="button" onclick="document.getElementById('episode-section').scrollIntoView({behavior:'smooth'})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('episode-section').scrollIntoView({behavior:'smooth'})}">
@@ -910,10 +961,13 @@
 
         <!-- Language & Shuffle -->
         <div class="sidebar-controls">
-          <select id="language-select" onchange="setLanguage(this.value, getCurrentTime())">
-            <option value="1" selected>English</option>
-            <option value="3">Malay</option>
-          </select>
+          <div class="custom-dropdown" id="language-dropdown">
+            <button class="custom-dropdown__trigger" id="language-select" type="button" tabindex="0">English</button>
+            <ul class="custom-dropdown__menu">
+              <li class="custom-dropdown__item selected" data-value="1" tabindex="0">English</li>
+              <li class="custom-dropdown__item" data-value="3" tabindex="0">Malay</li>
+            </ul>
+          </div>
           <button id="shuffle-button" onclick="toggleShuffleMode()" title="Shuffle">
             <svg id="shuffle-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <polyline points="16 3 21 3 21 8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1305,7 +1359,7 @@
         suppressEndedOnce = !!fromEnded ? false : true;
         if (nextPrepared.hls){
           window.__castTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
-          window.__castSubtitle = `Bluey Minisodes | Season ${nextPrepared.episode.ParentIndexNumber}`;
+          window.__castSubtitle = `Bluey | Season ${nextPrepared.episode.ParentIndexNumber}`;
           window.__castPoster = nextPrepared.poster;
           window.__castMP4 = nextPrepared.mp4 || '';
           player.poster(nextPrepared.poster);
@@ -1406,7 +1460,7 @@
           player.on('ended', () => this._setVisible(false));
         }
         createEl() { return videojs.dom.createEl('button', { className: 'vjs-skip-intro-overlay' }); }
-        setIntroAt(sec) { this.introAt = Number(sec) || 0; this._dismissed = false; this._toggle(); }
+        setIntroAt(sec) { this.introAt = Number(sec) || 24; this._dismissed = false; this._toggle(); }
       }
       videojs.registerComponent('SkipIntroOverlay', SkipIntroOverlay);
       const skipOverlay = player.addChild('SkipIntroOverlay', { introAt: 0, showFrom: 0, autoHideAfter: 0 });
@@ -1459,7 +1513,7 @@
         if (saved !== null) {
           selectedAudioStreamIndex = parseInt(saved, 10);
           userPreferredLanguage = selectedAudioStreamIndex;
-          document.getElementById('language-select').value = saved;
+          selectLanguageOption(saved);
         }
         fetchSeasons();
       });
@@ -1469,7 +1523,7 @@
         if (!('mediaSession' in navigator)) return;
         navigator.mediaSession.metadata = new MediaMetadata({
           title: `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`,
-          artist: 'Bluey Minisodes',
+          artist: 'Bluey',
           album: `Season ${episode.ParentIndexNumber}`,
           artwork: [{ src: `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`, sizes: '1920x1080', type: 'image/png' }]
         });
@@ -1608,7 +1662,7 @@
         const seasonBtns = Array.from(document.querySelectorAll('.season-selector__button'));
         const epItems = Array.from(document.querySelectorAll('#episodes li'));
         const sidebarControls = [
-          document.getElementById('language-select'),
+          document.querySelector('.custom-dropdown__trigger'),
           document.getElementById('shuffle-button')
         ].filter(Boolean);
 
@@ -1900,6 +1954,71 @@
           });
           if (currentEpisodeIndex === index) li.classList.add('selected');
           episodeList.appendChild(li);
+        });
+      }
+
+      /* Custom dropdown logic */
+      (function() {
+        const dropdown = document.getElementById('language-dropdown');
+        const trigger = dropdown.querySelector('.custom-dropdown__trigger');
+        const menu = dropdown.querySelector('.custom-dropdown__menu');
+        const items = dropdown.querySelectorAll('.custom-dropdown__item');
+
+        trigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          dropdown.classList.toggle('open');
+        });
+
+        items.forEach(item => {
+          item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            items.forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+            trigger.textContent = item.textContent;
+            dropdown.classList.remove('open');
+            setLanguage(item.dataset.value, getCurrentTime());
+          });
+          item.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              item.click();
+            } else if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              const next = item.nextElementSibling;
+              if (next) next.focus();
+            } else if (e.key === 'ArrowUp') {
+              e.preventDefault();
+              const prev = item.previousElementSibling;
+              if (prev) prev.focus(); else trigger.focus();
+            } else if (e.key === 'Escape') {
+              dropdown.classList.remove('open');
+              trigger.focus();
+            }
+          });
+        });
+
+        trigger.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            dropdown.classList.add('open');
+            const sel = menu.querySelector('.selected') || items[0];
+            if (sel) sel.focus();
+          }
+        });
+
+        document.addEventListener('click', () => dropdown.classList.remove('open'));
+      })();
+
+      function selectLanguageOption(value) {
+        const dropdown = document.getElementById('language-dropdown');
+        const trigger = dropdown.querySelector('.custom-dropdown__trigger');
+        const items = dropdown.querySelectorAll('.custom-dropdown__item');
+        items.forEach(i => {
+          i.classList.remove('selected');
+          if (i.dataset.value === String(value)) {
+            i.classList.add('selected');
+            trigger.textContent = i.textContent;
+          }
         });
       }
 

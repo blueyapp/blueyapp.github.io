@@ -726,7 +726,7 @@
           navigator.mediaSession.metadata = new MediaMetadata({
             title: item.Name,
             artist: artists,
-            album: item.Album || 'Bluey The Album',
+            album: item.Album || 'Dance Mode!',
             artwork: thumbUrl ? [{ src: thumbUrl, sizes: '512x512', type: 'image/png' }] : []
           });
           navigator.mediaSession.setActionHandler('play', () => { audio.play(); setPlayState(true); });
@@ -735,7 +735,7 @@
           navigator.mediaSession.setActionHandler('previoustrack', playPrev);
         }
 
-        document.title = `${item.Name} - Bluey The Album`;
+        document.title = `${item.Name} - Dance Mode!`;
 
         // Cast
         if (window.__castSession) {

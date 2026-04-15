@@ -917,7 +917,7 @@
         const mediaInfo = new chrome.cast.media.MediaInfo(audioUrl, 'audio/mp4');
         mediaInfo.metadata = new chrome.cast.media.MusicTrackMediaMetadata();
         mediaInfo.metadata.title = item.Name;
-        mediaInfo.metadata.albumName = item.Album || 'Bluey The Album';
+        mediaInfo.metadata.albumName = item.Album || 'Rug Island';
         mediaInfo.metadata.artist = artists || '';
         if (thumbUrl) mediaInfo.metadata.images = [new chrome.cast.Image(thumbUrl)];
         const request = new chrome.cast.media.LoadRequest(mediaInfo);

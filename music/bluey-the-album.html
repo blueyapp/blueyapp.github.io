@@ -643,7 +643,7 @@
           li.className = 'track-item';
           li.tabIndex = 0;
           const tag = item.ImageTags?.Primary || '';
-          const thumbUrl = tag ? `${srv.url}${apiPath(srv)}/Items/${item.Id}/Images/Primary?tag=${tag}&maxWidth=128&${srv.useEmbyPath ? 'X-Emby-Token' : 'api_key'}=${srv.apiKey}` : '';
+          const thumbUrl = tag ? `${srv.url}${apiPath(srv)}/Items/${item.Id}/Images/Primary?tag=${tag}&${srv.useEmbyPath ? 'X-Emby-Token' : 'api_key'}=${srv.apiKey}` : '';
           const duration = item.RunTimeTicks ? formatTime(Math.round(item.RunTimeTicks / 10000000)) : '';
           const artists = (item.Artists || []).join(', ') || (item.AlbumArtists || []).map(a => a.Name).join(', ') || '';
 
@@ -681,7 +681,7 @@
         const item = musicItems[index];
         const srv = getServer();
         const tag = item.ImageTags?.Primary || '';
-        const thumbUrl = tag ? `${srv.url}${apiPath(srv)}/Items/${item.Id}/Images/Primary?tag=${tag}&maxWidth=256&${srv.useEmbyPath ? 'X-Emby-Token' : 'api_key'}=${srv.apiKey}` : '';
+        const thumbUrl = tag ? `${srv.url}${apiPath(srv)}/Items/${item.Id}/Images/Primary?tag=${tag}&${srv.useEmbyPath ? 'X-Emby-Token' : 'api_key'}=${srv.apiKey}` : '';
         const artists = (item.Artists || []).join(', ') || (item.AlbumArtists || []).map(a => a.Name).join(', ') || '';
 
         // Build audio URL
@@ -892,7 +892,7 @@
               const item = musicItems[currentIndex];
               const srv = getServer();
               const tag = item.ImageTags?.Primary || '';
-              const thumbUrl = tag ? `${srv.url}${apiPath(srv)}/Items/${item.Id}/Images/Primary?tag=${tag}&maxWidth=256&${srv.useEmbyPath ? 'X-Emby-Token' : 'api_key'}=${srv.apiKey}` : '';
+              const thumbUrl = tag ? `${srv.url}${apiPath(srv)}/Items/${item.Id}/Images/Primary?tag=${tag}&${srv.useEmbyPath ? 'X-Emby-Token' : 'api_key'}=${srv.apiKey}` : '';
               const artists = (item.Artists || []).join(', ') || '';
               castTrack(item, audio.src, thumbUrl, artists);
             }

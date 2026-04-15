@@ -1507,6 +1507,50 @@
         } catch {}
       }
 
+      // Parse deep-link: ?s1e1 or ?s2e5 etc.
+      function parseEpisodeFromURL() {
+        const search = window.location.search.replace('?', '').toLowerCase();
+        const match = search.match(/^s(\d+)e(\d+)$/);
+        if (match) return { season: parseInt(match[1], 10), episode: parseInt(match[2], 10) };
+        return null;
+      }
+
+      let pendingDeepLink = parseEpisodeFromURL();
+
+      // Try to auto-play from deep link once episodes are loaded
+      function tryDeepLink() {
+        if (!pendingDeepLink) return;
+        const target = pendingDeepLink;
+        // Find matching season
+        const seasonObj = seasonsList.find(s => s.IndexNumber === target.season);
+        if (!seasonObj) return; // Season doesn't exist, do nothing
+        const cachedEps = episodesCache[seasonObj.Id];
+        if (!cachedEps) {
+          // Episodes not cached yet, wait and retry
+          setTimeout(tryDeepLink, 300);
+          return;
+        }
+        // Find matching episode
+        const epIndex = cachedEps.findIndex(ep => ep.IndexNumber === target.episode);
+        if (epIndex < 0) return; // Episode doesn't exist, do nothing
+
+        // Clear pending so it doesn't re-trigger
+        pendingDeepLink = null;
+
+        // Select the season
+        const seasonIdx = seasonsList.indexOf(seasonObj);
+        const seasonBtn = document.querySelectorAll('.season-selector__button')[seasonIdx];
+        if (seasonBtn) {
+          handleSeasonClick(seasonBtn, seasonObj, seasonIdx);
+          episodes = cachedEps;
+          renderEpisodes(episodes);
+        }
+
+        // Play the episode
+        currentEpisodeIndex = epIndex;
+        playEpisode(cachedEps[epIndex], epIndex);
+      }
+
       // Load saved language
       document.addEventListener('DOMContentLoaded', () => {
         const saved = localStorage.getItem(LANG_STORAGE_KEY);
@@ -1895,8 +1939,8 @@
               });
               seasonsContainer.appendChild(seasonBtn);
             });
-            // Auto-select the first season
-            if (seasonsList.length > 0) {
+            // Auto-select the first season (unless deep link will override)
+            if (seasonsList.length > 0 && !pendingDeepLink) {
               const firstBtn = seasonsContainer.querySelector('.season-selector__button');
               const firstSeason = seasonsList[0];
               if (firstBtn) {
@@ -1909,6 +1953,9 @@
                 }
               }
             }
+
+            // Try deep link after seasons loaded
+            if (pendingDeepLink) tryDeepLink();
           })
           .catch(err => console.error('seasons error:', err));
       }

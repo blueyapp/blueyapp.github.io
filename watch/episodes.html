@@ -503,13 +503,18 @@
         color: #718096;
         font-weight: bold;
       }
-      .player-info .info-download {
+      .player-info .info-buttons {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+      }
+      .player-info .info-download,
+      .player-info .info-share {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
-        padding: 12px 20px;
-        background: #e2793b;
+        padding: 12px 14px;
         color: #fff;
         border: none;
         border-radius: 10px;
@@ -517,10 +522,14 @@
         font-size: 15px;
         cursor: pointer;
         transition: background 0.2s;
-        width: 100%;
+        flex: 1;
       }
+      .player-info .info-download { background: #e2793b; }
       .player-info .info-download:hover { background: #cf6b30; }
-      .player-info .info-download svg {
+      .player-info .info-share { background: #404066; }
+      .player-info .info-share:hover { background: #52527a; }
+      .player-info .info-download svg,
+      .player-info .info-share svg {
         width: 18px; height: 18px;
         stroke: currentColor; fill: none;
         stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
@@ -531,6 +540,7 @@
       body.dark .player-info .info-title { color: #fbbf24; }
       body.dark .player-info .info-desc { color: #6b7a8d; }
       body.dark .player-info .info-download { background: #394867; color: #ffd700; }
+      body.dark .player-info .info-share { background: #394867; color: #ffd700; }
 
       /* Hide info panel in PiP */
       .player-overlay.pip .player-inner {
@@ -613,7 +623,8 @@
         .player-info .info-title { font-size: 13px; }
         .player-info .info-desc { font-size: 11px; -webkit-line-clamp: 3; }
         .player-info .info-duration { font-size: 11px; }
-        .player-info .info-download { font-size: 11px; padding: 5px 10px; }
+        .player-info .info-download,
+        .player-info .info-share { font-size: 11px; padding: 5px 10px; }
         .player-overlay .close-player {
           top: 6px; right: 6px;
           width: 32px; height: 32px;
@@ -998,10 +1009,16 @@
           <div class="info-title" id="infoTitle"></div>
           <div class="info-desc" id="infoDesc"></div>
           <div class="info-duration" id="infoDuration"></div>
-          <button class="info-download" id="infoDownload" onclick="downloadEpisode()">
-            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download
-          </button>
+          <div class="info-buttons">
+            <button class="info-download" id="infoDownload" onclick="downloadEpisode()">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download
+            </button>
+            <button class="info-share" id="infoShare" onclick="shareEpisode()">
+              <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              Share
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1517,24 +1534,20 @@
 
       let pendingDeepLink = parseEpisodeFromURL();
 
-      // Try to auto-play from deep link once episodes are loaded
+      // Navigate to the correct season/episode from deep link (no autoplay)
       function tryDeepLink() {
         if (!pendingDeepLink) return;
         const target = pendingDeepLink;
-        // Find matching season
         const seasonObj = seasonsList.find(s => s.IndexNumber === target.season);
-        if (!seasonObj) return; // Season doesn't exist, do nothing
+        if (!seasonObj) return;
         const cachedEps = episodesCache[seasonObj.Id];
         if (!cachedEps) {
-          // Episodes not cached yet, wait and retry
           setTimeout(tryDeepLink, 300);
           return;
         }
-        // Find matching episode
         const epIndex = cachedEps.findIndex(ep => ep.IndexNumber === target.episode);
-        if (epIndex < 0) return; // Episode doesn't exist, do nothing
+        if (epIndex < 0) return;
 
-        // Clear pending so it doesn't re-trigger
         pendingDeepLink = null;
 
         // Select the season
@@ -1546,9 +1559,19 @@
           renderEpisodes(episodes);
         }
 
-        // Play the episode
+        // Highlight, scroll to the episode, then play
         currentEpisodeIndex = epIndex;
-        playEpisode(cachedEps[epIndex], epIndex);
+        const epItem = document.querySelector(`#episodes li:nth-child(${epIndex + 1})`);
+        if (epItem) {
+          epItem.classList.add('selected');
+          epItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Wait for scroll to finish, then play
+          setTimeout(() => {
+            playEpisode(cachedEps[epIndex], epIndex);
+          }, 800);
+        } else {
+          playEpisode(cachedEps[epIndex], epIndex);
+        }
       }
 
       // Load saved language
@@ -1939,7 +1962,7 @@
               });
               seasonsContainer.appendChild(seasonBtn);
             });
-            // Auto-select the first season (unless deep link will override)
+            // Auto-select the first season
             if (seasonsList.length > 0 && !pendingDeepLink) {
               const firstBtn = seasonsContainer.querySelector('.season-selector__button');
               const firstSeason = seasonsList[0];
@@ -1954,7 +1977,7 @@
               }
             }
 
-            // Try deep link after seasons loaded
+            // Deep link: navigate to correct season/episode
             if (pendingDeepLink) tryDeepLink();
           })
           .catch(err => console.error('seasons error:', err));
@@ -2091,6 +2114,33 @@
           const episode = episodes[currentEpisodeIndex];
           const downloadUrl = `${serverUrl}/emby/Items/${episode.Id}/Download?api_key=${apiKey}`;
           window.location.href = downloadUrl;
+        }
+      }
+
+      function shareEpisode() {
+        if (currentEpisodeIndex < 0 || !episodes[currentEpisodeIndex]) return;
+        const ep = episodes[currentEpisodeIndex];
+        const s = ep.ParentIndexNumber;
+        const e = ep.IndexNumber;
+        const shareUrl = `${window.location.origin}${window.location.pathname}?s${s}e${e}`;
+        const shareTitle = `Bluey S${s}E${e}: ${ep.Name}`;
+
+        // Use native share if available (mobile), else copy to clipboard
+        if (navigator.share) {
+          navigator.share({ title: shareTitle, url: shareUrl }).catch(() => {});
+        } else {
+          navigator.clipboard.writeText(shareUrl).then(() => {
+            showToast('Link copied to clipboard!');
+          }).catch(() => {
+            // Fallback for older browsers
+            const input = document.createElement('input');
+            input.value = shareUrl;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            showToast('Link copied to clipboard!');
+          });
         }
       }
 

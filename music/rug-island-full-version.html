@@ -459,7 +459,7 @@
         <div class="album-text-wrap">
           <div class="album-title">Rug Island (Full Version)</div>
           <div class="album-artist">Bluey, Joff Bush</div>
-          <div class="album-meta" id="albumMeta">Album</div>
+          <div class="album-meta" id="albumMeta">Single</div>
           <div class="album-actions">
             <button class="album-play-btn" id="albumPlayBtn" title="Play all">
               <svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg>
@@ -638,7 +638,7 @@
         // Sort by IndexNumber
         items.sort((a, b) => (a.IndexNumber || 0) - (b.IndexNumber || 0));
         listHeader.textContent = isDolby ? `Tracks (${items.length}) - Dolby Atmos` : `Tracks (${items.length})`;
-        albumMeta.textContent = `Album \u2022 ${items.length} songs${isDolby ? ' \u2022 Dolby Atmos' : ''}`;
+        albumMeta.textContent = `Single \u2022 ${items.length} songs${isDolby ? ' \u2022 Dolby Atmos' : ''}`;
 
         const srv = getServer();
         items.forEach((item, idx) => {

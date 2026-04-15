@@ -597,7 +597,7 @@
           li.className = 'episode-item';
           li.tabIndex = 0;
           const tag = item.ImageTags?.Primary || '';
-          const thumbUrl = tag ? `${EMBY_URL}/emby/Items/${item.Id}/Images/Primary?tag=${tag}&maxWidth=128&X-Emby-Token=${EMBY_API_TOKEN}` : '';
+          const thumbUrl = tag ? `${EMBY_URL}/emby/Items/${item.Id}/Images/Primary?tag=${tag}&X-Emby-Token=${EMBY_API_TOKEN}` : '';
           const duration = item.RunTimeTicks ? formatTime(Math.round(item.RunTimeTicks / 10000000)) : '';
           li.innerHTML = `
             ${thumbUrl ? `<img class="ep-thumb" src="${thumbUrl}" alt="" />` : `<div class="ep-thumb" style="background:#404066;border-radius:6px;"></div>`}
@@ -631,14 +631,14 @@
         currentIndex = index;
         const item = musicItems[index];
         const tag = item.ImageTags?.Primary || '';
-        const thumbUrl = tag ? `${EMBY_URL}/emby/Items/${item.Id}/Images/Primary?tag=${tag}&maxWidth=256&X-Emby-Token=${EMBY_API_TOKEN}` : '';
+        const thumbUrl = tag ? `${EMBY_URL}/emby/Items/${item.Id}/Images/Primary?tag=${tag}&X-Emby-Token=${EMBY_API_TOKEN}` : '';
         const audioUrl = `${EMBY_URL}/emby/Audio/${item.Id}/universal?UserId=${EMBY_USER_ID}&MaxStreamingBitrate=4000000&Container=opus,mp3|mp3,mp2,mp3|mp2,m4a|aac,mp4|aac,flac,webma,webm,wav|PCM_S16LE,wav|PCM_S24LE,ogg&TranscodingContainer=aac&TranscodingProtocol=hls&AudioCodec=aac&api_key=${EMBY_API_TOKEN}`;
 
         // Update player bar
         playerBar.classList.add('visible');
         trackThumb.src = thumbUrl;
         trackTitle.textContent = item.Name;
-        trackAlbum.textContent = 'Bluey Listen Along';
+        trackAlbum.textContent = 'Behind Bluey';
         updateHighlight();
 
         // Play
@@ -784,7 +784,7 @@
             if (currentIndex >= 0) {
               const item = musicItems[currentIndex];
               const tag = item.ImageTags?.Primary || '';
-              const thumbUrl = tag ? `${EMBY_URL}/emby/Items/${item.Id}/Images/Primary?tag=${tag}&maxWidth=256&X-Emby-Token=${EMBY_API_TOKEN}` : '';
+              const thumbUrl = tag ? `${EMBY_URL}/emby/Items/${item.Id}/Images/Primary?tag=${tag}&X-Emby-Token=${EMBY_API_TOKEN}` : '';
               const audioUrl = audio.src;
               castTrack(item, audioUrl, thumbUrl);
             }
@@ -809,7 +809,7 @@
         const mediaInfo = new chrome.cast.media.MediaInfo(audioUrl, 'audio/mp4');
         mediaInfo.metadata = new chrome.cast.media.MusicTrackMediaMetadata();
         mediaInfo.metadata.title = item.Name;
-        mediaInfo.metadata.albumName = 'Bluey Listen Along';
+        mediaInfo.metadata.albumName = 'Behind Bluey';
         if (thumbUrl) {
           mediaInfo.metadata.images = [new chrome.cast.Image(thumbUrl)];
         }

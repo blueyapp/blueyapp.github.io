@@ -1867,7 +1867,7 @@
         const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
         if (selectedEpisodeItem) selectedEpisodeItem.classList.add('selected');
 
-        if (typeof skipOverlay?.setIntroAt === 'function') { skipOverlay.setIntroAt(24); }
+        if (typeof skipOverlay?.setIntroAt === 'function') { skipOverlay.setIntroAt(10); }
       }
 
       function syncSeasonHighlight(episode) {

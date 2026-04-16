@@ -237,18 +237,10 @@
             }
          }
 
-         /* Touch devices — no hover, just tap feedback */
+         /* Touch devices — no hover, just tap feedback. Poster art already has the title. */
          @media (hover: none), (pointer: coarse) {
-            .poster-card:active {
-               transform: scale(0.97);
-            }
-            /* Show a small title bar at the bottom so users know what it is */
-            .poster-info {
-               opacity: 1;
-               transform: translateY(0);
-               padding: 30px 12px 10px;
-            }
-            .poster-info-desc, .poster-info-btn { display: none; }
+            .poster-card:active { transform: scale(0.97); }
+            .poster-info { display: none; }
          }
 
          /* ===== Dark mode ===== */
@@ -303,6 +295,7 @@
          /* ===== Responsive ===== */
          @media (max-width: 768px) {
             .hero { height: 34vh; min-height: 220px; }
+            .hero::after { height: 85%; }
             .category { padding: 8px 14px 16px; }
             .category-title { font-size: 22px; }
             .poster-card { width: 150px; }

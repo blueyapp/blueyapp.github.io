@@ -948,7 +948,7 @@
     <!-- Hero Banner -->
     <div class="hero-banner">
       <div class="hero-content">
-        <img src="https://static.wikia.nocookie.net/blueypedia/images/4/4e/Puppets.png" alt="Bluey Puppets" class="hero-logo" />
+        <img src="https://static.wikia.nocookie.net/blueypedia/images/4/4e/Puppets.png" alt="Bluey" class="hero-logo" />
         <div class="hero-label">All Episodes</div>
         <p class="hero-desc">Bluey's favourite toys come to life in this joyful crafting series! Follow along at home with easy steps - perfect for kids and grown-ups to make together.</p>
         <div class="hero-tagline">Arts & Crafts</div>
@@ -965,7 +965,7 @@
     <div class="app-layout" id="episode-section">
       <!-- Left Sidebar -->
       <div class="sidebar">
-        <img src="https://static.wikia.nocookie.net/blueypedia/images/4/4e/Puppets.png" alt="Bluey Puppets" class="logo" />
+        <img src="https://static.wikia.nocookie.net/blueypedia/images/4/4e/Puppets.png" alt="Bluey" class="logo" />
         <div class="season-list" id="seasons"></div>
 
         <!-- Language & Shuffle -->
@@ -1415,6 +1415,70 @@
         nextPrepared = null;
       }
 
+      /* Skip Intro */
+      class SkipIntroOverlay extends BaseComp {
+        constructor(player, options) {
+          super(player, options);
+          this.addClass('vjs-skip-intro-overlay');
+          this.el().setAttribute('type', 'button');
+          this.el().setAttribute('aria-label', 'Skip Intro');
+          this.el().setAttribute('title', 'Skip Intro');
+          this.el().textContent = 'Skip Intro';
+          this.introAt = (options && options.introAt) || 10;  // <-- EDIT THIS to change skip time
+          this.showFrom = (options && options.showFrom) || 0.5;
+          this.autoHideAfter = (options && options.autoHideAfter) || 8;
+          this._visible = false;
+          this._hideTimer = null;
+          this._dismissed = false;
+          this.on('click', () => {
+            try { this.player_.currentTime(this.introAt); } catch {}
+            this._dismissed = true;
+            this._setVisible(false);
+          });
+          this._setVisible = (show) => {
+            if (show && !this._visible) {
+              this._visible = true;
+              this.show();
+              clearTimeout(this._hideTimer);
+              this._hideTimer = setTimeout(() => {
+                this._dismissed = true;
+                this._setVisible(false);
+              }, this.autoHideAfter * 1000);
+            } else if (!show && this._visible) {
+              this._visible = false;
+              clearTimeout(this._hideTimer);
+              this.hide();
+            }
+          };
+          this._toggle = () => {
+            const t = player.currentTime() || 0;
+            const d = player.duration() || Infinity;
+            if (this._dismissed || this.introAt >= d || t >= this.introAt) {
+              this._setVisible(false);
+              return;
+            }
+            if (t >= this.showFrom && t < this.introAt) {
+              this._setVisible(true);
+            } else {
+              this._setVisible(false);
+            }
+          };
+          player.on('timeupdate', this._toggle);
+          player.on('seeking', () => {
+            // If user seeks back before intro, allow showing again
+            const t = player.currentTime() || 0;
+            if (t < this.introAt) this._dismissed = false;
+            this._toggle();
+          });
+          player.on('loadedmetadata', () => { this._dismissed = false; this._toggle(); });
+          player.on('ended', () => this._setVisible(false));
+        }
+        createEl() { return videojs.dom.createEl('button', { className: 'vjs-skip-intro-overlay' }); }
+        setIntroAt(sec) { this.introAt = Number(sec) || 24; this._dismissed = false; this._toggle(); }
+      }
+      videojs.registerComponent('SkipIntroOverlay', SkipIntroOverlay);
+      const skipOverlay = player.addChild('SkipIntroOverlay', { introAt: 10, showFrom: 0.5, autoHideAfter: 8 });
+
       // Persist captions
       player.on('texttrackchange', () => {
         const on = Array.from(player.textTracks()).some(t => t.mode === 'showing');
@@ -1803,7 +1867,7 @@
         const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
         if (selectedEpisodeItem) selectedEpisodeItem.classList.add('selected');
 
-        if (typeof skipOverlay?.setIntroAt === 'function') { skipOverlay.setIntroAt(0); }
+        if (typeof skipOverlay?.setIntroAt === 'function') { skipOverlay.setIntroAt(24); }
       }
 
       function syncSeasonHighlight(episode) {

@@ -1424,7 +1424,7 @@
           this.el().setAttribute('aria-label', 'Skip Intro');
           this.el().setAttribute('title', 'Skip Intro');
           this.el().textContent = 'Skip Intro';
-          this.introAt = (options && options.introAt) || 10;  // <-- EDIT THIS to change skip time
+          this.introAt = (options && options.introAt) || 24;  // <-- EDIT THIS to change skip time
           this.showFrom = (options && options.showFrom) || 0.5;
           this.autoHideAfter = (options && options.autoHideAfter) || 8;
           this._visible = false;
@@ -1474,10 +1474,10 @@
           player.on('ended', () => this._setVisible(false));
         }
         createEl() { return videojs.dom.createEl('button', { className: 'vjs-skip-intro-overlay' }); }
-        setIntroAt(sec) { this.introAt = Number(sec) || 10; this._dismissed = false; this._toggle(); }
+        setIntroAt(sec) { this.introAt = Number(sec) || 24; this._dismissed = false; this._toggle(); }
       }
       videojs.registerComponent('SkipIntroOverlay', SkipIntroOverlay);
-      const skipOverlay = player.addChild('SkipIntroOverlay', { introAt: 10, showFrom: 0.5, autoHideAfter: 8 });
+      const skipOverlay = player.addChild('SkipIntroOverlay', { introAt: 24, showFrom: 0.5, autoHideAfter: 8 });
 
       // Persist captions
       player.on('texttrackchange', () => {

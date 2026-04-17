@@ -1,227 +1,263 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
-  <script src="https://vjs.zencdn.net/7.15.4/video.js"></script>
-  <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Page Not Found</title>
-  <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
-  <link href="//pages.blueynet.org/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Page Not Found</title>
+      <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
+      <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
+      <style>
+         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: "Hello Headline", Arial, sans-serif !important;
-      background-color: #87c0e8 !important;
-      transition: background 0.3s, color 0.3s;
-    }
+         body {
+            font-family: "Hello Headline", Arial, sans-serif !important;
+            background-color: #87c0e8 !important;
+            color: #fff;
+            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+            overflow-x: hidden;
+         }
 
-    .error {
-      font-family: "Hello Headline", Arial, sans-serif;
-      color: white;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+         /* ===== TOP NAV BAR ===== */
+         .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 12px 30px;
+            gap: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 5000;
+         }
+         .top-nav a {
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+         }
+         .top-nav a:hover { color: #e0e0e0; }
 
-    .error img {
-      width: 300px;
-      border-radius: 0px;
-    }
+         .hamburger-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            z-index: 1001;
+         }
+         .hamburger-btn svg { width: 28px; height: 28px; stroke: #fff; }
+         body.dark .hamburger-btn svg { stroke: #fbbf24; }
+         .nav-links { display: contents; }
 
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
+         .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+         }
+         .mobile-menu-overlay.open { display: block; }
 
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 20px;
-      position: relative;
-      z-index: 10000;
-    }
+         /* ===== 404 content ===== */
+         .error {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 80px 24px 40px;
+         }
+         .error img {
+            width: 300px;
+            max-width: 80%;
+            height: auto;
+            margin-bottom: 24px;
+            filter: drop-shadow(0 8px 24px rgba(0,0,0,0.25));
+         }
+         .error-code {
+            font-family: 'Hello Headline', Arial, sans-serif;
+            font-size: 72px;
+            font-weight: bold;
+            line-height: 1;
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.2);
+         }
+         .error-text {
+            font-family: 'Hello Headline', Arial, sans-serif;
+            font-size: 22px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 30px;
+         }
+         .error-home-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            color: #1a5276;
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-family: 'Hello Headline', Arial, sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            text-decoration: none;
+            transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+         }
+         .error-home-btn svg {
+            width: 18px; height: 18px;
+            fill: currentColor;
+         }
+         .error-home-btn:hover {
+            background: #e2793b;
+            color: #fff;
+            transform: scale(1.05);
+         }
+         .error-home-btn:active { transform: scale(0.97); }
 
-    .logo {
-      width: 150px;
-      border-radius: 0px;
-    }
+         /* ===== Dark mode ===== */
+         body.dark {
+            background: #191d25 !important;
+            color: #dbeafe !important;
+         }
+         body.dark .top-nav a { color: #fbbf24 !important; }
+         body.dark .error-text { color: #dbeafe; }
+         body.dark .error-code { color: #fbbf24; }
+         body.dark .error-home-btn {
+            background: #394867;
+            color: #fbbf24;
+         }
+         body.dark .error-home-btn:hover {
+            background: #fbbf24;
+            color: #191d25;
+         }
 
-    .nav {
-      display: flex;
-      list-style: none;
-    }
+         /* ===== Dark mode toggle ===== */
+         .darkmode-toggle {
+            background: none; border: none; cursor: pointer;
+            border-radius: 50%; margin-left: 8px;
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            outline: none; padding: 2px; transition: background 0.2s;
+         }
+         .darkmode-toggle:focus, .darkmode-toggle:hover { background: rgba(128,128,128,0.12); }
+         .darkmode-toggle svg { width: 24px; height: 24px; display: block; pointer-events: none; }
+         .dark .darkmode-toggle .sun { display: none; }
+         .dark .darkmode-toggle .moon { display: block; }
+         .darkmode-toggle .moon { display: none; }
+         .darkmode-toggle .sun { display: block; }
 
-    .nav li {
-      margin-left: 20px;
-    }
-
-    .nav a {
-      text-decoration: none;
-      color: #ffffff;
-      font-weight: bold;
-    }
-
-    .dark .nav a {
-      color: #fbbf24;
-    }
-
-    /* Dark mode styles */
-    body.dark {
-      background: #191d25 !important;
-      color: #dbeafe !important;
-    }
-
-    /* Dark mode toggle button */
-    .darkmode-toggle {
-      background: none;
-      border: none;
-      cursor: pointer;
-      border-radius: 50%;
-      margin-left: 8px;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      outline: none;
-      padding: 2px;
-      transition: background 0.2s;
-    }
-
-    .darkmode-toggle:focus, .darkmode-toggle:hover {
-      background: rgba(128,128,128,0.12);
-    }
-
-    .darkmode-toggle svg {
-      width: 24px;
-      height: 24px;
-      display: block;
-      pointer-events: none;
-    }
-
-    .dark .darkmode-toggle .sun {
-      display: none;
-    }
-
-    .dark .darkmode-toggle .moon {
-      display: block;
-    }
-
-    .darkmode-toggle .moon {
-      display: none;
-    }
-
-    .darkmode-toggle .sun {
-      display: block;
-    }
-
-    /* Apply dark mode to the .container and .error class */
-    .dark .error {
-      background-color: #191d25;
-    }
-
-    /* Responsive styles */
-    @media (max-width: 768px) {
-      .header {
-        flex-direction: column;
-      }
-
-      .nav {
-        margin-top: 20px;
-      }
-
-      .main {
-        flex-direction: column;
-      }
-
-      .main-left,
-      .main-right {
-        width: 100%;
-      }
-
-      .main-right {
-        margin-top: 20px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <img src="https://www.themoviedb.org/t/p/original/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
-      <ul class="nav">
-        <li><a href="/">Home</a></li>
-        <li><a href="/watch">Watch</a></li>
-        <li><a href="/music">Music</a></li>
-        <li><a href="/audiobooks">Audio Books</a></li>
-        <li><a href="/download">App</a></li>
-        <!-- Dark mode toggle -->
-        <li>
-          <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
-            <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="5"/>
-              <g>
-                <line x1="12" y1="1" x2="12" y2="3"/>
-                <line x1="12" y1="21" x2="12" y2="23"/>
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                <line x1="1" y1="12" x2="3" y2="12"/>
-                <line x1="21" y1="12" x2="23" y2="12"/>
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-              </g>
+         /* ===== Responsive ===== */
+         @media (max-width: 768px) {
+            .error img { width: 220px; }
+            .error-code { font-size: 56px; }
+            .error-text { font-size: 18px; }
+         }
+         @media (max-width: 600px) {
+            .top-nav { padding: 10px 16px; justify-content: space-between; }
+            .hamburger-btn { display: block; }
+            .nav-links {
+               display: none;
+               position: fixed;
+               top: 0; left: 0;
+               width: 220px; height: 100vh;
+               background: #5a9fc6;
+               flex-direction: column;
+               padding: 60px 24px 24px;
+               gap: 20px;
+               z-index: 1000;
+               box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+            }
+            body.dark .nav-links { background: #191d25; }
+            .nav-links.open { display: flex; }
+            .nav-links a { font-size: 18px; }
+            .nav-links .darkmode-toggle { align-self: flex-start; }
+         }
+      </style>
+   </head>
+   <body>
+      <!-- Top Navigation -->
+      <nav class="top-nav">
+         <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+               <line x1="3" y1="6" x2="21" y2="6"/>
+               <line x1="3" y1="12" x2="21" y2="12"/>
+               <line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
-            <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-            </svg>
-          </button>
-        </li>
-      </ul>
-    </div>
-    <div class="error">
-      <img src="/404-image.png" alt="Logo">
-      <p>Page Not Found</p>
-    </div>
-  </div>
+         </button>
+         <div class="nav-links" id="navLinks">
+            <a href="/">Home</a>
+            <a href="/watch">Watch</a>
+            <a href="/music">Music</a>
+            <a href="/listen">Listen</a>
+            <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+               <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="5"/>
+                  <g>
+                     <line x1="12" y1="1" x2="12" y2="3"/>
+                     <line x1="12" y1="21" x2="12" y2="23"/>
+                     <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                     <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                     <line x1="1" y1="12" x2="3" y2="12"/>
+                     <line x1="21" y1="12" x2="23" y2="12"/>
+                     <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                     <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                  </g>
+               </svg>
+               <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+               </svg>
+            </button>
+         </div>
+      </nav>
+      <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
 
-  <!-- Dark mode script -->
-  <script>
-    const themeKey = "bluey-site-theme";
-    const root = document.body;
-    const darkToggle = document.getElementById("darkToggle");
+      <!-- 404 content -->
+      <div class="error">
+         <img src="/404-image.png" alt="Bluey 404">
+         <div class="error-code">404</div>
+         <div class="error-text">Uh-oh! This page has gone on an adventure.</div>
+         <a href="/" class="error-home-btn">
+            <svg viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-4v-6h-4v6H6v-9H3z"/></svg>
+            Go Home
+         </a>
+      </div>
 
-    function setTheme(dark) {
-      if (dark) {
-        root.classList.add('dark');
-        localStorage.setItem(themeKey, "dark");
-      } else {
-        root.classList.remove('dark');
-        localStorage.setItem(themeKey, "light");
-      }
-    }
+      <script>
+         // Hamburger menu (mobile)
+         const hamburgerBtn = document.getElementById('hamburgerBtn');
+         const navLinks = document.getElementById('navLinks');
+         const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+         hamburgerBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('open');
+            mobileMenuOverlay.classList.toggle('open');
+         });
+         mobileMenuOverlay.addEventListener('click', () => {
+            navLinks.classList.remove('open');
+            mobileMenuOverlay.classList.remove('open');
+         });
 
-    (() => {
-      const saved = localStorage.getItem(themeKey);
-      if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-        setTheme(true);
-      } else {
-        setTheme(false);
-      }
-    })();
-
-    darkToggle.onclick = () => setTheme(!root.classList.contains('dark'));
-  </script>
-</body>
+         // Dark mode logic (shared across site)
+         const themeKey = "bluey-site-theme";
+         const root = document.body;
+         const darkToggle = document.getElementById("darkToggle");
+         function setTheme(dark) {
+            if (dark) { root.classList.add('dark'); localStorage.setItem(themeKey, "dark"); }
+            else { root.classList.remove('dark'); localStorage.setItem(themeKey, "light"); }
+         }
+         (() => {
+            const saved = localStorage.getItem(themeKey);
+            if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+               setTheme(true);
+            } else {
+               setTheme(false);
+            }
+         })();
+         darkToggle.onclick = () => setTheme(!root.classList.contains('dark'));
+      </script>
+   </body>
 </html>

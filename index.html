@@ -1,348 +1,619 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Home</title>
-  <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
-  <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
-  <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bitmovin-player@8/bitmovinplayer.js"></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "Hello Headline", Arial, sans-serif !important; background-color: #87c0e8 !important; transition: background 0.3s, color 0.3s;}
-    .header { display: flex; align-items: center; justify-content: space-between; padding: 20px; position: relative; z-index: 10000; }
-    .logo { width: 150px; border-radius: 0px; }
-    .nav { display: flex; list-style: none; }
-    .nav li { margin-left: 20px; display: flex; align-items: center; }
-    .nav a { text-decoration: none; color: #ffffff; font-weight: bold; }
-    .dark .nav a { color: #fbbf24; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-    .main-content { display: block; }
-    .player-wrapper { width: 90%; margin: 20px auto; box-shadow: 0 0 30px rgba(0,0,0,0.7); }
-    #player { width: 100%; height: auto; background-color: #000; }
-    .epg-container { margin-top: 20px; background-color: #ffffff; color: #000; padding: 15px; border-radius: 10px; max-height: 300px; overflow-y: auto; transition: background 0.3s, color 0.3s;}
-    .epg-container h2 { text-align: center; margin-bottom: 15px; font-family: "Hello Headline", sans-serif; }
-    .epg-container table { width: 100%; border-collapse: collapse; }
-    .epg-container th, .epg-container td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
-    .now-playing-row { background-color: #d1ffd1; }
-    @media only screen and (orientation: landscape) {
-      .main-content { display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start; }
-      .player-wrapper, .epg-container { flex: 1; }
-      .player-wrapper { margin-right: 20px; }
-      .epg-container { margin-left: 20px; }
-      .bmpui-ui-watermark { display: none; }
-    }
-    @media (max-width: 768px) {
-      .header { flex-direction: column; }
-      .nav { margin-top: 20px; }
-    }
-    /* --- Dark mode styles --- */
-    body.dark {
-      background: #191d25 !important;
-      color: #dbeafe !important;
-    }
-    body.dark .epg-container { background: #23293a; color: #dbeafe; }
-    body.dark .now-playing-row { background: #32436a !important; }
-    /* --- Dark mode toggle button in nav --- */
-    .darkmode-toggle {
-      background: none;
-      border: none;
-      cursor: pointer;
-      border-radius: 50%;
-      margin-left: 8px;
-      width: 36px; height: 36px;
-      display: flex; align-items: center; justify-content: center;
-      outline: none;
-      transition: background 0.2s;
-      padding: 2px;
-    }
-    .darkmode-toggle:focus, .darkmode-toggle:hover {
-      background: rgba(128,128,128,0.12);
-    }
-    .darkmode-toggle svg { width: 24px; height: 24px; display: block; pointer-events: none; }
-    .dark .darkmode-toggle .sun { display: none; }
-    .dark .darkmode-toggle .moon { display: block; }
-    .darkmode-toggle .moon { display: none; }
-    .darkmode-toggle .sun { display: block; }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <img src="/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo">
-    <ul class="nav">
-      <li><a href="/">Home</a></li>
-      <li><a href="/watch">Watch</a></li>
-      <li><a href="/music">Music</a></li>
-      <li><a href="/listen">Listen</a></li>
-      <!-- Dark mode toggle (last in nav) -->
-      <li>
-        <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
-          <!-- Sun: white on light mode -->
-          <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="5"/>
-            <g>
-              <line x1="12" y1="1" x2="12" y2="3"/>
-              <line x1="12" y1="21" x2="12" y2="23"/>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-              <line x1="1" y1="12" x2="3" y2="12"/>
-              <line x1="21" y1="12" x2="23" y2="12"/>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-            </g>
-          </svg>
-          <!-- Moon: yellow in dark mode -->
-          <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-          </svg>
-        </button>
-      </li>
-    </ul>
-  </div>
-  <div class="container">
-    <div class="main-content">
-      <div class="player-wrapper">
-        <div id="player"></div>
-      </div>
-      <div class="epg-container">
-        <h2>Now Playing & Upcoming</h2>
-        <table id="epgTable">
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>Episode</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- EPG rows will be injected here -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  <script>
-    // Dark mode setup
-    const themeKey = "bluey-site-theme";
-    const root = document.body;
-    const darkToggle = document.getElementById("darkToggle");
-    function setTheme(dark) {
-      if (dark) {
-        root.classList.add('dark');
-        localStorage.setItem(themeKey, "dark");
-      } else {
-        root.classList.remove('dark');
-        localStorage.setItem(themeKey, "light");
-      }
-    }
-    (() => {
-      const saved = localStorage.getItem(themeKey);
-      if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-        setTheme(true);
-      } else {
-        setTheme(false);
-      }
-    })();
-    darkToggle.onclick = () => setTheme(!root.classList.contains('dark'));
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Home</title>
+      <link rel="icon" href="/bluey-star.ico" type="image/x-icon">
+      <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
+      <style>
+         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    // ---- CONFIG ----
-    const serverUrl = "https://blueynet.org:443";
-    const apiKey = "6b2548952ea2439ea800b8cd3f1072d1";
-    const itemId = "11";
-    let allEpisodes = [];
-    let epgSchedule = [];
-    let player = null;
-    let currentEpisodeIndex = 0;
-    let epgWindowSize = 5; // EPG shows "now" + next 4
-    let durationDefault = 420; // 7 min default if unknown
+         body {
+            font-family: "Hello Headline", Arial, sans-serif !important;
+            background-color: #87c0e8 !important;
+            color: #fff;
+            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+            overflow-x: hidden;
+         }
 
-    // Bitmovin config
-    const conf = {
-      key: '1a69b597-a4b2-4bf7-99ba-bd417397c111',
-      cast: { enable: true },
-      remotecontrol: {
-        type: 'googlecast',
-        customReceiverConfig: {
-          receiverStylesheetUrl: 'https://pages.blueynet.org/episodes-chromecast.css'
-        }
-      }
-    };
+         /* ===== TOP NAV BAR ===== */
+         .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 12px 30px;
+            gap: 20px;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 5000;
+         }
+         .top-nav a {
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+         }
+         .top-nav a:hover { color: #e0e0e0; }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      player = new bitmovin.player.Player(document.getElementById('player'), conf);
-      fetchAllEpisodes();
-      // Set up event for auto-next
-      player.on(bitmovin.player.PlayerEvent.PlaybackFinished, playNextEpisode);
-    });
+         .hamburger-btn {
+            display: none;
+            background: none; border: none; cursor: pointer;
+            padding: 6px; z-index: 1001;
+         }
+         .hamburger-btn svg { width: 28px; height: 28px; stroke: #fff; }
+         body.dark .hamburger-btn svg { stroke: #fbbf24; }
+         .nav-links { display: contents; }
 
-    // Shuffle utility
-    function shuffleArray(array) {
-      let a = array.slice();
-      for (let i = a.length - 1; i > 0; i--) {
-        let j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
+         .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+         }
+         .mobile-menu-overlay.open { display: block; }
 
-    // Fetch and flatten all episodes
-    function fetchAllEpisodes() {
-      fetch(`${serverUrl}/emby/Shows/${itemId}/Seasons?api_key=${apiKey}`)
-        .then(response => response.json())
-        .then(seasons => {
-          let seasonIds = seasons.Items.map(s => s.Id);
-          let promises = seasonIds.map(id =>
-            fetch(`${serverUrl}/emby/Shows/${itemId}/Episodes?SeasonId=${id}&api_key=${apiKey}&Fields=Overview,RunTimeTicks`)
-              .then(r => r.json())
-              .then(data => data.Items)
-          );
-          Promise.all(promises).then(results => {
-            allEpisodes = results.flat();
-            if (allEpisodes.length === 0) {
-              alert("No episodes found!");
-              return;
+         /* ===== Hero ===== */
+         .hero {
+            position: relative;
+            height: 55vh;
+            min-height: 340px;
+            max-height: 560px;
+            background: radial-gradient(ellipse at center, #a8d5f0 0%, #5a9fd6 70%, #3d7fb8 100%);
+            display: flex;
+            align-items: flex-end;
+            padding: 60px 50px 80px;
+            overflow: hidden;
+         }
+         .hero::after {
+            content: '';
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            height: 65%;
+            z-index: 1;
+            background: linear-gradient(to bottom,
+               transparent 0%,
+               rgba(135,192,232,0.4) 40%,
+               rgba(135,192,232,0.85) 80%,
+               #87c0e8 100%);
+            pointer-events: none;
+         }
+         body.dark .hero::after {
+            background: linear-gradient(to bottom,
+               transparent 0%,
+               rgba(25,29,37,0.4) 40%,
+               rgba(25,29,37,0.85) 80%,
+               #191d25 100%);
+         }
+         .hero-logo {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            z-index: 0;
+         }
+         .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 520px;
+         }
+         .hero-title {
+            font-family: 'Hello Headline', Arial, sans-serif;
+            font-size: 44px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+         }
+         .hero-desc {
+            font-size: 16px;
+            color: #fff;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.5);
+         }
+         .hero-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            color: #1a5276;
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-family: 'Hello Headline', Arial, sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            text-decoration: none;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+            transition: transform 0.2s, background 0.2s, color 0.2s;
+         }
+         .hero-btn svg { width: 16px; height: 16px; fill: currentColor; }
+         .hero-btn:hover {
+            background: #e2793b;
+            color: #fff;
+            transform: scale(1.05);
+         }
+         body.dark .hero-btn { background: #394867; color: #fbbf24; }
+         body.dark .hero-btn:hover { background: #fbbf24; color: #191d25; }
+
+         /* ===== Category rows ===== */
+         .category {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 10px 20px 20px;
+         }
+         .category-title {
+            font-family: 'Hello Headline', Arial, sans-serif;
+            font-size: 26px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 14px;
+            padding-left: 6px;
+         }
+         body.dark .category-title { color: #fbbf24; }
+
+         /* ===== Poster cards (episodes / specials) ===== */
+         .poster-row {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            overflow-y: visible;
+            padding: 20px 6px 30px;
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.35) transparent;
+         }
+         .poster-row::-webkit-scrollbar { height: 7px; }
+         .poster-row::-webkit-scrollbar-track { background: transparent; }
+         .poster-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.35); border-radius: 4px; }
+
+         .poster-card {
+            position: relative;
+            flex: 0 0 auto;
+            width: 200px;
+            border-radius: 10px;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            background: rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+         }
+         .poster-img {
+            display: block;
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+         }
+         .poster-info {
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            padding: 14px 12px 12px;
+            background: linear-gradient(to top,
+               rgba(0,0,0,0.95) 0%,
+               rgba(0,0,0,0.8) 40%,
+               rgba(0,0,0,0.45) 75%,
+               transparent 100%);
+            color: #fff;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            pointer-events: none;
+         }
+         .poster-info-title {
+            font-family: 'Hello Headline', Arial, sans-serif;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+         }
+         .poster-info-sub {
+            font-size: 12px;
+            color: #ddd;
+            line-height: 1.4;
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+         }
+         .poster-info-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fff;
+            color: #111;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-family: 'Hello Headline', Arial, sans-serif;
+            font-weight: bold;
+            font-size: 12px;
+         }
+         .poster-info-btn svg { width: 12px; height: 12px; fill: currentColor; }
+
+         @media (hover: hover) and (pointer: fine) {
+            .poster-card:hover {
+               transform: scale(1.06);
+               box-shadow: 0 12px 34px rgba(0,0,0,0.45);
+               z-index: 5;
             }
-            startShuffleChannel();
-          });
-        });
-    }
-
-    // Setup playlist and EPG
-    function startShuffleChannel() {
-      epgSchedule = shuffleArray(allEpisodes);
-      currentEpisodeIndex = Math.floor(Math.random() * epgSchedule.length);
-      playCurrentEpisode();
-      updateEPGTable();
-    }
-
-    // Play current ep (FORCE SUBS ON)
-    function playCurrentEpisode(seekTime) {
-      let episode = epgSchedule[currentEpisodeIndex];
-      if (!episode) return;
-
-      const epname = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
-      const posterUrl = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
-      const timestamp = new Date().getTime();
-
-      fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources&t=${timestamp}`)
-        .then(response => response.json())
-        .then(playbackInfo => {
-          const mediaSourceId = playbackInfo.MediaSources[0].Id;
-          const PlaySessionId = playbackInfo.PlaySessionId;
-          const VideoBitRate = playbackInfo.MediaSources[0].MediaStreams[0].BitRate;
-          const AudioBitRate = playbackInfo.MediaSources[0].MediaStreams[1].BitRate;
-          const hls = `${serverUrl}/emby/videos/${episode.Id}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${PlaySessionId}&api_key=${apiKey}&VideoCodec=h264,h265,hevc&AudioCodec=mp3,aac&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}&AudioStreamIndex=1&TranscodingMaxAudioChannels=2&SegmentContainer=m4s,ts&MinSegments=2&BreakOnNonKeyFrames=True&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&hevc-codectag=hvc1&TranscodeReasons=ContainerBitrateExceedsLimit`;
-
-          player.load({
-            title: epname,
-            hls: hls,
-            poster: posterUrl
-          }).then(() => {
-            // --- FORCE ENGLISH SUBTITLE ON ---
-            const enSubtitle = {
-              id: "sub1",
-              lang: "en",
-              label: "English",
-              url: `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/2/0/Stream.vtt?api_key=${apiKey}`,
-              kind: "subtitle"
-            };
-            player.subtitles.add(enSubtitle);
-            setTimeout(() => {
-              let subsList = player.subtitles.list();
-              let idx = subsList.findIndex(sub => sub.lang === 'en');
-              if (idx !== -1) player.subtitles.set(idx);
-            }, 700);
-            // --- END FORCE SUBTITLE ---
-            if (typeof seekTime === "number") {
-              player.seek(seekTime);
+            .poster-card:hover .poster-info {
+               opacity: 1;
+               transform: translateY(0);
+               pointer-events: auto;
             }
-            player.play();
-          });
+         }
+         @media (hover: none), (pointer: coarse) {
+            .poster-card:active { transform: scale(0.97); }
+            .poster-info { display: none; }
+         }
 
-          // Media Session API for hardware buttons
-          if ('mediaSession' in navigator) {
-            navigator.mediaSession.metadata = new window.MediaMetadata({
-              title: epname,
-              artist: "Bluey",
-              album: `Season ${episode.ParentIndexNumber}`,
-              artwork: [{ src: posterUrl, sizes: '1920x1080', type: 'image/png' }]
+         /* Featured episodes — 16:9 landscape thumbs */
+         #featuredEpisodes .poster-card { width: 300px; }
+         #featuredEpisodes .poster-img {
+            height: auto;
+            aspect-ratio: 16 / 9;
+         }
+
+         /* ===== Album cards (Spotify-style square) ===== */
+         .album-row {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            overflow-y: visible;
+            padding: 10px 6px 30px;
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.35) transparent;
+         }
+         .album-row::-webkit-scrollbar { height: 7px; }
+         .album-row::-webkit-scrollbar-track { background: transparent; }
+         .album-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.35); border-radius: 4px; }
+
+         .album-card {
+            flex: 0 0 auto;
+            width: 180px;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: transform 0.2s ease;
+            cursor: pointer;
+         }
+         .album-card-img-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+            background: rgba(0,0,0,0.15);
+         }
+         .album-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+         }
+         .album-card-title {
+            margin-top: 12px;
+            font-family: 'Hello Headline', Arial, sans-serif;
+            font-size: 15px;
+            font-weight: bold;
+            color: #fff;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+         }
+         .album-card-artist {
+            margin-top: 4px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+         }
+         body.dark .album-card-title { color: #fbbf24; }
+         body.dark .album-card-artist { color: rgba(219,234,254,0.65); }
+
+         @media (hover: hover) and (pointer: fine) {
+            .album-card:hover { transform: scale(1.04); }
+            .album-card:hover .album-card-title { color: #ffe8a8; }
+            body.dark .album-card:hover .album-card-title { color: #ffd700; }
+         }
+         @media (hover: none), (pointer: coarse) {
+            .album-card:active { transform: scale(0.97); }
+         }
+
+         /* ===== Dark mode ===== */
+         body.dark {
+            background: #191d25 !important;
+            color: #dbeafe !important;
+         }
+         body.dark .top-nav a { color: #fbbf24 !important; }
+         body.dark .hero {
+            background: radial-gradient(ellipse at center, #2a3447 0%, #1a1f2c 70%, #0f131a 100%);
+         }
+
+         /* ===== Dark mode toggle ===== */
+         .darkmode-toggle {
+            background: none; border: none; cursor: pointer;
+            border-radius: 50%; margin-left: 8px;
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            outline: none; padding: 2px; transition: background 0.2s;
+         }
+         .darkmode-toggle:focus, .darkmode-toggle:hover { background: rgba(128,128,128,0.12); }
+         .darkmode-toggle svg { width: 24px; height: 24px; display: block; pointer-events: none; }
+         .dark .darkmode-toggle .sun { display: none; }
+         .dark .darkmode-toggle .moon { display: block; }
+         .darkmode-toggle .moon { display: none; }
+         .darkmode-toggle .sun { display: block; }
+
+         /* ===== Loading skeleton ===== */
+         .poster-card.skeleton,
+         .album-card.skeleton {
+            pointer-events: none;
+         }
+         .poster-card.skeleton .poster-img,
+         .album-card.skeleton .album-card-img-wrap {
+            background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0.1) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+         }
+         @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+         }
+
+         /* ===== Responsive ===== */
+         @media (max-width: 768px) {
+            .hero { height: 50vh; min-height: 300px; padding: 40px 24px 80px; }
+            .hero::after { height: 85%; }
+            .hero-title { font-size: 32px; }
+            .hero-desc { font-size: 14px; }
+            .category { padding: 8px 14px 16px; }
+            .category-title { font-size: 22px; }
+            .poster-card { width: 150px; }
+            .poster-img { height: 215px; }
+            #featuredEpisodes .poster-card { width: 240px; }
+            .album-card { width: 140px; }
+         }
+         @media (max-width: 600px) {
+            .top-nav { padding: 10px 16px; justify-content: space-between; }
+            .hamburger-btn { display: block; }
+            .nav-links {
+               display: none;
+               position: fixed;
+               top: 0; left: 0;
+               width: 220px; height: 100vh;
+               background: #5a9fc6;
+               flex-direction: column;
+               padding: 60px 24px 24px;
+               gap: 20px;
+               z-index: 1000;
+               box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+            }
+            body.dark .nav-links { background: #191d25; }
+            .nav-links.open { display: flex; }
+            .nav-links a { font-size: 18px; }
+            .nav-links .darkmode-toggle { align-self: flex-start; }
+         }
+         @media (max-width: 480px) {
+            .poster-card { width: 130px; }
+            .poster-img { height: 185px; }
+            #featuredEpisodes .poster-card { width: 200px; }
+            .album-card { width: 125px; }
+         }
+      </style>
+   </head>
+   <body>
+      <!-- Top Navigation -->
+      <nav class="top-nav">
+         <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+               <line x1="3" y1="6" x2="21" y2="6"/>
+               <line x1="3" y1="12" x2="21" y2="12"/>
+               <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+         </button>
+         <div class="nav-links" id="navLinks">
+            <a href="/">Home</a>
+            <a href="/watch">Watch</a>
+            <a href="/music">Music</a>
+            <a href="/audiobooks">Audio Books</a>
+            <a href="/download">App</a>
+            <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+               <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="5"/>
+                  <g>
+                     <line x1="12" y1="1" x2="12" y2="3"/>
+                     <line x1="12" y1="21" x2="12" y2="23"/>
+                     <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                     <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                     <line x1="1" y1="12" x2="3" y2="12"/>
+                     <line x1="21" y1="12" x2="23" y2="12"/>
+                     <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                     <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                  </g>
+               </svg>
+               <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+               </svg>
+            </button>
+         </div>
+      </nav>
+      <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+      <!-- Hero -->
+      <div class="hero">
+         <img src="https://www.bluey.tv/wp-content/uploads/2022/04/S3-family-image.jpeg" alt="Bluey" class="hero-logo">
+         <div class="hero-content">
+            <h1 class="hero-title">Welcome to Bluey's World</h1>
+            <p class="hero-desc">Watch every episode, listen to the music, and enjoy the Bluey world all in one place.</p>
+            <a href="/watch" class="hero-btn">
+               <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+               Start Watching
+            </a>
+         </div>
+      </div>
+
+      <!-- Featured Episodes -->
+      <div class="category">
+         <h2 class="category-title">Featured Episodes</h2>
+         <div class="poster-row" id="featuredEpisodes">
+            <!-- Placeholder cards while loading -->
+            <div class="poster-card skeleton"><div class="poster-img"></div></div>
+            <div class="poster-card skeleton"><div class="poster-img"></div></div>
+            <div class="poster-card skeleton"><div class="poster-img"></div></div>
+            <div class="poster-card skeleton"><div class="poster-img"></div></div>
+            <div class="poster-card skeleton"><div class="poster-img"></div></div>
+         </div>
+      </div>
+
+      <!-- Music -->
+      <div class="category">
+         <h2 class="category-title">Music</h2>
+         <div class="album-row">
+            <a class="album-card" href="/music/bluey-the-album">
+               <div class="album-card-img-wrap"><img src="/images/Bluey-The-Album.jpg" alt="Bluey The Album" loading="lazy"></div>
+               <div class="album-card-title">Bluey The Album</div>
+               <div class="album-card-artist">Bluey, Joff Bush</div>
+            </a>
+            <a class="album-card" href="/music/dance-mode">
+               <div class="album-card-img-wrap"><img src="/images/ab67616d0000b2731ccfea3f92d87379bcd39489.jpg" alt="Dance Mode!" loading="lazy"></div>
+               <div class="album-card-title">Dance Mode!</div>
+               <div class="album-card-artist">Bluey, Joff Bush</div>
+            </a>
+            <a class="album-card" href="/music/rug-island">
+               <div class="album-card-img-wrap"><img src="/images/Bluey_Rug-Island_Digital-Single_Rug-Island-scaled.jpg" alt="Rug Island" loading="lazy"></div>
+               <div class="album-card-title">Rug Island</div>
+               <div class="album-card-artist">Bluey, Joff Bush</div>
+            </a>
+            <a class="album-card" href="/music/up-here">
+               <div class="album-card-img-wrap"><img src="https://resources.tidal.com/images/fff999ca/3c7e/4430/ba5c/ba1a21668c27/1280x1280.jpg" alt="Up Here" loading="lazy"></div>
+               <div class="album-card-title">Up Here (The Orchestral Album)</div>
+               <div class="album-card-artist">Bluey, Joff Bush</div>
+            </a>
+         </div>
+      </div>
+
+      <!-- Specials -->
+      <div class="category">
+         <h2 class="category-title">Specials</h2>
+         <div class="poster-row">
+            <a class="poster-card" href="/watch/blueys-big-play">
+               <img class="poster-img" src="/images/X0_67ec7a2ace7cb_2000.webp" alt="Bluey's Big Play" loading="lazy">
+               <div class="poster-info">
+                  <div class="poster-info-title">Bluey's Big Play</div>
+                  <div class="poster-info-sub">Bluey and Bingo pull out all the stops to try to get Dad off his phone in their first live stage show, brought to life by brilliant puppets and featuring brand new original music.</div>
+                  <span class="poster-info-btn">
+                     <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                     Watch Now
+                  </span>
+               </div>
+            </a>
+         </div>
+      </div>
+
+      <script>
+         /* ============ Hamburger menu ============ */
+         const hamburgerBtn = document.getElementById('hamburgerBtn');
+         const navLinks = document.getElementById('navLinks');
+         const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+         hamburgerBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('open');
+            mobileMenuOverlay.classList.toggle('open');
+         });
+         mobileMenuOverlay.addEventListener('click', () => {
+            navLinks.classList.remove('open');
+            mobileMenuOverlay.classList.remove('open');
+         });
+
+         /* ============ Dark mode ============ */
+         const themeKey = "bluey-site-theme";
+         const root = document.body;
+         const darkToggle = document.getElementById("darkToggle");
+         function setTheme(dark) {
+            if (dark) { root.classList.add('dark'); localStorage.setItem(themeKey, "dark"); }
+            else { root.classList.remove('dark'); localStorage.setItem(themeKey, "light"); }
+         }
+         (() => {
+            const saved = localStorage.getItem(themeKey);
+            if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+               setTheme(true);
+            } else {
+               setTheme(false);
+            }
+         })();
+         darkToggle.onclick = () => setTheme(!root.classList.contains('dark'));
+
+         /* ============ CONFIG ============ */
+         const serverUrl = "https://blueynet.org:443";
+         const apiKey = "6b2548952ea2439ea800b8cd3f1072d1";
+         const itemId = "11";
+         let allEpisodes = [];
+
+         document.addEventListener("DOMContentLoaded", fetchAllEpisodes);
+
+         function shuffleArray(array) {
+            let a = array.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+               let j = Math.floor(Math.random() * (i + 1));
+               [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+         }
+
+         function fetchAllEpisodes() {
+            fetch(`${serverUrl}/emby/Shows/${itemId}/Seasons?api_key=${apiKey}`)
+               .then(r => r.json())
+               .then(seasons => {
+                  const seasonIds = seasons.Items.map(s => s.Id);
+                  const promises = seasonIds.map(id =>
+                     fetch(`${serverUrl}/emby/Shows/${itemId}/Episodes?SeasonId=${id}&api_key=${apiKey}&Fields=Overview,RunTimeTicks`)
+                        .then(r => r.json())
+                        .then(data => data.Items)
+                  );
+                  Promise.all(promises).then(results => {
+                     allEpisodes = results.flat();
+                     if (allEpisodes.length === 0) return;
+                     renderFeaturedEpisodes();
+                  });
+               })
+               .catch(err => { console.warn('Failed to load episodes:', err); });
+         }
+
+         /* ============ Featured Episodes row ============ */
+         function renderFeaturedEpisodes() {
+            const container = document.getElementById('featuredEpisodes');
+            if (!container) return;
+            const picks = shuffleArray(allEpisodes).slice(0, 12);
+            container.innerHTML = '';
+            picks.forEach(ep => {
+               const poster = `${serverUrl}/emby/Items/${ep.Id}/Images/Primary?api_key=${apiKey}`;
+               const niceTitle = `S${ep.ParentIndexNumber}E${ep.IndexNumber}: ${ep.Name}`;
+               const overview = (ep.Overview || '').replace(/"/g, '&quot;');
+               const deepLink = `/watch/episodes?s${ep.ParentIndexNumber}e${ep.IndexNumber}`;
+               const a = document.createElement('a');
+               a.className = 'poster-card';
+               a.href = deepLink;
+               a.innerHTML = `
+                  <img class="poster-img" src="${poster}" alt="${niceTitle}" loading="lazy">
+                  <div class="poster-info">
+                     <div class="poster-info-title">${niceTitle}</div>
+                     <div class="poster-info-sub">${overview}</div>
+                     <span class="poster-info-btn">
+                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        Watch
+                     </span>
+                  </div>`;
+               container.appendChild(a);
             });
-
-            navigator.mediaSession.setActionHandler('nexttrack', playNextEpisode);
-            navigator.mediaSession.setActionHandler('previoustrack', playPrevEpisode);
-          }
-        });
-
-      updateEPGTable();
-    }
-
-    // Next/Prev logic, with auto-reshuffle
-    function playNextEpisode() {
-      currentEpisodeIndex++;
-      if (currentEpisodeIndex >= epgSchedule.length) {
-        epgSchedule = shuffleArray(allEpisodes);
-        currentEpisodeIndex = 0;
-      }
-      playCurrentEpisode();
-    }
-
-    function playPrevEpisode() {
-      currentEpisodeIndex--;
-      if (currentEpisodeIndex < 0) {
-        epgSchedule = shuffleArray(allEpisodes);
-        currentEpisodeIndex = 0;
-      }
-      playCurrentEpisode();
-    }
-
-    // EPG Table UI
-    function updateEPGTable() {
-      let tbody = document.querySelector('#epgTable tbody');
-      tbody.innerHTML = "";
-
-      let now = new Date();
-      let currentTime = now.getTime();
-      let idx = currentEpisodeIndex;
-      let rows = [];
-
-      for (let i = 0; i < epgWindowSize; i++) {
-        let ep = epgSchedule[(idx + i) % epgSchedule.length];
-        let duration = (ep.RunTimeTicks ? ep.RunTimeTicks / 10000000 : durationDefault); // seconds
-        let rowTime = new Date(currentTime);
-
-        let timeStr = rowTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-        rows.push({
-          time: timeStr,
-          name: `S${ep.ParentIndexNumber}E${ep.IndexNumber}: ${ep.Name}`,
-          isCurrent: (i === 0)
-        });
-
-        currentTime += duration * 1000;
-      }
-
-      rows.forEach(row => {
-        let tr = document.createElement("tr");
-        if (row.isCurrent) tr.classList.add("now-playing-row");
-        let td1 = document.createElement("td"); td1.textContent = row.time;
-        let td2 = document.createElement("td"); td2.textContent = row.name;
-        tr.appendChild(td1); tr.appendChild(td2);
-        tbody.appendChild(tr);
-      });
-    }
-
-    // Fullscreen orientation lock
-    document.addEventListener('fullscreenchange', () => {
-      if (document.fullscreenElement) {
-        screen.orientation
-          .lock('landscape')
-          .catch(err => {});
-      } else {
-        if (screen.orientation.unlock) {
-          screen.orientation.unlock();
-        }
-      }
-    });
-  </script>
-</body>
+         }
+      </script>
+   </body>
 </html>

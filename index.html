@@ -253,12 +253,41 @@
             .poster-info { display: none; }
          }
 
-         /* Featured episodes — 16:9 landscape thumbs */
-         #featuredEpisodes .poster-card { width: 300px; }
-         #featuredEpisodes .poster-img {
-            height: auto;
-            aspect-ratio: 16 / 9;
+         /* Featured episodes — 16:9 landscape thumb with title below */
+         #featuredEpisodes .poster-card {
+            width: 300px;
+            overflow: visible;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
          }
+         #featuredEpisodes .ep-card-media {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            background: rgba(0,0,0,0.15);
+         }
+         #featuredEpisodes .poster-img {
+            width: 100%;
+            height: 100%;
+            aspect-ratio: auto;
+         }
+         #featuredEpisodes .ep-card-label {
+            margin-top: 10px;
+            font-family: 'Hello Headline', Arial, sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+         }
+         body.dark #featuredEpisodes .ep-card-label { color: #dbeafe; }
 
          /* ===== Album cards (Spotify-style square) ===== */
          .album-row {
@@ -601,15 +630,17 @@
                a.className = 'poster-card';
                a.href = deepLink;
                a.innerHTML = `
-                  <img class="poster-img" src="${poster}" alt="${niceTitle}" loading="lazy">
-                  <div class="poster-info">
-                     <div class="poster-info-title">${niceTitle}</div>
-                     <div class="poster-info-sub">${overview}</div>
-                     <span class="poster-info-btn">
-                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                        Watch
-                     </span>
-                  </div>`;
+                  <div class="ep-card-media">
+                     <img class="poster-img" src="${poster}" alt="${niceTitle}" loading="lazy">
+                     <div class="poster-info">
+                        <div class="poster-info-sub">${overview}</div>
+                        <span class="poster-info-btn">
+                           <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                           Watch
+                        </span>
+                     </div>
+                  </div>
+                  <div class="ep-card-label">${niceTitle}</div>`;
                container.appendChild(a);
             });
          }

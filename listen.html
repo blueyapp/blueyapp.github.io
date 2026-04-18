@@ -186,6 +186,25 @@
             object-fit: cover;
             display: block;
          }
+         .rating-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #fbbf24;
+            color: #191d25;
+            font-family: 'Hello Headline', Arial, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 5px;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+            z-index: 2;
+         }
+         body.dark .rating-badge {
+            background: #fbbf24;
+            color: #191d25;
+         }
          .album-card-title {
             margin-top: 12px;
             font-family: 'Hello Headline', Arial, sans-serif;
@@ -336,6 +355,7 @@
             <a class="album-card" href="/listen/behind-bluey">
                <div class="album-card-img-wrap">
                   <img src="https://live-production.wcms.abc-cdn.net.au/93486be7593cf1dd60324dc4fae6dfe5" alt="Behind Bluey" loading="lazy">
+                  <span class="rating-badge" title="Rated PG — may contain swearing">PG</span>
                </div>
                <div class="album-card-title">Behind Bluey</div>
             </a>

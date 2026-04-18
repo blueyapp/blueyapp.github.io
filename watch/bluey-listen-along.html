@@ -1146,7 +1146,7 @@
                 request.media.contentType = 'video/mp4';
               }
               const md = request.media.metadata || new chrome.cast.media.GenericMediaMetadata();
-              md.title = window.__castTitle || document.title || 'Bluey';
+              md.title = window.__castTitle || document.title || 'Bluey Book Reads';
               md.subtitle = window.__castSubtitle || '';
               if (window.__castPoster) { md.images = [{ url: window.__castPoster }]; }
               request.media.metadata = md;

@@ -1147,7 +1147,7 @@
                 request.media.contentType = 'video/mp4';
               }
               const md = request.media.metadata || new chrome.cast.media.GenericMediaMetadata();
-              md.title = window.__castTitle || document.title || 'Bluey';
+              md.title = window.__castTitle || document.title || 'Bluey Tunes';
               md.subtitle = window.__castSubtitle || '';
               if (window.__castPoster) { md.images = [{ url: window.__castPoster }]; }
               request.media.metadata = md;
@@ -1374,7 +1374,7 @@
         suppressEndedOnce = !!fromEnded ? false : true;
         if (nextPrepared.hls){
           window.__castTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
-          window.__castSubtitle = `Bluey | Season ${nextPrepared.episode.ParentIndexNumber}`;
+          window.__castSubtitle = `Bluey Tunes | Season ${nextPrepared.episode.ParentIndexNumber}`;
           window.__castPoster = nextPrepared.poster;
           window.__castMP4 = nextPrepared.mp4 || '';
           player.poster(nextPrepared.poster);

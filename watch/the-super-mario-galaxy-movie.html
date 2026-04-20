@@ -462,6 +462,90 @@
         z-index: 9999;
       }
       .toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
+
+      /* ===== AGE RATING BADGE + EXPIRY LINE ===== */
+      .hero-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+      .age-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 42px;
+        padding: 5px 10px;
+        background: #fbbf24;
+        color: #191d25;
+        font-family: 'Hello Headline', Arial, sans-serif;
+        font-size: 15px;
+        font-weight: bold;
+        letter-spacing: 1.5px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        cursor: help;
+      }
+      .hero-expiry {
+        font-size: 13px;
+        font-weight: bold;
+        color: #1a3a4a;
+        letter-spacing: 0.2px;
+      }
+      body.dark .hero-expiry { color: #b0c4d8; }
+
+      /* ===== ACCESS GATE (shown when outside the access window) ===== */
+      .access-gate {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        background: #87c0e8;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        text-align: center;
+        font-family: 'Hello Headline', Arial, sans-serif;
+      }
+      body.dark .access-gate { background: #0f1118; }
+      .access-gate .gate-inner { max-width: 520px; }
+      .access-gate .gate-icon {
+        width: 64px; height: 64px;
+        margin: 0 auto 18px;
+        color: #0d2f44;
+      }
+      body.dark .access-gate .gate-icon { color: #fbbf24; }
+      .access-gate .gate-title {
+        font-size: 30px;
+        color: #0d2f44;
+        margin-bottom: 14px;
+        line-height: 1.2;
+      }
+      body.dark .access-gate .gate-title { color: #fbbf24; }
+      .access-gate .gate-msg {
+        font-size: 16px;
+        color: #1a3a4a;
+        line-height: 1.6;
+        margin-bottom: 26px;
+      }
+      body.dark .access-gate .gate-msg { color: #dbeafe; }
+      .access-gate .gate-home {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #404066;
+        color: #fff;
+        padding: 12px 28px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: bold;
+        transition: background 0.2s, transform 0.15s;
+      }
+      .access-gate .gate-home:hover { background: #52527a; transform: translateY(-1px); }
+      body.dark .access-gate .gate-home { background: #394867; color: #ffd700; }
+      body.dark .access-gate .gate-home:hover { background: #4a5f85; }
     </style>
   </head>
   <body>
@@ -527,11 +611,33 @@
       <div class="hero-content">
         <img src="https://image.tmdb.org/t/p/original/pwZhO2AYoZfq9pwxahTTSuxbVhn.png" alt="The Super Mario Galaxy Movie" class="hero-logo" />
         <div class="hero-label">First of The Month</div>
-        <p class="hero-desc" id="heroDesc">Having thwarted Bowser's previous plot to marry Princess Peach, Mario and Luigi now face a fresh threat in Bowser Jr., who is determined to liberate his father from captivity and restore the family legacy. Alongside companions new and old, the brothers travel across the stars to stop the young heir's crusade.<br><br><i>Expired on 27th April 2026</i></p>
+        <div class="hero-meta">
+          <span class="age-badge" title="Parental Guidance — mild content, some scenes may not be suitable for young children without adult guidance">PG</span>
+          <span class="hero-expiry" id="heroExpiry"></span>
+        </div>
+        <p class="hero-desc" id="heroDesc">Having thwarted Bowser's previous plot to marry Princess Peach, Mario and Luigi now face a fresh threat in Bowser Jr., who is determined to liberate his father from captivity and restore the family legacy. Alongside companions new and old, the brothers travel across the stars to stop the young heir's crusade.</p>
         <button class="play-btn" id="playBtn" onclick="startPlaying()">
           <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
           Play
         </button>
+      </div>
+    </div>
+
+    <!-- Access Gate (shown if outside the access window, hidden otherwise) -->
+    <div class="access-gate" id="accessGate">
+      <div class="gate-inner">
+        <div class="gate-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:100%;height:100%;">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <h1 class="gate-title" id="gateTitle"></h1>
+        <p class="gate-msg" id="gateMsg"></p>
+        <a href="/" class="gate-home">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;"><path d="M12 3l9 8h-3v9h-4v-6h-4v6H6v-9H3z"/></svg>
+          Back to Home
+        </a>
       </div>
     </div>
 
@@ -579,6 +685,67 @@
 
     <!-- APP SCRIPT -->
     <script>
+      // =====================================================================
+      //  ACCESS WINDOW — EDIT THESE TWO TIMESTAMPS TO CHANGE WHEN PAGE IS OPEN
+      //  Format: Date.UTC(year, monthIndex, day, hour-UTC, min, sec)
+      //          monthIndex is 0-based (January = 0, April = 3)
+      //          hour is in UTC. To convert from GMT+8: subtract 8 hours.
+      //          e.g. 19:00 GMT+8  ==  11:00 UTC
+      // =====================================================================
+      const ACCESS_START = Date.UTC(2026, 3, 20, 11, 0, 0); // 20 April 2026, 19:00 GMT+8
+      const ACCESS_END   = Date.UTC(2026, 3, 27, 11, 0, 0); // 27 April 2026, 19:00 GMT+8
+      // =====================================================================
+
+      // Format a timestamp as a human-readable GMT+8 string
+      // e.g. "27th April 2026, 19:00 (GMT+8)"
+      function formatGmt8(ts) {
+        const months = ['January','February','March','April','May','June',
+                        'July','August','September','October','November','December'];
+        const d = new Date(ts + 8 * 3600 * 1000); // shift so UTC getters give GMT+8 values
+        const day = d.getUTCDate();
+        const mo = months[d.getUTCMonth()];
+        const yr = d.getUTCFullYear();
+        const hh = String(d.getUTCHours()).padStart(2, '0');
+        const mm = String(d.getUTCMinutes()).padStart(2, '0');
+        const n = day, s = n % 100;
+        const suffix = (s >= 11 && s <= 13) ? 'th'
+                     : (n % 10 === 1) ? 'st'
+                     : (n % 10 === 2) ? 'nd'
+                     : (n % 10 === 3) ? 'rd' : 'th';
+        return `${day}${suffix} ${mo} ${yr}, ${hh}:${mm} (GMT+8)`;
+      }
+
+      function isWithinAccessWindow() {
+        const now = Date.now();
+        return now >= ACCESS_START && now < ACCESS_END;
+      }
+
+      // Returns true if allowed; otherwise displays the gate and returns false
+      function checkAccess() {
+        const now = Date.now();
+        const gate = document.getElementById('accessGate');
+        const title = document.getElementById('gateTitle');
+        const msg = document.getElementById('gateMsg');
+        if (now < ACCESS_START) {
+          title.textContent = 'Coming Soon';
+          msg.innerHTML = `This movie will be available from<br><strong>${formatGmt8(ACCESS_START)}</strong>.`;
+          gate.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+          return false;
+        }
+        if (now >= ACCESS_END) {
+          title.textContent = 'No Longer Available';
+          msg.innerHTML = `This movie was available until<br><strong>${formatGmt8(ACCESS_END)}</strong>.`;
+          gate.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+          return false;
+        }
+        // Access allowed — render the dynamic "Available until ..." line in the hero
+        const heroExpiry = document.getElementById('heroExpiry');
+        if (heroExpiry) heroExpiry.textContent = `Available until ${formatGmt8(ACCESS_END)}`;
+        return true;
+      }
+
       const serverUrl = "https://blueynet.org:443";
       const apiKey = "6b2548952ea2439ea800b8cd3f1072d1";
       const movieId = "350326";
@@ -713,6 +880,8 @@
       }
 
       function startPlaying() {
+        // Extra safety: if the user somehow reaches this while outside the window, re-gate
+        if (!isWithinAccessWindow()) { checkAccess(); return; }
         openPlayer();
         loadAndPlay();
       }
@@ -730,8 +899,9 @@
         }
       });
 
-      // Fetch metadata on load
+      // Fetch metadata on load — only if access window is open
       document.addEventListener("DOMContentLoaded", () => {
+        if (!checkAccess()) return; // blocked: gate is shown, skip emby calls
         fetchMovieMetadata();
       });
     </script>

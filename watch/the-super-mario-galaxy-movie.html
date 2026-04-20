@@ -696,23 +696,26 @@
       const ACCESS_END   = Date.UTC(2026, 3, 27, 11, 0, 0); // 27 April 2026, 19:00 GMT+8
       // =====================================================================
 
-      // Format a timestamp as a human-readable GMT+8 string
-      // e.g. "27th April 2026, 19:00 (GMT+8)"
-      function formatGmt8(ts) {
-        const months = ['January','February','March','April','May','June',
-                        'July','August','September','October','November','December'];
-        const d = new Date(ts + 8 * 3600 * 1000); // shift so UTC getters give GMT+8 values
-        const day = d.getUTCDate();
-        const mo = months[d.getUTCMonth()];
-        const yr = d.getUTCFullYear();
-        const hh = String(d.getUTCHours()).padStart(2, '0');
-        const mm = String(d.getUTCMinutes()).padStart(2, '0');
-        const n = day, s = n % 100;
-        const suffix = (s >= 11 && s <= 13) ? 'th'
-                     : (n % 10 === 1) ? 'st'
-                     : (n % 10 === 2) ? 'nd'
-                     : (n % 10 === 3) ? 'rd' : 'th';
-        return `${day}${suffix} ${mo} ${yr}, ${hh}:${mm} (GMT+8)`;
+      // Format a timestamp as a human-readable local-time string in the viewer's
+      // timezone & locale. Same absolute moment for everyone, but each viewer sees
+      // it in their own clock time — e.g.
+      //   GMT+8:  "27 April 2026 at 19:00 GMT+8"
+      //   GMT+1:  "27 April 2026 at 12:00 BST"
+      //   GMT-4:  "April 27, 2026 at 7:00 AM EDT"
+      function formatLocal(ts) {
+        try {
+          return new Date(ts).toLocaleString(undefined, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZoneName: 'short'
+          });
+        } catch (e) {
+          // Fallback for very old browsers
+          return new Date(ts).toString();
+        }
       }
 
       function isWithinAccessWindow() {
@@ -728,21 +731,21 @@
         const msg = document.getElementById('gateMsg');
         if (now < ACCESS_START) {
           title.textContent = 'Coming Soon';
-          msg.innerHTML = `This movie will be available from<br><strong>${formatGmt8(ACCESS_START)}</strong>.`;
+          msg.innerHTML = `This movie will be available from<br><strong>${formatLocal(ACCESS_START)}</strong>.`;
           gate.style.display = 'flex';
           document.body.style.overflow = 'hidden';
           return false;
         }
         if (now >= ACCESS_END) {
           title.textContent = 'No Longer Available';
-          msg.innerHTML = `This movie was available until<br><strong>${formatGmt8(ACCESS_END)}</strong>.`;
+          msg.innerHTML = `This movie was available until<br><strong>${formatLocal(ACCESS_END)}</strong>.`;
           gate.style.display = 'flex';
           document.body.style.overflow = 'hidden';
           return false;
         }
         // Access allowed — render the dynamic "Available until ..." line in the hero
         const heroExpiry = document.getElementById('heroExpiry');
-        if (heroExpiry) heroExpiry.textContent = `Available until ${formatGmt8(ACCESS_END)}`;
+        if (heroExpiry) heroExpiry.textContent = `Available until ${formatLocal(ACCESS_END)}`;
         return true;
       }
 

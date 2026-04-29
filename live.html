@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bluey Live</title>
+    <meta name="title" content="Bluey Live" />
+    <meta name="description" content="Bluey 24/7 channel — episodes, minisodes, book reads, cookalongs, tunes, puppets and more, on a never-ending schedule." />
+    <meta name="keywords" content="bluey, bluey live, bluey channel" />
+    <meta name="robots" content="index, follow" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="language" content="English" />
+    <meta name="author" content="Bluey Heeler" />
+    <meta property="og:title" content="Bluey Live" />
+    <meta property="og:description" content="Bluey 24/7 channel — episodes, minisodes, book reads, cookalongs, tunes, puppets and more, on a never-ending schedule." />
+    <meta property="og:url" content="https://pages.blueynet.org/live" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Bluey Live" />
+    <meta name="twitter:description" content="Bluey 24/7 channel — episodes, minisodes, book reads, cookalongs, tunes, puppets and more, on a never-ending schedule." />
+
+    <link rel="icon" href="/bluey-star.ico" type="image/x-icon" />
+    <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css" />
+    <link href="https://vjs.zencdn.net/8.16.0/video-js.css" rel="stylesheet" />
+    <script src="https://vjs.zencdn.net/8.16.0/video.min.js"></script>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: "Hello Headline", Arial, sans-serif !important;
+        background-color: #87c0e8 !important;
+        color: #fff;
+        transition: background 0.3s, color 0.3s;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* ===== TOP NAV BAR ===== */
+      .top-nav {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 12px 30px;
+        gap: 20px;
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 5000;
+        background: linear-gradient(to bottom, rgba(135,192,232,0.95) 0%, transparent 100%);
+      }
+      .top-nav a {
+        text-decoration: none;
+        color: #fff;
+        font-weight: bold;
+        font-size: 16px;
+      }
+      .top-nav a:hover { color: #e0e0e0; }
+      .top-nav a.active { color: #ffe8a8; }
+
+      .hamburger-btn {
+        display: none; background: none; border: none;
+        cursor: pointer; padding: 6px; z-index: 1001;
+      }
+      .hamburger-btn svg { width: 28px; height: 28px; stroke: #fff; }
+      body.dark .hamburger-btn svg { stroke: #fbbf24; }
+      .nav-links { display: contents; }
+      .mobile-menu-overlay {
+        display: none; position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5); z-index: 999;
+      }
+      .mobile-menu-overlay.open { display: block; }
+      .darkmode-toggle {
+        background: none; border: none; cursor: pointer; border-radius: 50%;
+        width: 36px; height: 36px; display: flex; align-items: center;
+        justify-content: center; outline: none; padding: 2px; transition: background 0.2s;
+      }
+      .darkmode-toggle:focus, .darkmode-toggle:hover { background: rgba(128,128,128,0.12); }
+      .darkmode-toggle svg { width: 24px; height: 24px; display: block; pointer-events: none; }
+      .dark .darkmode-toggle .sun { display: none; }
+      .dark .darkmode-toggle .moon { display: block; }
+      .darkmode-toggle .moon { display: none; }
+      .darkmode-toggle .sun { display: block; }
+
+      /* ===== LAYOUT ===== */
+      .live-main {
+        display: flex;
+        gap: 28px;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 80px 24px 40px;
+      }
+      .player-col { flex: 1; min-width: 0; }
+      .guide-col {
+        width: 340px;
+        flex-shrink: 0;
+      }
+
+      /* ===== PLAYER ===== */
+      .player-wrap {
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+        aspect-ratio: 16 / 9;
+        box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+      }
+      .player-wrap .video-js {
+        width: 100% !important;
+        height: 100% !important;
+      }
+      .player-wrap .video-js .vjs-big-play-button {
+        top: 50%; left: 50%; transform: translate(-50%, -50%);
+        margin: 0;
+      }
+      /* Hide all seek-related controls — this is "live" so no scrubbing */
+      .player-wrap .video-js .vjs-progress-control,
+      .player-wrap .video-js .vjs-remaining-time,
+      .player-wrap .video-js .vjs-current-time,
+      .player-wrap .video-js .vjs-time-divider,
+      .player-wrap .video-js .vjs-duration,
+      .player-wrap .video-js .vjs-playback-rate,
+      .player-wrap .video-js .vjs-picture-in-picture-control {
+        display: none !important;
+      }
+      /* "LIVE" badge inside the player control bar */
+      .player-wrap .vjs-live-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0 10px;
+        padding: 0 10px;
+        height: 26px;
+        align-self: center;
+        background: #ef4444;
+        color: #fff;
+        font-family: 'Hello Headline', sans-serif;
+        font-size: 11px;
+        font-weight: bold;
+        letter-spacing: 1.5px;
+        border-radius: 4px;
+        pointer-events: none;
+      }
+      .player-wrap .vjs-live-badge::before {
+        content: '';
+        width: 6px; height: 6px;
+        background: #fff;
+        border-radius: 50%;
+        animation: livePulse 2s infinite;
+      }
+
+      /* Now-playing card */
+      .now-card {
+        margin-top: 18px;
+        padding: 18px 22px;
+        background: rgba(0,0,0,0.18);
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.08);
+      }
+      .now-source {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: rgba(255,255,255,0.85);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+        font-weight: bold;
+      }
+      .now-source::before {
+        content: '';
+        width: 8px; height: 8px;
+        background: #ef4444;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #ef4444;
+        animation: livePulse 2s infinite;
+      }
+      @keyframes livePulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+      }
+      .now-title {
+        font-size: 22px;
+        font-weight: bold;
+        color: #fff;
+        margin-bottom: 8px;
+        line-height: 1.25;
+      }
+      .now-overview {
+        font-size: 14px;
+        line-height: 1.55;
+        color: rgba(255,255,255,0.78);
+        max-height: 4.7em;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+      }
+      .go-live-btn {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        margin-top: 14px;
+        padding: 7px 16px;
+        background: #ef4444;
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        font-family: 'Hello Headline', sans-serif;
+        font-size: 12px;
+        font-weight: bold;
+        letter-spacing: 1.5px;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.15s;
+      }
+      .go-live-btn.show { display: inline-flex; }
+      .go-live-btn:hover { background: #dc2626; transform: translateY(-1px); }
+      .go-live-btn::before {
+        content: '';
+        width: 7px; height: 7px;
+        background: #fff;
+        border-radius: 50%;
+      }
+
+      /* ===== TV GUIDE ===== */
+      .guide-header {
+        font-size: 18px;
+        font-weight: bold;
+        color: #fff;
+        padding: 0 6px 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.18);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .guide-header .channel-tag {
+        font-size: 11px;
+        font-weight: bold;
+        color: #fff;
+        background: #ef4444;
+        padding: 3px 8px;
+        border-radius: 4px;
+        letter-spacing: 1.5px;
+      }
+      .guide-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .guide-item {
+        display: flex;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        align-items: flex-start;
+        transition: background 0.2s;
+      }
+      .guide-item.now {
+        background: rgba(255,255,255,0.14);
+      }
+      .guide-item .g-time {
+        font-size: 13px;
+        font-weight: bold;
+        color: rgba(255,255,255,0.85);
+        width: 70px;
+        flex-shrink: 0;
+        font-variant-numeric: tabular-nums;
+      }
+      .guide-item.now .g-time {
+        color: #ef4444;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .guide-item.now .g-time::before {
+        content: '';
+        width: 6px; height: 6px;
+        background: #ef4444;
+        border-radius: 50%;
+        animation: livePulse 2s infinite;
+      }
+      .guide-item .g-info { flex: 1; min-width: 0; }
+      .guide-item .g-title {
+        font-size: 13.5px;
+        font-weight: bold;
+        color: #fff;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .guide-item .g-source {
+        font-size: 11px;
+        color: rgba(255,255,255,0.55);
+        margin-top: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+      }
+
+      /* Skeleton */
+      .skeleton {
+        background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.16) 50%, rgba(255,255,255,0.06) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 4px;
+      }
+      @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
+      /* ===== DARK MODE ===== */
+      body.dark { background: #0f1118 !important; color: #dbeafe !important; }
+      body.dark .top-nav { background: linear-gradient(to bottom, rgba(15,17,24,0.95) 0%, transparent 100%); }
+      body.dark .top-nav a { color: #fbbf24 !important; }
+      body.dark .top-nav a.active { color: #ffd700 !important; }
+      body.dark .now-card { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.06); }
+      body.dark .now-title { color: #fbbf24; }
+      body.dark .now-overview { color: rgba(219,234,254,0.7); }
+      body.dark .guide-header { color: #fbbf24; border-bottom-color: rgba(251,191,36,0.2); }
+      body.dark .guide-item.now { background: rgba(251,191,36,0.1); }
+      body.dark .guide-item .g-title { color: #dbeafe; }
+      body.dark .guide-item .g-source { color: rgba(219,234,254,0.45); }
+
+      /* ===== RESPONSIVE ===== */
+      @media (max-width: 1000px) {
+        .live-main {
+          flex-direction: column;
+          padding: 70px 18px 30px;
+          gap: 20px;
+        }
+        .guide-col { width: 100%; }
+      }
+      @media (max-width: 600px) {
+        .top-nav { padding: 10px 16px; justify-content: space-between; }
+        .hamburger-btn { display: block; }
+        .nav-links {
+          display: none; position: fixed;
+          top: 0; left: 0;
+          width: 220px; height: 100vh;
+          background: #5a9fc6;
+          flex-direction: column;
+          padding: 60px 24px 24px;
+          gap: 20px; z-index: 1000;
+          box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+        }
+        body.dark .nav-links { background: #191d25; }
+        .nav-links.open { display: flex; }
+        .nav-links a { font-size: 18px; }
+        .nav-links .darkmode-toggle { align-self: flex-start; }
+        .live-main { padding: 60px 14px 24px; }
+        .now-title { font-size: 18px; }
+        .now-overview { font-size: 13px; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <div class="nav-links" id="navLinks">
+        <a href="/">Home</a>
+        <a href="/watch">Watch</a>
+        <a href="/live" class="active">Live</a>
+        <a href="/music">Music</a>
+        <a href="/listen">Listen</a>
+        <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/>
+            <g>
+              <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </g>
+          </svg>
+          <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+    <!-- Main -->
+    <main class="live-main">
+      <!-- Player -->
+      <section class="player-col">
+        <div class="player-wrap">
+          <video id="player" class="video-js vjs-default-skin" controls preload="auto" playsinline controlsList="nodownload noplaybackrate" disablepictureinpicture oncontextmenu="return false;"></video>
+        </div>
+        <div class="now-card">
+          <div class="now-source" id="nowSource">Loading channel…</div>
+          <div class="now-title" id="nowTitle">—</div>
+          <div class="now-overview" id="nowOverview"></div>
+          <button class="go-live-btn" id="goLiveBtn" onclick="goLive()" title="Jump back to live">LIVE</button>
+        </div>
+      </section>
+
+      <!-- TV Guide -->
+      <aside class="guide-col">
+        <div class="guide-header">TV Guide</div>
+        <ul class="guide-list" id="guideList"></ul>
+      </aside>
+    </main>
+
+    <!-- Shared scripts (dark mode + hamburger) -->
+    <script>
+      // === Dark mode ===
+      const themeKey = "bluey-site-theme";
+      const root = document.body;
+      const darkToggle = document.getElementById("darkToggle");
+      function setTheme(dark) {
+        if (dark) { root.classList.add('dark'); localStorage.setItem(themeKey, "dark"); }
+        else { root.classList.remove('dark'); localStorage.setItem(themeKey, "light"); }
+      }
+      (() => {
+        const saved = localStorage.getItem(themeKey);
+        if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) setTheme(true);
+        else setTheme(false);
+      })();
+      darkToggle.onclick = () => setTheme(!root.classList.contains('dark'));
+
+      // === Hamburger ===
+      const hamburgerBtn = document.getElementById('hamburgerBtn');
+      const navLinks = document.getElementById('navLinks');
+      const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+      hamburgerBtn.addEventListener('click', () => {
+        navLinks.classList.toggle('open');
+        mobileMenuOverlay.classList.toggle('open');
+      });
+      mobileMenuOverlay.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+        mobileMenuOverlay.classList.remove('open');
+      });
+      navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+        mobileMenuOverlay.classList.remove('open');
+      }));
+    </script>
+
+    <!-- ===================================================================
+         LIVE CHANNEL ENGINE
+         Mimics live TV with no backend coordination.
+         Every viewer's browser independently calculates the same schedule
+         from `Date.now()` + the source list, so two viewers on the same
+         UTC day see the same channel order at the same offsets.
+         The shuffle reseeds at 00:00 UTC each day, so the schedule rotates.
+    ==================================================================== -->
+    <script>
+      const SERVER  = 'https://blueynet.org:443';
+      const API_KEY = '6b2548952ea2439ea800b8cd3f1072d1';
+      const USER_ID = 'ba603d94a7c24b3b8c7e7ea2fedc9162';
+      const DAY_MS  = 86400000; // 24h in ms
+
+      // === Sources to merge into the channel =============================
+      const SOURCES = [
+        { id: '11',     name: 'Bluey'                  },
+        { id: '48548',  name: 'Bluey Minisodes'        },
+        { id: '297808', name: 'Bluey Book Reads'       },
+        { id: '297459', name: 'Bluey Cookalongs'       },
+        { id: '297471', name: 'Bluey Tunes'            },
+        { id: '303862', name: 'Bluey Puppets'          },
+        { id: '304715', name: 'Bluey Fancy Restaurant' }
+      ];
+
+      // === State ===
+      let allItems = [];     // merged content list (post-fetch)
+      let player;
+      let currentItem = null;
+      let endTimer = null;   // safety timer to auto-advance if 'ended' doesn't fire
+
+      // ===== Deterministic PRNG (mulberry32) — same seed → same shuffle =====
+      function mulberry32(a) {
+        return function() {
+          a = (a + 0x6D2B79F5) | 0;
+          let t = a;
+          t = Math.imul(t ^ (t >>> 15), t | 1);
+          t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+      function shuffleForDay(items, daySeed) {
+        const rng = mulberry32(daySeed * 9301 + 49297);
+        const a = items.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(rng() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      // ===== Fetch + merge all source content =====
+      async function fetchSources() {
+        const results = await Promise.all(SOURCES.map(async (src) => {
+          try {
+            // Auto-detect type
+            const r = await fetch(`${SERVER}/emby/Users/${USER_ID}/Items/${src.id}?X-Emby-Token=${API_KEY}`);
+            const data = await r.json();
+
+            if (data.Type === 'Series') {
+              const er = await fetch(`${SERVER}/emby/Shows/${src.id}/Episodes?api_key=${API_KEY}&Fields=Overview,RunTimeTicks`);
+              const ed = await er.json();
+              return (ed.Items || []).map(ep => ({
+                id: ep.Id,
+                title: ep.Name || 'Untitled',
+                overview: ep.Overview || '',
+                durationMs: Math.max(1000, (ep.RunTimeTicks || 0) / 10000),
+                source: src.name,
+                season: ep.ParentIndexNumber,
+                episode: ep.IndexNumber,
+                hasEpNum: ep.ParentIndexNumber != null && ep.IndexNumber != null
+              }));
+            } else {
+              return [{
+                id: data.Id,
+                title: data.Name || src.name,
+                overview: data.Overview || '',
+                durationMs: Math.max(1000, (data.RunTimeTicks || 0) / 10000),
+                source: src.name,
+                hasEpNum: false
+              }];
+            }
+          } catch (e) {
+            console.warn(`Failed to load source ${src.name}:`, e);
+            return [];
+          }
+        }));
+        return results.flat().filter(it => it.durationMs > 1000); // drop bogus 0-duration items
+      }
+
+      // ===== Schedule resolver — given a timestamp, what's playing? =====
+      // Returns { item, offsetMs, startsAt, endsAt, index, shuffled }
+      function getCurrentEntry(t = Date.now()) {
+        if (!allItems.length) return null;
+        const dayNumber = Math.floor(t / DAY_MS);
+        const dayStart  = dayNumber * DAY_MS;
+        const shuffled  = shuffleForDay(allItems, dayNumber);
+        const totalLoop = shuffled.reduce((s, it) => s + it.durationMs, 0);
+        if (totalLoop <= 0) return null;
+
+        const elapsedToday  = t - dayStart;
+        const loopsCompleted = Math.floor(elapsedToday / totalLoop);
+        const elapsedInLoop  = elapsedToday - loopsCompleted * totalLoop;
+
+        let acc = 0;
+        for (let i = 0; i < shuffled.length; i++) {
+          if (acc + shuffled[i].durationMs > elapsedInLoop) {
+            const startsAt = dayStart + loopsCompleted * totalLoop + acc;
+            return {
+              item: shuffled[i],
+              offsetMs: elapsedInLoop - acc,
+              startsAt,
+              endsAt: startsAt + shuffled[i].durationMs,
+              index: i,
+              shuffled
+            };
+          }
+          acc += shuffled[i].durationMs;
+        }
+        return null;
+      }
+
+      // ===== Walk the schedule forward to get upcoming items =====
+      function getUpcoming(t, count) {
+        const out = [];
+        let cur = getCurrentEntry(t);
+        let safety = 0;
+        while (cur && out.length < count && safety++ < 200) {
+          out.push({ item: cur.item, startsAt: cur.startsAt, endsAt: cur.endsAt });
+          cur = getCurrentEntry(cur.endsAt + 1);
+        }
+        return out;
+      }
+
+      // ===== Render =====
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
+      }
+      function fmtTitle(item) {
+        return item.hasEpNum
+          ? `S${item.season}E${item.episode}: ${item.title}`
+          : item.title;
+      }
+      function fmtTime(ts) {
+        return new Date(ts).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+      }
+
+      function renderNowPlaying(item) {
+        document.getElementById('nowSource').textContent = `LIVE • ${item.source}`;
+        document.getElementById('nowTitle').textContent = fmtTitle(item);
+        document.getElementById('nowOverview').textContent = item.overview || '';
+        document.title = `${fmtTitle(item)} — Bluey Live`;
+      }
+
+      function renderGuide() {
+        const list = document.getElementById('guideList');
+        const upcoming = getUpcoming(Date.now(), 11);
+        list.innerHTML = upcoming.map((entry, idx) => `
+          <li class="guide-item ${idx === 0 ? 'now' : ''}">
+            <div class="g-time">${idx === 0 ? 'NOW' : fmtTime(entry.startsAt)}</div>
+            <div class="g-info">
+              <div class="g-title">${escapeHtml(fmtTitle(entry.item))}</div>
+              <div class="g-source">${escapeHtml(entry.item.source)}</div>
+            </div>
+          </li>
+        `).join('');
+      }
+
+      function renderSkeletonGuide() {
+        const list = document.getElementById('guideList');
+        list.innerHTML = Array(8).fill(0).map(() => `
+          <li class="guide-item">
+            <div class="g-time skeleton" style="height:14px;"></div>
+            <div class="g-info">
+              <div class="skeleton" style="height:14px;width:80%;margin-bottom:6px;"></div>
+              <div class="skeleton" style="height:10px;width:50%;"></div>
+            </div>
+          </li>
+        `).join('');
+      }
+
+      // ===== Playback =====
+      async function playItem(item, offsetMs) {
+        if (endTimer) { clearTimeout(endTimer); endTimer = null; }
+        try {
+          const pi = await fetch(`${SERVER}/emby/Items/${item.id}/PlaybackInfo?api_key=${API_KEY}&Fields=MediaSources`).then(r => r.json());
+          if (!pi.MediaSources || !pi.MediaSources.length) {
+            console.warn('No media sources, skipping:', item);
+            advance(); return;
+          }
+          const ms = pi.MediaSources[0];
+          const streams = ms.MediaStreams || [];
+          const v = streams.find(s => s.Type === 'Video');
+          const a = streams.find(s => s.Type === 'Audio');
+
+          const hls = `${SERVER}/emby/videos/${item.id}/master.m3u8`
+            + `?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87`
+            + `&MediaSourceId=${ms.Id}`
+            + `&PlaySessionId=${pi.PlaySessionId}`
+            + `&X-Emby-Token=${API_KEY}`
+            + `&VideoCodec=h264,h265,hevc&AudioCodec=mp3,aac`
+            + (v?.BitRate ? `&VideoBitrate=${v.BitRate}` : '')
+            + (a?.BitRate ? `&AudioBitrate=${a.BitRate}` : '')
+            + `&AudioStreamIndex=1&TranscodingMaxAudioChannels=2`
+            + `&SegmentContainer=m4s,ts&MinSegments=2&BreakOnNonKeyFrames=True`
+            + `&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&hevc-codectag=hvc1`
+            + `&TranscodeReasons=ContainerBitrateExceedsLimit`;
+
+          currentItem = item;
+          renderNowPlaying(item);
+
+          // Clear old subtitle tracks before loading the new item
+          const rtt = player.remoteTextTracks();
+          for (let i = rtt.length - 1; i >= 0; i--) {
+            try { player.removeRemoteTextTrack(rtt[i]); } catch {}
+          }
+
+          player.src({ type: 'application/x-mpegURL', src: hls });
+          const onMeta = () => {
+            const offsetSec = Math.max(0, Math.min((item.durationMs - 500) / 1000, offsetMs / 1000));
+            try { player.currentTime(offsetSec); } catch {}
+            player.play().catch(err => console.warn('Autoplay blocked, waiting for tap:', err));
+
+            // Subtitle stream is always on index 2 for this Emby setup
+            try {
+              player.addRemoteTextTrack({
+                kind: 'subtitles',
+                label: 'English',
+                srclang: 'en',
+                src: `${SERVER}/emby/Videos/${item.id}/${ms.Id}/Subtitles/2/0/Stream.vtt?api_key=${API_KEY}`,
+                default: false
+              }, false);
+            } catch (e) { console.warn('Failed to add subtitle track:', e); }
+
+            player.off('loadedmetadata', onMeta);
+          };
+          player.on('loadedmetadata', onMeta);
+
+          // Safety timer: if 'ended' never fires, advance after the expected remaining time
+          const remaining = Math.max(2000, item.durationMs - offsetMs + 1500);
+          endTimer = setTimeout(() => advance(), remaining);
+
+          // MediaSession
+          if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+              title: fmtTitle(item),
+              artist: 'Bluey Live',
+              album: item.source,
+            });
+          }
+        } catch (e) {
+          console.error('Playback error:', e);
+          setTimeout(advance, 4000);
+        }
+      }
+
+      function advance() {
+        const cur = getCurrentEntry();
+        if (cur) playItem(cur.item, cur.offsetMs);
+        renderGuide();
+      }
+
+      function goLive() {
+        const cur = getCurrentEntry();
+        if (!cur) return;
+        if (currentItem && cur.item.id === currentItem.id) {
+          // Same item — just seek
+          try { player.currentTime(cur.offsetMs / 1000); } catch {}
+          player.play().catch(() => {});
+        } else {
+          playItem(cur.item, cur.offsetMs);
+        }
+        document.getElementById('goLiveBtn').classList.remove('show');
+      }
+      window.goLive = goLive;
+
+      // Drift / schedule progression check
+      function checkDrift() {
+        if (!currentItem) return;
+        const cur = getCurrentEntry();
+        if (!cur) return;
+        if (cur.item.id !== currentItem.id) {
+          // Schedule moved on — show the LIVE button so the viewer can re-sync
+          document.getElementById('goLiveBtn').classList.add('show');
+          return;
+        }
+        const expected = cur.offsetMs / 1000;
+        const actual = player.currentTime() || 0;
+        if (Math.abs(expected - actual) > 8) {
+          document.getElementById('goLiveBtn').classList.add('show');
+        } else {
+          document.getElementById('goLiveBtn').classList.remove('show');
+        }
+      }
+
+      // ===== Init =====
+      document.addEventListener('DOMContentLoaded', async () => {
+        player = videojs('player', {
+          controls: true, preload: 'auto', fluid: false,
+          userActions: { hotkeys: false }, // disable Video.js arrow-key seek
+          html5: { vhs: { overrideNative: false } }
+        });
+
+        // Lock seeking — any attempt to scrub forward/back snaps right back to the live offset
+        player.ready(() => {
+          // Insert a "LIVE" badge into the control bar (replaces the hidden progress bar visually)
+          try {
+            const cb = player.controlBar.el();
+            const badge = document.createElement('div');
+            badge.className = 'vjs-live-badge';
+            badge.textContent = 'LIVE';
+            // Place after the play/pause button (index 1)
+            cb.insertBefore(badge, cb.children[2] || null);
+          } catch (e) { /* non-critical */ }
+        });
+
+        // Block all seeking — when user tries to scrub, snap back to schedule's expected offset
+        let suppressSeek = false;
+        player.on('seeking', () => {
+          if (suppressSeek) return;
+          const cur = getCurrentEntry();
+          if (!cur || !currentItem || cur.item.id !== currentItem.id) return;
+          const expected = cur.offsetMs / 1000;
+          const actual = player.currentTime() || 0;
+          if (Math.abs(actual - expected) > 1) {
+            suppressSeek = true;
+            try { player.currentTime(expected); } catch {}
+            setTimeout(() => { suppressSeek = false; }, 80);
+          }
+        });
+
+        // Block keyboard shortcuts that seek (arrows, J, L, Home/End, comma, period)
+        document.addEventListener('keydown', (e) => {
+          if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+          const blocked = ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',
+                           'Home','End','PageUp','PageDown',',','.','j','J','l','L'];
+          if (blocked.includes(e.key)) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }, true);
+
+        // Pause: stop the auto-advance safety timer so we don't load a new item
+        // while the viewer is paused.
+        player.on('pause', () => {
+          if (endTimer) { clearTimeout(endTimer); endTimer = null; }
+        });
+
+        // Play (resume after pause): re-sync to wherever the channel is NOW.
+        // - If schedule has moved to a new item, load that item at its offset.
+        // - If still the same item, snap to the expected offset (don't resume from
+        //   where they paused — this is live TV, time kept moving).
+        player.on('play', () => {
+          if (!currentItem) return;
+          const cur = getCurrentEntry();
+          if (!cur) return;
+          if (cur.item.id !== currentItem.id) {
+            playItem(cur.item, cur.offsetMs);
+            return;
+          }
+          const expected = cur.offsetMs / 1000;
+          const actual = player.currentTime() || 0;
+          if (Math.abs(actual - expected) > 1.5) {
+            suppressSeek = true;
+            try { player.currentTime(expected); } catch {}
+            setTimeout(() => { suppressSeek = false; }, 80);
+          }
+          // Restart safety timer based on remaining time of the (possibly advanced) offset
+          if (endTimer) { clearTimeout(endTimer); }
+          const remaining = Math.max(2000, currentItem.durationMs - cur.offsetMs + 1500);
+          endTimer = setTimeout(() => advance(), remaining);
+        });
+
+        // Auto-advance on natural end
+        player.on('ended', () => advance());
+
+        renderSkeletonGuide();
+        document.getElementById('nowSource').textContent = 'Loading channel…';
+
+        allItems = await fetchSources();
+        console.log(`Loaded ${allItems.length} items across ${SOURCES.length} sources`);
+
+        if (!allItems.length) {
+          document.getElementById('nowSource').textContent = 'Off Air';
+          document.getElementById('nowTitle').textContent = 'Could not load schedule';
+          document.getElementById('nowOverview').textContent = 'Try refreshing the page.';
+          document.getElementById('guideList').innerHTML = '<li style="padding:14px;color:rgba(255,255,255,0.5);">No content available.</li>';
+          return;
+        }
+
+        advance();
+
+        // Refresh guide every 30s; check drift every 5s
+        setInterval(renderGuide, 30000);
+        setInterval(checkDrift, 5000);
+      });
+    </script>
+  </body>
+</html>

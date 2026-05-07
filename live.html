@@ -473,6 +473,8 @@
       let player;
       let currentItem = null;
       let endTimer = null;   // safety timer to auto-advance if 'ended' doesn't fire
+      let currentSubTrack = null; // HTMLTrackElement of the currently-attached subtitle
+      const SUBS_KEY = 'bluey-live-subs-enabled'; // 'on' / 'off' — persists user's caption choice
 
       // ===== Deterministic PRNG (mulberry32) — same seed → same shuffle =====
       function mulberry32(a) {
@@ -656,10 +658,12 @@
           currentItem = item;
           renderNowPlaying(item);
 
-          // Clear old subtitle tracks before loading the new item
-          const rtt = player.remoteTextTracks();
-          for (let i = rtt.length - 1; i >= 0; i--) {
-            try { player.removeRemoteTextTrack(rtt[i]); } catch {}
+          // Remove the previous subtitle track (we own it via currentSubTrack ref).
+          // Passing the exact HTMLTrackElement we added avoids the accumulation
+          // bug that happens when removing by TextTrack object.
+          if (currentSubTrack) {
+            try { player.removeRemoteTextTrack(currentSubTrack); } catch {}
+            currentSubTrack = null;
           }
 
           player.src({ type: 'application/x-mpegURL', src: hls });
@@ -668,15 +672,26 @@
             try { player.currentTime(offsetSec); } catch {}
             player.play().catch(err => console.warn('Autoplay blocked, waiting for tap:', err));
 
-            // Subtitle stream is always on index 2 for this Emby setup
+            // Subtitle stream is always on index 2 for this Emby setup.
+            // - manualCleanup=true so Video.js doesn't auto-remove it on src change
+            //   (we manage removal ourselves via currentSubTrack so only ONE
+            //   English entry ever exists in the captions menu).
+            // - After adding, restore the user's previous on/off choice from
+            //   localStorage so subtitles persist across item switches.
             try {
-              player.addRemoteTextTrack({
+              currentSubTrack = player.addRemoteTextTrack({
                 kind: 'subtitles',
                 label: 'English',
                 srclang: 'en',
                 src: `${SERVER}/emby/Videos/${item.id}/${ms.Id}/Subtitles/2/0/Stream.vtt?api_key=${API_KEY}`,
                 default: false
-              }, false);
+              }, true);
+              if (localStorage.getItem(SUBS_KEY) === 'on' && currentSubTrack && currentSubTrack.track) {
+                // small delay so Video.js finishes registering the track
+                setTimeout(() => {
+                  try { currentSubTrack.track.mode = 'showing'; } catch {}
+                }, 80);
+              }
             } catch (e) { console.warn('Failed to add subtitle track:', e); }
 
             player.off('loadedmetadata', onMeta);
@@ -759,6 +774,20 @@
             // Place after the play/pause button (index 1)
             cb.insertBefore(badge, cb.children[2] || null);
           } catch (e) { /* non-critical */ }
+        });
+
+        // Persist the user's caption on/off choice. When they toggle subtitles
+        // via the player's CC menu, save it; we re-apply it on every item switch
+        // so subs stay enabled (or stay off) across the whole channel.
+        player.textTracks().addEventListener('change', () => {
+          const tracks = player.textTracks();
+          let on = false;
+          for (let i = 0; i < tracks.length; i++) {
+            if (tracks[i].kind === 'subtitles' && tracks[i].mode === 'showing') {
+              on = true; break;
+            }
+          }
+          localStorage.setItem(SUBS_KEY, on ? 'on' : 'off');
         });
 
         // Block all seeking — when user tries to scrub, snap back to schedule's expected offset

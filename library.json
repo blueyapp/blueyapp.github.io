@@ -6,8 +6,7 @@
     { "id": "297459", "title": "Bluey Cookalongs" },
     { "id": "297471", "title": "Bluey Tunes" },
     { "id": "297808", "title": "Bluey Book Reads" },
-    { "id": "303862", "title": "Bluey Puppets" },
-    { "id": "176581", "title": "Bluey's Big Play" }
+    { "id": "303862", "title": "Bluey Puppets" }
   ],
   "listen": [
     { "id": "316564", "title": "Behind Bluey", "artist": " " },
@@ -15,6 +14,12 @@
     { "id": "350150", "title": "Bluey Book Reads", "artist": " " }
   ],
   "music": [
-    { "id": "741", "title": "Bluey The Album", "artist": "Bluey, Joff Bush" }
+    { "id": "741", "title": "Bluey The Album", "artist": "Bluey, Joff Bush" },
+    { "id": "865", "title": "Dance Mode!", "artist": "Bluey, Joff Bush" },
+    { "id": "102141", "title": "Rug Island", "artist": "Bluey, Joff Bush" },
+    { "id": "115621", "title": "Rug Island (Full Version)", "artist": "Bluey, Joff Bush" },
+    { "id": "172676", "title": "Burger Dog / Bluey Theme Tune (Burger Dog Version) [feat. Daniel O'Brien]", "artist": "Bluey" },
+    { "id": "350131", "title": "Verandah Santa", "artist": "Bluey, Joff Bush" },
+    { "id": "349600", "title": "Up Here (The Orchestral Album)", "artist": "Bluey, Joff Bush" }
   ]
 }

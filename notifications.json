@@ -1,11 +1,11 @@
 {
   "notifications": [
     {
-      "id": 2,
+      "id": 3,
       "type": "announcement",
-      "title": "Test",
-      "message": "Test",
-      "created_at": 1778493600 
+      "title": "New update",
+      "message": "Install new app update from settings",
+      "created_at": 1778522400
     }
   ]
 }

@@ -4,8 +4,8 @@
       "id": 3,
       "type": "announcement",
       "title": "New update",
-      "message": "Install new app update from settings",
-      "created_at": 1778522400
+      "message": "Install new app update for new feature",
+      "created_at": 1778576400
     }
   ]
 }

@@ -1763,8 +1763,35 @@
       player.on('volumechange', () => { localStorage.setItem(VOL_KEY, String(player.volume())); });
 
       // CAST
-      player.on('chromecastConnected', () => { window.__isCasting = true; attachCastMediaListener(); });
-      player.on('chromecastDisconnected', () => { window.__isCasting = false; detachCastMediaListener(); });
+      player.on('chromecastConnected', () => {
+        window.__isCasting = true;
+        attachCastMediaListener();
+        // Tech swap → re-bind listeners + repopulate the audio
+        // menu against the chromecast tech so the button stays
+        // visible (and our handler fires when the menu is used).
+        setTimeout(() => {
+          if (_lastAudioStreams) {
+            populateAudioTracks(_lastAudioStreams, currentAudioStreamIndexUsed);
+          } else {
+            rebindTrackListeners();
+          }
+        }, 0);
+      });
+      player.on('chromecastDisconnected', () => {
+        window.__isCasting = false;
+        detachCastMediaListener();
+        // Tech swapped back to html5 — the html5 tech has its own
+        // (now empty) AudioTrackList, so the menu vanished. Rebuild
+        // from the cached stream list to bring it back without
+        // waiting for the user to start a new episode.
+        setTimeout(() => {
+          if (_lastAudioStreams) {
+            populateAudioTracks(_lastAudioStreams, currentAudioStreamIndexUsed);
+          } else {
+            rebindTrackListeners();
+          }
+        }, 0);
+      });
 
       let castMedia = null;
       function attachCastMediaListener() {
@@ -2362,73 +2389,84 @@
         });
       }
 
-      // Track-list change listeners — set up once, deduped via a
-      // flag so subsequent episode loads don't stack handlers. Audio
-      // changes trigger an HLS reload (Emby bundles one audio track
-      // per request); subtitle changes are free because we already
-      // load every sub stream as a remote text track.
-      let _trackListenersBound = false;
+      // Track-list change listeners.
+      //
+      // The Chromecast plugin swaps the player's tech on connect /
+      // disconnect, and each tech has its OWN AudioTrackList /
+      // TextTrackList instance. Listeners bound to the html5 list
+      // become orphaned after a cast session, and the new tech's
+      // empty list hides the audio menu button. Solution: keep
+      // the handler functions as stable module-level refs, re-bind
+      // them every time we (re)populate, and cache the last set of
+      // audio streams so we can rebuild on tech swap.
       let _suppressAudioChange = false;
       let _suppressTextChange  = false;
+      let _lastAudioStreams = null;
 
-      function ensureTrackListeners() {
-        if (_trackListenersBound) return;
-        _trackListenersBound = true;
-
-        player.audioTracks().addEventListener('change', () => {
-          if (_suppressAudioChange) return;
-          const at = player.audioTracks();
-          for (let i = 0; i < at.length; i++) {
-            if (!at[i].enabled) continue;
-            const code = (at[i].language || '').toLowerCase();
-            if (code && code !== preferredAudioLang) {
-              preferredAudioLang = code;
-              localStorage.setItem(AUDIO_LANG_STORAGE_KEY, code);
-              if (episodes.length > 0 && currentEpisodeIndex >= 0) {
-                playEpisode(
-                  episodes[currentEpisodeIndex],
-                  currentEpisodeIndex,
-                  getCurrentTime(),
-                );
-              }
-              prepareNextEpisodePreview();
+      function _onAudioTrackChange() {
+        if (_suppressAudioChange) return;
+        const at = player.audioTracks();
+        for (let i = 0; i < at.length; i++) {
+          if (!at[i].enabled) continue;
+          const code = (at[i].language || '').toLowerCase();
+          if (code && code !== preferredAudioLang) {
+            preferredAudioLang = code;
+            localStorage.setItem(AUDIO_LANG_STORAGE_KEY, code);
+            if (episodes.length > 0 && currentEpisodeIndex >= 0) {
+              playEpisode(
+                episodes[currentEpisodeIndex],
+                currentEpisodeIndex,
+                getCurrentTime(),
+              );
             }
+            prepareNextEpisodePreview();
+          }
+          break;
+        }
+      }
+
+      function _onTextTrackChange() {
+        if (_suppressTextChange) return;
+        const tt = player.textTracks();
+        let activeCode = 'off';
+        for (let i = 0; i < tt.length; i++) {
+          if (tt[i].mode === 'showing' && tt[i].kind === 'subtitles') {
+            activeCode = (tt[i].language || '').toLowerCase() || 'off';
             break;
           }
-        });
+        }
+        preferredSubLang = activeCode;
+        subsWanted = activeCode !== 'off';
+        localStorage.setItem(SUB_LANG_STORAGE_KEY, activeCode);
+        localStorage.setItem('bluey_subtitle_on', subsWanted ? '1' : '0');
+      }
 
-        player.textTracks().addEventListener('change', () => {
-          if (_suppressTextChange) return;
-          const tt = player.textTracks();
-          let activeCode = 'off';
-          for (let i = 0; i < tt.length; i++) {
-            if (tt[i].mode === 'showing' && tt[i].kind === 'subtitles') {
-              activeCode = (tt[i].language || '').toLowerCase() || 'off';
-              break;
-            }
-          }
-          preferredSubLang = activeCode;
-          subsWanted = activeCode !== 'off';
-          localStorage.setItem(SUB_LANG_STORAGE_KEY, activeCode);
-          localStorage.setItem('bluey_subtitle_on', subsWanted ? '1' : '0');
-        });
+      function rebindTrackListeners() {
+        const at = player.audioTracks();
+        const tt = player.textTracks();
+        // removeEventListener with the same fn ref is a no-op if it
+        // was never added, so this is safe to call repeatedly.
+        try { at.removeEventListener('change', _onAudioTrackChange); } catch {}
+        try { tt.removeEventListener('change', _onTextTrackChange); } catch {}
+        try { at.addEventListener('change', _onAudioTrackChange); } catch {}
+        try { tt.addEventListener('change', _onTextTrackChange); } catch {}
       }
 
       // Populate the player's AudioTrackList from the current
-      // episode's audio streams. video.js auto-shows its built-in
-      // audio menu button in the control bar when there's >1 track;
-      // selecting an entry fires the 'change' listener above which
-      // saves the lang code and reloads the HLS with the matching
-      // AudioStreamIndex.
+      // episode's audio streams. Also re-binds the change listener
+      // to the current tech's track list so a Chromecast session
+      // (which swaps techs) doesn't strand the listener on the old
+      // list. Caches the stream list so we can rebuild after a tech
+      // swap without re-fetching PlaybackInfo.
       function populateAudioTracks(audioStreams, currentIndex) {
-        ensureTrackListeners();
+        _lastAudioStreams = audioStreams || _lastAudioStreams;
+        rebindTrackListeners();
         const at = player.audioTracks();
         _suppressAudioChange = true;
-        // Remove existing tracks (rebuild on every episode load).
         for (let i = at.length - 1; i >= 0; i--) {
           at.removeTrack(at[i]);
         }
-        (audioStreams || []).forEach(s => {
+        (_lastAudioStreams || []).forEach(s => {
           const code = canonicalLangCode(s);
           at.addTrack(new videojs.AudioTrack({
             id: String(s.Index),

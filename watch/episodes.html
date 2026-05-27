@@ -1253,6 +1253,10 @@
       window.__castSubtitle = '';
       window.__castPoster = '';
       window.__castMP4 = '';
+      window.__castSeriesTitle = 'Bluey';
+      window.__castSeason = null;
+      window.__castEpisode = null;
+      window.__castEpisodeTitle = '';
       window.__isCasting = false;
 
       let nextPrefetchStarted = false;
@@ -1290,10 +1294,35 @@
                 request.media.contentId = window.__castMP4;
                 request.media.contentType = 'video/mp4';
               }
-              const md = request.media.metadata || new chrome.cast.media.GenericMediaMetadata();
-              md.title = window.__castTitle || document.title || 'Bluey';
+              // Default Media Receiver renders episode info from
+              // TvShowMediaMetadata (series + season/episode badge +
+              // poster). Fall back to GenericMediaMetadata if the
+              // Cast SDK build doesn't expose the TV type.
+              //
+              // Images MUST be chrome.cast.Image instances — plain
+              // { url } objects are silently ignored by the receiver,
+              // which is why the poster never showed up before.
+              let md = null;
+              try {
+                md = new chrome.cast.media.TvShowMediaMetadata();
+                md.metadataType = chrome.cast.media.MetadataType.TV_SHOW;
+                md.seriesTitle = window.__castSeriesTitle || 'Bluey';
+                if (window.__castSeason != null)   md.season  = Number(window.__castSeason);
+                if (window.__castEpisode != null)  md.episode = Number(window.__castEpisode);
+                md.episodeTitle =
+                  window.__castEpisodeTitle ||
+                  window.__castTitle ||
+                  document.title || '';
+              } catch {
+                md = new chrome.cast.media.GenericMediaMetadata();
+                md.metadataType = chrome.cast.media.MetadataType.GENERIC;
+              }
+              md.title    = window.__castTitle    || document.title || 'Bluey';
               md.subtitle = window.__castSubtitle || '';
-              if (window.__castPoster) { md.images = [{ url: window.__castPoster }]; }
+              if (window.__castPoster) {
+                try { md.images = [new chrome.cast.Image(window.__castPoster)]; }
+                catch { md.images = [{ url: window.__castPoster }]; }
+              }
               request.media.metadata = md;
               request.autoplay = true;
               return request;
@@ -1566,6 +1595,9 @@
           window.__castSubtitle = `Bluey | Season ${nextPrepared.episode.ParentIndexNumber}`;
           window.__castPoster = nextPrepared.poster;
           window.__castMP4 = nextPrepared.mp4 || '';
+          window.__castSeason = nextPrepared.episode.ParentIndexNumber;
+          window.__castEpisode = nextPrepared.episode.IndexNumber;
+          window.__castEpisodeTitle = nextPrepared.episode.Name;
           player.poster(nextPrepared.poster);
           // Override duration with Emby's exact ticks before the new
           // src loads so the display doesn't briefly show the HLS-
@@ -2047,6 +2079,11 @@
         window.__castTitle = niceTitle;
         window.__castSubtitle = `Bluey | Season ${episode.ParentIndexNumber}`;
         window.__castPoster = poster;
+        // Cast-specific episode metadata (TvShowMediaMetadata fields
+        // the Default Media Receiver reads in modifyLoadRequestFn).
+        window.__castSeason = episode.ParentIndexNumber;
+        window.__castEpisode = episode.IndexNumber;
+        window.__castEpisodeTitle = episode.Name;
 
         // Populate info panel
         const runtime = episode.RunTimeTicks ? Math.round(episode.RunTimeTicks / 600000000) : 7;

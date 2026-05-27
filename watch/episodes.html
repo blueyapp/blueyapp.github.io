@@ -1646,7 +1646,13 @@
         nextPrepared = null;
       }
 
-      /* Skip Intro */
+      /* Skip Intro
+       *
+       * ╔══════════════════════════════════════════════════════════╗
+       * ║  TO CHANGE WHERE "SKIP INTRO" JUMPS TO, EDIT THIS LINE:  ║
+       * ╚══════════════════════════════════════════════════════════╝ */
+      const SKIP_INTRO_SECONDS = 24;
+
       class SkipIntroOverlay extends BaseComp {
         constructor(player, options) {
           super(player, options);
@@ -1655,7 +1661,7 @@
           this.el().setAttribute('aria-label', 'Skip Intro');
           this.el().setAttribute('title', 'Skip Intro');
           this.el().textContent = 'Skip Intro';
-          this.introAt = (options && options.introAt) || 24;  // <-- EDIT THIS to change skip time
+          this.introAt = (options && options.introAt) || SKIP_INTRO_SECONDS;
           this.showFrom = (options && options.showFrom) || 0.5;
           this.autoHideAfter = (options && options.autoHideAfter) || 8;
           this._visible = false;
@@ -1705,10 +1711,10 @@
           player.on('ended', () => this._setVisible(false));
         }
         createEl() { return videojs.dom.createEl('button', { className: 'vjs-skip-intro-overlay' }); }
-        setIntroAt(sec) { this.introAt = Number(sec) || 24; this._dismissed = false; this._toggle(); }
+        setIntroAt(sec) { this.introAt = Number(sec) || SKIP_INTRO_SECONDS; this._dismissed = false; this._toggle(); }
       }
       videojs.registerComponent('SkipIntroOverlay', SkipIntroOverlay);
-      const skipOverlay = player.addChild('SkipIntroOverlay', { introAt: 24, showFrom: 0.5, autoHideAfter: 8 });
+      const skipOverlay = player.addChild('SkipIntroOverlay', { introAt: SKIP_INTRO_SECONDS, showFrom: 0.5, autoHideAfter: 8 });
 
       // Persist captions
       player.on('texttrackchange', () => {
@@ -2158,7 +2164,11 @@
         const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
         if (selectedEpisodeItem) selectedEpisodeItem.classList.add('selected');
 
-        if (typeof skipOverlay?.setIntroAt === 'function') { skipOverlay.setIntroAt(24); }
+        // Reset the skip-intro state for the new episode (and keep
+        // the time in sync with the SKIP_INTRO_SECONDS constant).
+        if (typeof skipOverlay?.setIntroAt === 'function') {
+          skipOverlay.setIntroAt(SKIP_INTRO_SECONDS);
+        }
       }
 
       function syncSeasonHighlight(episode) {

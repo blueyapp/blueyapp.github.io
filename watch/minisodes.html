@@ -1696,8 +1696,8 @@
           this.el().setAttribute('title', 'Skip Intro');
           this.el().textContent = 'Skip Intro';
           this.introAt = (options && options.introAt) || SKIP_INTRO_SECONDS;
-          this.showFrom = (options && options.showFrom) || 5000000;
-          this.autoHideAfter = (options && options.autoHideAfter) || 8;
+          this.showFrom = (options && options.showFrom) || 0;
+          this.autoHideAfter = (options && options.autoHideAfter) || 0;
           this._visible = false;
           this._hideTimer = null;
           this._dismissed = false;
@@ -1748,7 +1748,7 @@
         setIntroAt(sec) { this.introAt = Number(sec) || SKIP_INTRO_SECONDS; this._dismissed = false; this._toggle(); }
       }
       videojs.registerComponent('SkipIntroOverlay', SkipIntroOverlay);
-      const skipOverlay = player.addChild('SkipIntroOverlay', { introAt: SKIP_INTRO_SECONDS, showFrom: 5000000, autoHideAfter: 8 });
+      const skipOverlay = player.addChild('SkipIntroOverlay', { introAt: SKIP_INTRO_SECONDS, showFrom: 0, autoHideAfter: 0 });
 
       // Persist captions
       player.on('texttrackchange', () => {

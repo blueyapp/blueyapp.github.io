@@ -306,7 +306,7 @@
       .custom-dropdown__item.selected {
         background: rgba(255,255,255,0.2);
       }
-      #shuffle-button {
+      #shuffle-button, #play-button {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -315,10 +315,16 @@
         border: none;
         border-radius: 8px;
         background: #404066;
+        color: #fff;
         cursor: pointer;
         transition: background 0.2s, box-shadow 0.2s;
       }
-      #shuffle-button:hover, #shuffle-button:focus { background: #52527a; outline: none; box-shadow: 0 0 0 2px #00e5ff; }
+      #shuffle-button:hover, #shuffle-button:focus,
+      #play-button:hover, #play-button:focus {
+        background: #52527a;
+        outline: none;
+        box-shadow: 0 0 0 2px #00e5ff;
+      }
       .custom-dropdown__trigger:focus { outline: none; box-shadow: 0 0 0 2px #00e5ff; }
       #shuffle-icon {
         color: #fff;
@@ -805,13 +811,13 @@
       body.dark .custom-dropdown__item:hover,
       body.dark .custom-dropdown__item:focus { background: rgba(251,191,36,0.15); }
       body.dark .custom-dropdown__item.selected { background: rgba(251,191,36,0.2); }
-      body.dark #shuffle-button { background: rgba(255,255,255,0.08); }
-      body.dark #shuffle-icon { color: #fbbf24; }
+      body.dark #shuffle-button, body.dark #play-button { background: rgba(255,255,255,0.08); }
+      body.dark #shuffle-icon, body.dark #play-button { color: #fbbf24; }
       body.dark #shuffle-icon.active { color: #1a1a2e !important; background: #fbbf24 !important; box-shadow: 0 0 10px 2px rgba(251,191,36,0.4); }
       body.dark #episodes li:hover, body.dark #episodes li:focus { background: rgba(255,255,255,0.04); }
       body.dark #episodes li:focus { box-shadow: inset 0 0 0 2px #fbbf24; }
       body.dark .season-selector__button:focus { box-shadow: inset 0 0 0 2px #fbbf24; }
-      body.dark #shuffle-button:focus { box-shadow: 0 0 0 2px #fbbf24; }
+      body.dark #shuffle-button:focus, body.dark #play-button:focus { box-shadow: 0 0 0 2px #fbbf24; }
       body.dark .custom-dropdown__trigger:focus { box-shadow: 0 0 0 2px #fbbf24; }
       body.dark #episodes li.selected { background: rgba(251,191,36,0.1); }
       body.dark #episodes li .ep-info h2 { color: #fbbf24; }
@@ -982,6 +988,14 @@
              inside the video.js control bar — see the audioTracks /
              remoteTextTracks population in playEpisode). -->
         <div class="sidebar-controls">
+          <!-- Play starts from S1E1, or fires a random episode when
+               shuffle is active. Same 42×42 footprint as the shuffle
+               button for a tidy row. -->
+          <button id="play-button" onclick="playFromStart()" title="Play">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="6,4 20,12 6,20" />
+            </svg>
+          </button>
           <button id="shuffle-button" onclick="toggleShuffleMode()" title="Shuffle">
             <svg id="shuffle-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <polyline points="16 3 21 3 21 8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2332,6 +2346,64 @@
         const shuffleIcon = document.getElementById('shuffle-icon');
         if (shuffleMode) shuffleIcon.classList.add('active'); else shuffleIcon.classList.remove('active');
         prepareNextEpisodePreview();
+      }
+
+      // Hard-start the watch flow.
+      //   - shuffle ON  → pick a random episode from the full list.
+      //   - shuffle OFF → jump to Season 1 Episode 1.
+      // Either branch updates the season highlight + fetches the
+      // target season's episode list if it isn't cached yet, then
+      // hands off to playEpisode like everywhere else.
+      async function playFromStart() {
+        if (!seasonsList || seasonsList.length === 0) {
+          showToast('Still loading seasons — try again in a sec.');
+          return;
+        }
+        if (shuffleMode) {
+          // Need the master list of episodes to pick from. If it
+          // hasn't been built yet, fall back to S1E1 instead of
+          // showing nothing.
+          if (allEpisodes.length > 0) {
+            const ep = allEpisodes[Math.floor(Math.random() * allEpisodes.length)];
+            await jumpToEpisode(ep);
+            return;
+          }
+        }
+        // Default path: Season 1 Episode 1. Prefer the season whose
+        // IndexNumber is 1 in case the list isn't strictly ordered.
+        const firstSeason = seasonsList.find(s => s.IndexNumber === 1) || seasonsList[0];
+        const list = episodesCache[firstSeason.Id]
+          ? episodesCache[firstSeason.Id]
+          : await fetchEpisodes(firstSeason);
+        if (!list || list.length === 0) {
+          showToast('No episodes in Season 1.');
+          return;
+        }
+        await jumpToEpisode(list[0], firstSeason, list);
+      }
+
+      // Shared helper used by playFromStart for both shuffle and S1E1
+      // paths. Resolves the episode's season (or accepts an already-
+      // known season + list to avoid a second lookup) and plays the
+      // episode after updating UI state.
+      async function jumpToEpisode(ep, knownSeason, knownList) {
+        const season = knownSeason || seasonsList.find(s => s.Id === ep.SeasonId);
+        if (!season) return;
+        currentSeason = season;
+        currentSeasonIndex = seasonsList.indexOf(season);
+        document.querySelectorAll('.season-selector__button').forEach(b => b.classList.remove('selected'));
+        const sb = document.querySelector(`.season-selector__button[data-season-id="${season.Id}"]`);
+        if (sb) sb.classList.add('selected');
+
+        const list = knownList ||
+          (episodesCache[season.Id] ? episodesCache[season.Id] : await fetchEpisodes(season));
+        if (!list || list.length === 0) return;
+        episodes = list;
+        renderEpisodes(episodes);
+        const idx = episodes.findIndex(e => e.Id === ep.Id);
+        if (idx < 0) return;
+        currentEpisodeIndex = idx;
+        playEpisode(ep, idx);
       }
 
       function downloadEpisode() {

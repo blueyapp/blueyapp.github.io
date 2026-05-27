@@ -1309,6 +1309,42 @@
         }
       });
 
+      // ── Duration override ──────────────────────────────────────
+      // video.js reads duration from the HLS manifest, which rounds
+      // up to the nearest segment boundary (Emby default segments
+      // are 6 s) and reports a value typically 2–4 s longer than
+      // the actual file. Emby's PlaybackInfo carries the exact
+      // duration in RunTimeTicks (units of 100 ns); we set that
+      // here and have player.duration() prefer it for UI purposes.
+      //
+      // The override only changes what video.js *displays* — the
+      // tech's real duration still drives the 'ended' event and
+      // network buffering decisions, so playback / next-episode
+      // handoff still fire when the media actually finishes.
+      let __overrideDurationSec = null;
+      const _origDuration = player.duration.bind(player);
+      player.duration = function(...args) {
+        if (args.length === 0) {
+          if (typeof __overrideDurationSec === 'number' &&
+              !isNaN(__overrideDurationSec) &&
+              __overrideDurationSec > 0) {
+            return __overrideDurationSec;
+          }
+        }
+        return _origDuration(...args);
+      };
+
+      function setDurationOverrideFromTicks(ticks) {
+        if (typeof ticks === 'number' && ticks > 0) {
+          __overrideDurationSec = ticks / 10000000;
+        } else {
+          __overrideDurationSec = null;
+        }
+        // Nudge video.js so the duration display + seek bar pick up
+        // the new value without waiting for the next tech tick.
+        try { player.trigger('durationchange'); } catch {}
+      }
+
       // Episode title overlay
       const BaseComp = videojs.getComponent('Component');
       class TitleOverlay extends BaseComp {
@@ -1478,7 +1514,7 @@
         const seasonIndex = seasonsList.indexOf(cand.season);
         const epIndex = list.findIndex(x => x.Id === ep.Id);
         const poster = `${serverUrl}/emby/Items/${ep.Id}/Images/Primary?api_key=${apiKey}`;
-        let prepared = { episode: ep, season: cand.season, seasonIndex, epIndex, poster, hls:null, mp4:null, audioIndex:null, audioStreams:[], mediaSourceId:null, subStreams:[], subPickIndex:null, subPickCode:'off' };
+        let prepared = { episode: ep, season: cand.season, seasonIndex, epIndex, poster, hls:null, mp4:null, audioIndex:null, audioStreams:[], mediaSourceId:null, subStreams:[], subPickIndex:null, subPickCode:'off', runTimeTicks:0 };
         try{
           const timestamp = Date.now();
           const info = await fetch(`${serverUrl}/emby/Items/${ep.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources&t=${timestamp}`).then(r=>r.json());
@@ -1505,6 +1541,12 @@
           prepared.subStreams = sortStreamsByLabel(subStreams);
           prepared.subPickIndex = subPick ? subPick.Index : null;
           prepared.subPickCode = subPick ? canonicalLangCode(subPick) : 'off';
+          // Cache the exact duration so the auto-advance path can
+          // apply the same override the interactive playEpisode path
+          // does — keeps the displayed length consistent across the
+          // hand-off and avoids a half-second flash of the rounded
+          // HLS value when the prefetched HLS loads.
+          prepared.runTimeTicks = ms.RunTimeTicks || ep.RunTimeTicks || 0;
         }catch{}
         if (token !== nextPrepToken) return;
         nextPrepared = prepared;
@@ -1525,6 +1567,10 @@
           window.__castPoster = nextPrepared.poster;
           window.__castMP4 = nextPrepared.mp4 || '';
           player.poster(nextPrepared.poster);
+          // Override duration with Emby's exact ticks before the new
+          // src loads so the display doesn't briefly show the HLS-
+          // manifest's rounded-up length and then flip.
+          setDurationOverrideFromTicks(nextPrepared.runTimeTicks);
           player.src({ src: nextPrepared.hls, type: 'application/x-mpegURL' });
           currentAudioStreamIndexUsed = nextPrepared.audioIndex;
           try {
@@ -2006,6 +2052,13 @@
         const timestamp = Date.now();
         const info = await fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources&t=${timestamp}`).then(r => r.json());
         const ms = info.MediaSources[0];
+
+        // Override the player's reported duration with Emby's exact
+        // RunTimeTicks before the new src loads — keeps the
+        // displayed length matching the actual file instead of the
+        // HLS-manifest's rounded-up value (typically a few seconds
+        // longer because of segment boundary padding).
+        setDurationOverrideFromTicks(ms.RunTimeTicks || episode.RunTimeTicks);
 
         const audioStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Audio');
         const pick = pickAudioStreamIndex(audioStreams, preferredAudioLang);

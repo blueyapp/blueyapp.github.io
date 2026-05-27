@@ -1064,96 +1064,111 @@
         return a;
       }
 
-      // ISO 639 codes → display names. Used to label dropdown items
-      // when the stream's DisplayTitle isn't human-friendly enough.
+      // Browser-native language-code → display-name resolver. Covers
+      // every ISO 639-1 / 639-2 / 639-3 code the runtime knows about
+      // (in practice ≈300 languages on modern Chromium / Firefox /
+      // Safari) without us having to maintain a manual list — so
+      // adding a Swahili or Welsh audio track just works.
+      let _languageDisplay = null;
+      try {
+        _languageDisplay = new Intl.DisplayNames(['en'], { type: 'language' });
+      } catch {}
+
+      // Tiny manual map kept around as a fallback for ancient
+      // browsers without Intl.DisplayNames AND for the 3-letter
+      // codes Intl is sometimes inconsistent on. Order isn't
+      // significant.
       const ISO_LANG_NAMES = {
         eng: 'English', en: 'English',
         msa: 'Malay',   may: 'Malay', zsm: 'Malay', ms: 'Malay',
         ara: 'Arabic',  ar: 'Arabic',
         tgl: 'Tagalog', fil: 'Filipino', tl: 'Tagalog',
-        spa: 'Spanish', es: 'Spanish',
-        fre: 'French',  fra: 'French',  fr: 'French',
-        ger: 'German',  deu: 'German',  de: 'German',
-        ita: 'Italian', it: 'Italian',
-        por: 'Portuguese', pt: 'Portuguese',
-        rus: 'Russian', ru: 'Russian',
-        jpn: 'Japanese', ja: 'Japanese',
-        kor: 'Korean',  ko: 'Korean',
-        chi: 'Chinese', zho: 'Chinese', zh: 'Chinese',
-        hin: 'Hindi',   hi: 'Hindi',
-        ind: 'Indonesian', id: 'Indonesian',
-        tha: 'Thai',    th: 'Thai',
-        vie: 'Vietnamese', vi: 'Vietnamese',
-        dut: 'Dutch',   nld: 'Dutch',   nl: 'Dutch',
-        pol: 'Polish',  pl: 'Polish',
-        tur: 'Turkish', tr: 'Turkish',
-        swe: 'Swedish', sv: 'Swedish',
-        nor: 'Norwegian', no: 'Norwegian', nob: 'Norwegian',
-        dan: 'Danish',  da: 'Danish',
-        fin: 'Finnish', fi: 'Finnish',
       };
 
-      // True when [title] is purely codec / channel / generic-track
-      // info with no language hint — e.g. "AAC Stereo", "AC3 5.1",
-      // "FLAC", "Track 1". Used to decide whether the title is
-      // useful as a label or whether we should fall back to a
-      // language guess.
-      function isCodecOnlyLabel(title) {
-        if (!title) return true;
-        const t = title.toLowerCase();
-        // If ANY language name / ISO code appears, it's not codec-
-        // only — keep the title intact.
-        for (const [code, name] of Object.entries(ISO_LANG_NAMES)) {
-          const nameLc = name.toLowerCase();
-          // Match the ISO code as a standalone word, or the full
-          // language name anywhere in the title.
-          const codeRe = new RegExp('(^|[^a-z])' + code + '([^a-z]|$)');
-          if (codeRe.test(t)) return false;
-          if (t.includes(nameLc)) return false;
+      function lookupLangName(code) {
+        if (!code) return null;
+        if (_languageDisplay) {
+          try {
+            const name = _languageDisplay.of(code);
+            // Intl returns the input back when it doesn't recognise
+            // the code; treat that as "not found".
+            if (name && name.toLowerCase() !== code.toLowerCase()) {
+              return name;
+            }
+          } catch {}
         }
-        // Pure "Track N" / "Audio 1" / "Stream" labels.
-        if (/^(track|audio|subtitle|stream)\s*\d*$/.test(t)) return true;
-        // Codec names.
-        if (/\b(aac|ac3|eac3|e-ac-3|dts|dts-hd|flac|mp3|mp2|opus|vorbis|pcm|lpcm|truehd|true-hd|dolby|atmos|alac|wav|wma)\b/.test(t)) return true;
-        // Channel layouts.
-        if (/\b(stereo|mono|surround|5\.1|7\.1|6\.1|2\.0|2ch|6ch|8ch|quad)\b/.test(t)) return true;
-        // Bitrate / sample-rate-only labels.
-        if (/^\s*\d+\s*(kbps|hz|khz|bit|ch)/i.test(title)) return true;
-        return false;
+        return ISO_LANG_NAMES[code] || null;
       }
 
-      // Canonical 3-letter-ish code we'll use as the persisted
-      // preference. Whatever the stream tags itself with — `eng`,
-      // `en`, `English` — gets reduced to a single lowercased token
-      // so the same saved value matches across episodes. An entirely
-      // unlabelled stream (no Language, codec-only title) defaults
-      // to `eng` — Emby leaves the first audio track untagged on
-      // English-only sources, so this matches the user's real-world
-      // case ("usually it only show for first audio and mostly
-      // english").
+      // True when every word in [title] is a codec / channel /
+      // throwaway keyword (e.g. "AAC", "Stereo", "5.1", "Default")
+      // and there's nothing left that might identify a language or
+      // a meaningful descriptor. Inverted from a "does it contain a
+      // known language word?" check so adding a track in a language
+      // we don't have hardcoded (Swahili, Welsh, …) keeps its title
+      // intact instead of getting overwritten to "English".
+      const CODEC_ONLY_WORDS = new Set([
+        'track','audio','subtitle','subtitles','stream',
+        'aac','ac3','eac3','dts','dtshd','flac','mp3','mp2',
+        'opus','vorbis','pcm','lpcm','truehd','dolby','atmos',
+        'alac','wav','wma',
+        'stereo','mono','surround','quad',
+        'default','forced','sdh','hi','hearing','impaired',
+        'kbps','hz','khz','bit','ch',
+        // Common single-letter / glue tokens that pop out of split.
+        'a','b','c',
+      ]);
+      function isCodecOnlyLabel(title) {
+        if (!title) return true;
+        const t = title.toLowerCase().trim();
+        if (/^(track|audio|subtitle|stream)\s*\d*$/.test(t)) return true;
+        const tokens = t.split(/[^a-z0-9]+/).filter(Boolean);
+        if (tokens.length === 0) return true;
+        const numeric = /^\d+(\.\d+)?$/;
+        return tokens.every(tok => CODEC_ONLY_WORDS.has(tok) || numeric.test(tok));
+      }
+
+      // Canonical lowercased language code we use as the persisted
+      // preference. An entirely unlabelled stream (no Language,
+      // codec-only title) defaults to `eng` — Emby leaves the first
+      // audio track untagged on English-only sources, so this
+      // matches the common case.
       function canonicalLangCode(stream) {
         const raw = (stream.Language || stream.DisplayLanguage || '').toLowerCase().trim();
         if (raw) return raw;
-        const title = (stream.DisplayTitle || stream.Title || '').toLowerCase();
-        for (const [code, name] of Object.entries(ISO_LANG_NAMES)) {
-          if (title.includes(name.toLowerCase())) return code;
-        }
-        if (isCodecOnlyLabel(title)) return 'eng';
+        const title = (stream.DisplayTitle || stream.Title || '').trim();
+        if (title && isCodecOnlyLabel(title)) return 'eng';
         return '';
       }
 
-      // Friendly label for the dropdown item. Prefer ISO map → fall
-      // back to a non-generic DisplayTitle → final fallback to
-      // English when the title is just codec/channel info (matches
-      // canonicalLangCode's default so the menu and the persisted
-      // preference stay in sync).
+      // Friendly label for the dropdown item. Prefer Intl-derived
+      // language name → fall back to a non-codec DisplayTitle →
+      // raw code uppercased → final default of "English" for
+      // codec-only / blank titles.
       function niceLangLabelFrom(stream) {
         const code = (stream.Language || stream.DisplayLanguage || '').toLowerCase().trim();
-        if (code && ISO_LANG_NAMES[code]) return ISO_LANG_NAMES[code];
+        if (code) {
+          const name = lookupLangName(code);
+          if (name) return name;
+        }
         const title = (stream.DisplayTitle || stream.Title || '').trim();
         if (title && !isCodecOnlyLabel(title)) return title;
         if (code) return code.toUpperCase();
         return 'English';
+      }
+
+      // Return a NEW array of streams sorted alphabetically by the
+      // label users see in the menu. Used purely for display order —
+      // callers run pickAudioStreamIndex / pickSubtitleStream on the
+      // original (file-order) array first so the "no preference"
+      // default still resolves to the file's first track, not the
+      // alphabetically-first one.
+      function sortStreamsByLabel(streams) {
+        return (streams || []).slice().sort((a, b) => {
+          const la = niceLangLabelFrom(a).toLowerCase();
+          const lb = niceLangLabelFrom(b).toLowerCase();
+          return la.localeCompare(lb);
+        });
       }
 
       // Pick an audio stream by saved language code. Falls back to
@@ -1467,9 +1482,13 @@
           prepared.hls = hls;
           prepared.mp4 = mp4;
           prepared.audioIndex = pick.index;
-          prepared.audioStreams = audioStreams;
+          // Sort both lists for display now (cheap, once per
+          // prefetch). pickAudioStreamIndex above already ran on
+          // the original order, so the default selection stays
+          // file-order driven.
+          prepared.audioStreams = sortStreamsByLabel(audioStreams);
           prepared.mediaSourceId = mediaSourceId;
-          prepared.subStreams = subStreams;
+          prepared.subStreams = sortStreamsByLabel(subStreams);
           prepared.subPickIndex = subPick ? subPick.Index : null;
           prepared.subPickCode = subPick ? canonicalLangCode(subPick) : 'off';
         }catch{}
@@ -2006,13 +2025,22 @@
         // fires the 'change' listener (see ensureTrackListeners)
         // which persists the language and reloads with the matching
         // AudioStreamIndex.
-        populateAudioTracks(audioStreams, currentAudioStreamIndexUsed);
+        //
+        // Items are added alphabetically by label for display, but
+        // the default selection (currentAudioStreamIndexUsed) was
+        // already chosen from the file's original order above, so
+        // the player still starts on whichever track Emby served
+        // first for tracks with no language tag.
+        populateAudioTracks(sortStreamsByLabel(audioStreams), currentAudioStreamIndexUsed);
 
         // Add EVERY subtitle stream as a remote text track so
         // video.js's built-in CC menu lists them all and the user
-        // can switch on the fly without a media reload.
+        // can switch on the fly without a media reload. Adding
+        // alphabetically by label so the menu reads tidily; the
+        // active selection is decided separately below.
         const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
-        subStreams.forEach(s => {
+        const sortedSubStreams = sortStreamsByLabel(subStreams);
+        sortedSubStreams.forEach(s => {
           const vtt = `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/${s.Index}/0/Stream.vtt?api_key=${apiKey}`;
           const code = canonicalLangCode(s);
           const niceLabel = niceLangLabelFrom(s);

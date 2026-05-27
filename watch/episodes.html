@@ -470,6 +470,17 @@
         border-radius: 0;
       }
 
+      /* video.js menu items (audio + subtitle pickers) default to
+         text-transform: lowercase, which mangles language labels
+         like "English" → "english". Render them exactly as we
+         pass them so "English" / "Malay" / "Director's Commentary"
+         keep their intended casing. */
+      .video-js .vjs-menu .vjs-menu-item,
+      .video-js .vjs-menu .vjs-menu-item-text,
+      .video-js .vjs-menu .vjs-menu-title {
+        text-transform: none !important;
+      }
+
       /* Info panel */
       .player-info {
         width: 280px;
@@ -967,17 +978,10 @@
         <img src="/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo" />
         <div class="season-list" id="seasons"></div>
 
-        <!-- Language & Shuffle -->
+        <!-- Shuffle (audio + subtitle language pickers now live
+             inside the video.js control bar — see the audioTracks /
+             remoteTextTracks population in playEpisode). -->
         <div class="sidebar-controls">
-          <div class="custom-dropdown" id="language-dropdown">
-            <button class="custom-dropdown__trigger" id="language-select" type="button" tabindex="0">English</button>
-            <ul class="custom-dropdown__menu">
-              <li class="custom-dropdown__item" data-value="4" tabindex="0">Arabic</li>
-              <li class="custom-dropdown__item selected" data-value="1" tabindex="0">English</li>
-              <li class="custom-dropdown__item" data-value="3" tabindex="0">Malay</li>
-              <li class="custom-dropdown__item" data-value="5" tabindex="0">Tagalog</li>
-            </ul>
-          </div>
           <button id="shuffle-button" onclick="toggleShuffleMode()" title="Shuffle">
             <svg id="shuffle-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <polyline points="16 3 21 3 21 8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1053,14 +1057,6 @@
         showToast._t = setTimeout(() => t.classList.remove('show'), duration);
       }
 
-      // Language mapping
-      const PREFERRED_LANGS = {
-        '1': ['eng','en','english'],
-        '3': ['msa','may','zsm','ms','malay','bahasa melayu'],
-        '4': ['ara','ar','arabic','العربية'],
-        '5': ['tgl','fil','tl','tagalog','filipino']
-      };
-
       function normalizeLangHint(stream) {
         const a = [
           stream.Language, stream.DisplayLanguage, stream.DisplayTitle, stream.Title, stream.Codec
@@ -1068,44 +1064,146 @@
         return a;
       }
 
-      function pickAudioStreamIndex(audioStreams, preferredKey) {
+      // ISO 639 codes → display names. Used to label dropdown items
+      // when the stream's DisplayTitle isn't human-friendly enough.
+      const ISO_LANG_NAMES = {
+        eng: 'English', en: 'English',
+        msa: 'Malay',   may: 'Malay', zsm: 'Malay', ms: 'Malay',
+        ara: 'Arabic',  ar: 'Arabic',
+        tgl: 'Tagalog', fil: 'Filipino', tl: 'Tagalog',
+        spa: 'Spanish', es: 'Spanish',
+        fre: 'French',  fra: 'French',  fr: 'French',
+        ger: 'German',  deu: 'German',  de: 'German',
+        ita: 'Italian', it: 'Italian',
+        por: 'Portuguese', pt: 'Portuguese',
+        rus: 'Russian', ru: 'Russian',
+        jpn: 'Japanese', ja: 'Japanese',
+        kor: 'Korean',  ko: 'Korean',
+        chi: 'Chinese', zho: 'Chinese', zh: 'Chinese',
+        hin: 'Hindi',   hi: 'Hindi',
+        ind: 'Indonesian', id: 'Indonesian',
+        tha: 'Thai',    th: 'Thai',
+        vie: 'Vietnamese', vi: 'Vietnamese',
+        dut: 'Dutch',   nld: 'Dutch',   nl: 'Dutch',
+        pol: 'Polish',  pl: 'Polish',
+        tur: 'Turkish', tr: 'Turkish',
+        swe: 'Swedish', sv: 'Swedish',
+        nor: 'Norwegian', no: 'Norwegian', nob: 'Norwegian',
+        dan: 'Danish',  da: 'Danish',
+        fin: 'Finnish', fi: 'Finnish',
+      };
+
+      // True when [title] is purely codec / channel / generic-track
+      // info with no language hint — e.g. "AAC Stereo", "AC3 5.1",
+      // "FLAC", "Track 1". Used to decide whether the title is
+      // useful as a label or whether we should fall back to a
+      // language guess.
+      function isCodecOnlyLabel(title) {
+        if (!title) return true;
+        const t = title.toLowerCase();
+        // If ANY language name / ISO code appears, it's not codec-
+        // only — keep the title intact.
+        for (const [code, name] of Object.entries(ISO_LANG_NAMES)) {
+          const nameLc = name.toLowerCase();
+          // Match the ISO code as a standalone word, or the full
+          // language name anywhere in the title.
+          const codeRe = new RegExp('(^|[^a-z])' + code + '([^a-z]|$)');
+          if (codeRe.test(t)) return false;
+          if (t.includes(nameLc)) return false;
+        }
+        // Pure "Track N" / "Audio 1" / "Stream" labels.
+        if (/^(track|audio|subtitle|stream)\s*\d*$/.test(t)) return true;
+        // Codec names.
+        if (/\b(aac|ac3|eac3|e-ac-3|dts|dts-hd|flac|mp3|mp2|opus|vorbis|pcm|lpcm|truehd|true-hd|dolby|atmos|alac|wav|wma)\b/.test(t)) return true;
+        // Channel layouts.
+        if (/\b(stereo|mono|surround|5\.1|7\.1|6\.1|2\.0|2ch|6ch|8ch|quad)\b/.test(t)) return true;
+        // Bitrate / sample-rate-only labels.
+        if (/^\s*\d+\s*(kbps|hz|khz|bit|ch)/i.test(title)) return true;
+        return false;
+      }
+
+      // Canonical 3-letter-ish code we'll use as the persisted
+      // preference. Whatever the stream tags itself with — `eng`,
+      // `en`, `English` — gets reduced to a single lowercased token
+      // so the same saved value matches across episodes. An entirely
+      // unlabelled stream (no Language, codec-only title) defaults
+      // to `eng` — Emby leaves the first audio track untagged on
+      // English-only sources, so this matches the user's real-world
+      // case ("usually it only show for first audio and mostly
+      // english").
+      function canonicalLangCode(stream) {
+        const raw = (stream.Language || stream.DisplayLanguage || '').toLowerCase().trim();
+        if (raw) return raw;
+        const title = (stream.DisplayTitle || stream.Title || '').toLowerCase();
+        for (const [code, name] of Object.entries(ISO_LANG_NAMES)) {
+          if (title.includes(name.toLowerCase())) return code;
+        }
+        if (isCodecOnlyLabel(title)) return 'eng';
+        return '';
+      }
+
+      // Friendly label for the dropdown item. Prefer ISO map → fall
+      // back to a non-generic DisplayTitle → final fallback to
+      // English when the title is just codec/channel info (matches
+      // canonicalLangCode's default so the menu and the persisted
+      // preference stay in sync).
+      function niceLangLabelFrom(stream) {
+        const code = (stream.Language || stream.DisplayLanguage || '').toLowerCase().trim();
+        if (code && ISO_LANG_NAMES[code]) return ISO_LANG_NAMES[code];
+        const title = (stream.DisplayTitle || stream.Title || '').trim();
+        if (title && !isCodecOnlyLabel(title)) return title;
+        if (code) return code.toUpperCase();
+        return 'English';
+      }
+
+      // Pick an audio stream by saved language code. Falls back to
+      // English, then to the first stream the episode carries.
+      function pickAudioStreamIndex(audioStreams, preferredLangCode) {
         if (!audioStreams || audioStreams.length === 0) return { index: null, reason: 'none' };
-        const hints = PREFERRED_LANGS[String(preferredKey)] || [];
-        const want = (s) => { const h = normalizeLangHint(s); return hints.some(code => h.includes(code)); };
-        const pref = audioStreams.find(want);
-        if (pref) return { index: pref.Index, reason: 'pref' };
+        if (preferredLangCode) {
+          const match = audioStreams.find(s => canonicalLangCode(s) === preferredLangCode);
+          if (match) return { index: match.Index, reason: 'pref' };
+        }
         const eng = audioStreams.find(s => /(^|[^a-z])(eng|english|en)([^a-z]|$)/.test(normalizeLangHint(s)));
         if (eng) return { index: eng.Index, reason: 'fallback_en' };
         return { index: audioStreams[0].Index, reason: 'fallback_first' };
       }
 
-      function niceLangLabelFrom(stream) {
-        const raw = ((stream.Language || stream.DisplayLanguage || stream.DisplayTitle || stream.Title) || '').toLowerCase();
-        if (/(^|[^a-z])(eng|english|en)([^a-z]|$)/.test(raw)) return 'English';
-        if (/(msa|may|zsm|ms|malay|bahasa melayu)/.test(raw))   return 'Malay';
-        if (/(ara|ar|arabic|العربية)/.test(raw))                return 'Arabic';
-        if (/(tgl|fil|tl|tagalog|filipino)/.test(raw))          return 'Tagalog';
-        return 'Subtitles';
+      // Pick a subtitle stream by saved code. 'off' means user
+      // explicitly disabled subs; null means no preference yet (and
+      // we leave them off by default rather than surprising the user).
+      function pickSubtitleStream(subStreams, preferredLangCode) {
+        if (!subStreams || subStreams.length === 0) return null;
+        if (!preferredLangCode || preferredLangCode === 'off') return null;
+        return subStreams.find(s => canonicalLangCode(s) === preferredLangCode) || null;
       }
-      function srclangFromLabel(label) {
-        switch (label) {
-          case 'English': return 'en';
-          case 'Malay':   return 'ms';
-          case 'Arabic':  return 'ar';
-          case 'Tagalog': return 'tl';
-          default:        return 'en';
-        }
+
+      function srclangFromCode(code) {
+        // 2-letter shortlist for HTML <track srclang>. Falls back to
+        // the code itself if we don't recognise it — browsers accept
+        // any IETF tag.
+        const map = { eng:'en', msa:'ms', may:'ms', zsm:'ms', ara:'ar', tgl:'tl', fil:'tl',
+          spa:'es', fre:'fr', fra:'fr', ger:'de', deu:'de', ita:'it', por:'pt',
+          rus:'ru', jpn:'ja', kor:'ko', chi:'zh', zho:'zh', hin:'hi', ind:'id',
+          tha:'th', vie:'vi', dut:'nl', nld:'nl', pol:'pl', tur:'tr', swe:'sv',
+          nor:'no', nob:'no', dan:'da', fin:'fi' };
+        return map[code] || code || 'en';
       }
 
       // Global config
       const serverUrl = "https://blueynet.org:443";
       const apiKey = "6b2548952ea2439ea800b8cd3f1072d1";
       const itemId = "11";
-      const LANG_STORAGE_KEY = "bluey_watch_selected_language_episodes";
+      // Storage keys — both hold ISO language codes (e.g. 'eng',
+      // 'msa', 'ara'). Sub key may also be 'off' meaning "user
+      // explicitly turned subtitles off".
+      const AUDIO_LANG_STORAGE_KEY = "bluey_episodes_audio_lang";
+      const SUB_LANG_STORAGE_KEY   = "bluey_episodes_sub_lang";
 
-      let selectedAudioStreamIndex = 1;
-      let userPreferredLanguage = selectedAudioStreamIndex;
+      let preferredAudioLang = 'eng';
+      let preferredSubLang   = 'off';
       let currentAudioStreamIndexUsed = null;
+      let currentSubStreamIndexUsed   = null;
 
       let selectedSeason = null;
       let episodes = [];
@@ -1129,6 +1227,22 @@
       window.__isCasting = false;
 
       let nextPrefetchStarted = false;
+
+      // video.js's English language pack ships several strings in
+      // lowercase ("captions off", "subtitles settings", etc.) and
+      // relies on its menu CSS to .text-transform them. We disabled
+      // that lowercase transform above (so labels like "English"
+      // render correctly) — which means these defaults now show
+      // as-is. Re-cap them properly via addLanguage.
+      videojs.addLanguage('en', {
+        'captions off':     'Captions Off',
+        'subtitles off':    'Subtitles Off',
+        'descriptions off': 'Descriptions Off',
+        'audio track off':  'Audio Track Off',
+        'captions settings':  'Captions Settings',
+        'subtitles settings': 'Subtitles Settings',
+        'audio track settings':'Audio Track Settings',
+      });
 
       const player = videojs('bluey', {
         controls: true,
@@ -1335,30 +1449,29 @@
         const seasonIndex = seasonsList.indexOf(cand.season);
         const epIndex = list.findIndex(x => x.Id === ep.Id);
         const poster = `${serverUrl}/emby/Items/${ep.Id}/Images/Primary?api_key=${apiKey}`;
-        let prepared = { episode: ep, season: cand.season, seasonIndex, epIndex, poster, hls:null, mp4:null, audioIndex:null, mediaSourceId:null, subIndex:null, subLabel:'English', subSrclang:'en' };
+        let prepared = { episode: ep, season: cand.season, seasonIndex, epIndex, poster, hls:null, mp4:null, audioIndex:null, audioStreams:[], mediaSourceId:null, subStreams:[], subPickIndex:null, subPickCode:'off' };
         try{
           const timestamp = Date.now();
           const info = await fetch(`${serverUrl}/emby/Items/${ep.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources&t=${timestamp}`).then(r=>r.json());
           const ms = info.MediaSources[0];
           const audioStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Audio');
-          const pick = pickAudioStreamIndex(audioStreams, userPreferredLanguage);
+          const pick = pickAudioStreamIndex(audioStreams, preferredAudioLang);
           const mediaSourceId = ms.Id;
           const VideoBitRate = ms.MediaStreams[0]?.BitRate || 5000000;
           const AudioBitRate = (audioStreams.find(s => s.Index === pick.index)?.BitRate) || 192000;
           const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
-          const subPick = subStreams.find(s => /(^|[^a-z])(eng|english|en)([^a-z]|$)/.test(((s.Language||s.DisplayLanguage||s.Title)||'').toLowerCase())) || subStreams[0];
+          const subPick = pickSubtitleStream(subStreams, preferredSubLang);
           const hls = buildHlsUrl(ep, mediaSourceId, info.PlaySessionId, VideoBitRate, AudioBitRate, pick.index);
           const mp4 = buildMp4Url(ep, pick.index);
           try { const img = new Image(); img.src = poster; } catch {}
           prepared.hls = hls;
           prepared.mp4 = mp4;
           prepared.audioIndex = pick.index;
+          prepared.audioStreams = audioStreams;
           prepared.mediaSourceId = mediaSourceId;
-          prepared.subIndex = subPick ? subPick.Index : null;
-          if (subPick) {
-            prepared.subLabel = niceLangLabelFrom(subPick);
-            prepared.subSrclang = srclangFromLabel(prepared.subLabel);
-          }
+          prepared.subStreams = subStreams;
+          prepared.subPickIndex = subPick ? subPick.Index : null;
+          prepared.subPickCode = subPick ? canonicalLangCode(subPick) : 'off';
         }catch{}
         if (token !== nextPrepToken) return;
         nextPrepared = prepared;
@@ -1385,14 +1498,51 @@
             const rtt = player.remoteTextTracks();
             for (let i = rtt.length - 1; i >= 0; i--) player.removeRemoteTextTrack(rtt[i]);
           } catch {}
-          if (nextPrepared.subIndex != null && nextPrepared.mediaSourceId) {
-            const vtt = `${serverUrl}/emby/Videos/${nextPrepared.episode.Id}/${nextPrepared.mediaSourceId}/Subtitles/${nextPrepared.subIndex}/0/Stream.vtt?api_key=${apiKey}`;
-            const niceLabel = nextPrepared.subLabel || 'English';
-            const langCode = nextPrepared.subSrclang || 'en';
-            try { player.addRemoteTextTrack({ kind: 'subtitles', src: vtt, srclang: langCode, label: niceLabel }, false); } catch {}
-            const tt = player.textTracks();
-            for (let i = 0; i < tt.length; i++) { tt[i].mode = subsWanted ? 'showing' : 'disabled'; }
+          // Add every subtitle stream the prepared episode carries so
+          // the dropdown can switch tracks without re-fetching media.
+          const subStreams = nextPrepared.subStreams || [];
+          subStreams.forEach(s => {
+            const vtt = `${serverUrl}/emby/Videos/${nextPrepared.episode.Id}/${nextPrepared.mediaSourceId}/Subtitles/${s.Index}/0/Stream.vtt?api_key=${apiKey}`;
+            const code = canonicalLangCode(s);
+            const niceLabel = niceLangLabelFrom(s);
+            try {
+              player.addRemoteTextTrack(
+                { kind: 'subtitles', src: vtt, srclang: code || srclangFromCode(code), label: niceLabel },
+                false,
+              );
+            } catch {}
+          });
+          // Populate the player's audio menu with the FULL stream
+          // list so video.js's built-in control-bar button stays
+          // visible (it only renders when there's >1 track). The
+          // single-item shortcut we used previously made the button
+          // disappear on every auto-advance, even though audio
+          // playback was correct.
+          const audioStreamsForNext = nextPrepared.audioStreams && nextPrepared.audioStreams.length
+              ? nextPrepared.audioStreams
+              : (nextPrepared.audioIndex != null
+                  ? [{ Index: nextPrepared.audioIndex, Language: preferredAudioLang }]
+                  : []);
+          populateAudioTracks(audioStreamsForNext, nextPrepared.audioIndex);
+          // Apply saved sub preference via the player's text track
+          // list. Suppress the change handler during this batch
+          // assignment so we don't accidentally persist transient
+          // state.
+          const pickedCode = nextPrepared.subPickCode || 'off';
+          _suppressTextChange = true;
+          const tt = player.textTracks();
+          for (let i = 0; i < tt.length; i++) {
+            const track = tt[i];
+            if (pickedCode === 'off') {
+              track.mode = 'disabled';
+            } else if ((track.language || '').toLowerCase() === srclangFromCode(pickedCode) ||
+                       (track.language || '').toLowerCase() === pickedCode) {
+              track.mode = 'showing';
+            } else {
+              track.mode = 'disabled';
+            }
           }
+          _suppressTextChange = false;
           const niceTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
           setPlayerTitle(niceTitle);
           document.title = `Watch Bluey! | ${niceTitle}`;
@@ -1573,14 +1723,24 @@
         }
       }
 
-      // Load saved language
+      // Load saved language preferences. Both fall back to sensible
+      // defaults if nothing's been picked yet. We also migrate the
+      // legacy numeric key from the old hardcoded dropdown so users
+      // upgrading don't lose their choice.
       document.addEventListener('DOMContentLoaded', () => {
-        const saved = localStorage.getItem(LANG_STORAGE_KEY);
-        if (saved !== null) {
-          selectedAudioStreamIndex = parseInt(saved, 10);
-          userPreferredLanguage = selectedAudioStreamIndex;
-          selectLanguageOption(saved);
+        const savedAudio = localStorage.getItem(AUDIO_LANG_STORAGE_KEY);
+        if (savedAudio) {
+          preferredAudioLang = savedAudio;
+        } else {
+          const legacy = localStorage.getItem('bluey_watch_selected_language_episodes');
+          if (legacy != null) {
+            preferredAudioLang =
+              ({ '1': 'eng', '3': 'msa', '4': 'ara', '5': 'tgl' })[legacy] || 'eng';
+          }
         }
+        const savedSub = localStorage.getItem(SUB_LANG_STORAGE_KEY);
+        if (savedSub) preferredSubLang = savedSub;
+
         fetchSeasons();
       });
 
@@ -1815,9 +1975,9 @@
         const ms = info.MediaSources[0];
 
         const audioStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Audio');
-        const pick = pickAudioStreamIndex(audioStreams, userPreferredLanguage);
+        const pick = pickAudioStreamIndex(audioStreams, preferredAudioLang);
         currentAudioStreamIndexUsed = pick.index;
-        if (pick.reason === 'fallback_en' && String(userPreferredLanguage) !== '1') {
+        if (pick.reason === 'fallback_en' && preferredAudioLang && preferredAudioLang !== 'eng') {
           showToast('Selected language not available for this episode — using English.');
         } else if (pick.reason === 'fallback_first') {
           showToast('Selected language not available — using default audio.');
@@ -1840,17 +2000,51 @@
 
         if (window.__isCasting) { setTimeout(attachCastMediaListener, 250); }
 
-        const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
-        const subPick = subStreams.find(s => /(^|[^a-z])(eng|english|en)([^a-z]|$)/.test(((s.Language||s.DisplayLanguage||s.Title)||'').toLowerCase())) || subStreams[0];
-        if (subPick) {
-          const vtt = `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/${subPick.Index}/0/Stream.vtt?api_key=${apiKey}`;
-          const niceLabel = niceLangLabelFrom(subPick);
-          const langCode = srclangFromLabel(niceLabel);
-          try { player.addRemoteTextTrack({ kind: 'subtitles', src: vtt, srclang: langCode, label: niceLabel }, false); } catch {}
-        }
+        // Populate the player's built-in AudioTrackList. video.js
+        // surfaces this through its control-bar audio button when
+        // there's more than one track — clicking an item there
+        // fires the 'change' listener (see ensureTrackListeners)
+        // which persists the language and reloads with the matching
+        // AudioStreamIndex.
+        populateAudioTracks(audioStreams, currentAudioStreamIndexUsed);
 
+        // Add EVERY subtitle stream as a remote text track so
+        // video.js's built-in CC menu lists them all and the user
+        // can switch on the fly without a media reload.
+        const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
+        subStreams.forEach(s => {
+          const vtt = `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/${s.Index}/0/Stream.vtt?api_key=${apiKey}`;
+          const code = canonicalLangCode(s);
+          const niceLabel = niceLangLabelFrom(s);
+          try {
+            player.addRemoteTextTrack(
+              { kind: 'subtitles', src: vtt, srclang: code || srclangFromCode(code), label: niceLabel },
+              false,
+            );
+          } catch {}
+        });
+
+        // Apply the saved subtitle preference. _suppressTextChange
+        // guards against the change handler firing during this
+        // initial setup (which would otherwise persist the
+        // not-yet-user-chosen state).
+        const subPick = pickSubtitleStream(subStreams, preferredSubLang);
+        currentSubStreamIndexUsed = subPick ? subPick.Index : null;
+        const subPickCode = subPick ? canonicalLangCode(subPick) : 'off';
+        _suppressTextChange = true;
         const tt = player.textTracks();
-        for (let i = 0; i < tt.length; i++) { tt[i].mode = subsWanted ? 'showing' : 'disabled'; }
+        for (let i = 0; i < tt.length; i++) {
+          const track = tt[i];
+          if (!subPick) {
+            track.mode = 'disabled';
+          } else if ((track.language || '').toLowerCase() === srclangFromCode(subPickCode) ||
+                     (track.language || '').toLowerCase() === subPickCode) {
+            track.mode = 'showing';
+          } else {
+            track.mode = 'disabled';
+          }
+        }
+        _suppressTextChange = false;
 
         const onReadyToPlay = async () => { try { player.muted(false); } catch {}; await autoPlayMaybe(seekTime); };
         player.one('loadedmetadata', onReadyToPlay);
@@ -2026,79 +2220,83 @@
         });
       }
 
-      /* Custom dropdown logic */
-      (function() {
-        const dropdown = document.getElementById('language-dropdown');
-        const trigger = dropdown.querySelector('.custom-dropdown__trigger');
-        const menu = dropdown.querySelector('.custom-dropdown__menu');
-        const items = dropdown.querySelectorAll('.custom-dropdown__item');
+      // Track-list change listeners — set up once, deduped via a
+      // flag so subsequent episode loads don't stack handlers. Audio
+      // changes trigger an HLS reload (Emby bundles one audio track
+      // per request); subtitle changes are free because we already
+      // load every sub stream as a remote text track.
+      let _trackListenersBound = false;
+      let _suppressAudioChange = false;
+      let _suppressTextChange  = false;
 
-        trigger.addEventListener('click', (e) => {
-          e.stopPropagation();
-          dropdown.classList.toggle('open');
-        });
+      function ensureTrackListeners() {
+        if (_trackListenersBound) return;
+        _trackListenersBound = true;
 
-        items.forEach(item => {
-          item.addEventListener('click', (e) => {
-            e.stopPropagation();
-            items.forEach(i => i.classList.remove('selected'));
-            item.classList.add('selected');
-            trigger.textContent = item.textContent;
-            dropdown.classList.remove('open');
-            setLanguage(item.dataset.value, getCurrentTime());
-          });
-          item.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              item.click();
-            } else if (e.key === 'ArrowDown') {
-              e.preventDefault();
-              const next = item.nextElementSibling;
-              if (next) next.focus();
-            } else if (e.key === 'ArrowUp') {
-              e.preventDefault();
-              const prev = item.previousElementSibling;
-              if (prev) prev.focus(); else trigger.focus();
-            } else if (e.key === 'Escape') {
-              dropdown.classList.remove('open');
-              trigger.focus();
+        player.audioTracks().addEventListener('change', () => {
+          if (_suppressAudioChange) return;
+          const at = player.audioTracks();
+          for (let i = 0; i < at.length; i++) {
+            if (!at[i].enabled) continue;
+            const code = (at[i].language || '').toLowerCase();
+            if (code && code !== preferredAudioLang) {
+              preferredAudioLang = code;
+              localStorage.setItem(AUDIO_LANG_STORAGE_KEY, code);
+              if (episodes.length > 0 && currentEpisodeIndex >= 0) {
+                playEpisode(
+                  episodes[currentEpisodeIndex],
+                  currentEpisodeIndex,
+                  getCurrentTime(),
+                );
+              }
+              prepareNextEpisodePreview();
             }
-          });
-        });
-
-        trigger.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
-            e.preventDefault();
-            dropdown.classList.add('open');
-            const sel = menu.querySelector('.selected') || items[0];
-            if (sel) sel.focus();
+            break;
           }
         });
 
-        document.addEventListener('click', () => dropdown.classList.remove('open'));
-      })();
-
-      function selectLanguageOption(value) {
-        const dropdown = document.getElementById('language-dropdown');
-        const trigger = dropdown.querySelector('.custom-dropdown__trigger');
-        const items = dropdown.querySelectorAll('.custom-dropdown__item');
-        items.forEach(i => {
-          i.classList.remove('selected');
-          if (i.dataset.value === String(value)) {
-            i.classList.add('selected');
-            trigger.textContent = i.textContent;
+        player.textTracks().addEventListener('change', () => {
+          if (_suppressTextChange) return;
+          const tt = player.textTracks();
+          let activeCode = 'off';
+          for (let i = 0; i < tt.length; i++) {
+            if (tt[i].mode === 'showing' && tt[i].kind === 'subtitles') {
+              activeCode = (tt[i].language || '').toLowerCase() || 'off';
+              break;
+            }
           }
+          preferredSubLang = activeCode;
+          subsWanted = activeCode !== 'off';
+          localStorage.setItem(SUB_LANG_STORAGE_KEY, activeCode);
+          localStorage.setItem('bluey_subtitle_on', subsWanted ? '1' : '0');
         });
       }
 
-      function setLanguage(value, seekTime) {
-        selectedAudioStreamIndex = parseInt(value, 10);
-        userPreferredLanguage = selectedAudioStreamIndex;
-        localStorage.setItem(LANG_STORAGE_KEY, value);
-        if (episodes.length > 0 && currentEpisodeIndex >= 0) {
-          playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex, seekTime);
+      // Populate the player's AudioTrackList from the current
+      // episode's audio streams. video.js auto-shows its built-in
+      // audio menu button in the control bar when there's >1 track;
+      // selecting an entry fires the 'change' listener above which
+      // saves the lang code and reloads the HLS with the matching
+      // AudioStreamIndex.
+      function populateAudioTracks(audioStreams, currentIndex) {
+        ensureTrackListeners();
+        const at = player.audioTracks();
+        _suppressAudioChange = true;
+        // Remove existing tracks (rebuild on every episode load).
+        for (let i = at.length - 1; i >= 0; i--) {
+          at.removeTrack(at[i]);
         }
-        prepareNextEpisodePreview();
+        (audioStreams || []).forEach(s => {
+          const code = canonicalLangCode(s);
+          at.addTrack(new videojs.AudioTrack({
+            id: String(s.Index),
+            kind: 'main',
+            label: niceLangLabelFrom(s),
+            language: code || srclangFromCode(code),
+            enabled: s.Index === currentIndex,
+          }));
+        });
+        _suppressAudioChange = false;
       }
 
       function toggleShuffleMode() {

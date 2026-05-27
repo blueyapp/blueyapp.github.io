@@ -1255,7 +1255,7 @@
       window.__castSubtitle = '';
       window.__castPoster = '';
       window.__castMP4 = '';
-      window.__castSeriesTitle = 'Bluey Minisodes';
+      window.__castSeriesTitle = 'Bluey';
       window.__castSeason = null;
       window.__castEpisode = null;
       window.__castEpisodeTitle = '';
@@ -1319,7 +1319,7 @@
                 md = new chrome.cast.media.GenericMediaMetadata();
                 md.metadataType = chrome.cast.media.MetadataType.GENERIC;
               }
-              md.title    = window.__castTitle    || document.title || 'Bluey Minisodes';
+              md.title    = window.__castTitle    || document.title || 'Bluey';
               md.subtitle = window.__castSubtitle || '';
               if (window.__castPoster) {
                 try { md.images = [new chrome.cast.Image(window.__castPoster)]; }
@@ -1401,8 +1401,23 @@
       let eosTimer = null;
       let eosFired = false;
 
+      // The EOS guard needs the TECH's real duration (what the
+      // HLS / video element actually reports) — not our cosmetic
+      // override. The override is shorter than reality (Emby's
+      // RunTimeTicks vs HLS's segment-rounded value), and using
+      // it here was firing 'ended' 2-3 seconds early because the
+      // (override - currentTime) gap hit the EOS tolerance well
+      // before playback actually reached the tail.
+      function realDuration() {
+        try {
+          const d = _origDuration();
+          if (typeof d === 'number' && !isNaN(d) && d > 0) return d;
+        } catch {}
+        return player.duration() || 0;
+      }
+
       function nearEndNow() {
-        const d = player.duration() || 0;
+        const d = realDuration();
         const t = player.currentTime() || 0;
         const be = bufferedEndSafe();
         if (!isFinite(d) || d === 0) return false;
@@ -2031,7 +2046,7 @@
 
         const niceTitle = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
         setPlayerTitle(niceTitle);
-        document.title = `Watch Bluey! | ${niceTitle}`;
+        document.title = `Watch Bluey Minisodes | ${niceTitle}`;
         syncSeasonHighlight(episode);
 
         const poster = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
@@ -2547,7 +2562,10 @@
       player.on('error', () => {
         const err = player.error?.();
         console.warn('videojs error:', err);
-        const d = player.duration() || 0;
+        // Use the tech's real duration here — same reasoning as
+        // nearEndNow(). Our cosmetic override would make this
+        // think we're at the tail when we're really 3s away.
+        const d = realDuration();
         const t = player.currentTime() || 0;
         if (isFinite(d) && d > 0 && (d - t) <= 3) {
           console.warn('Near-end hiccup detected — advancing.');

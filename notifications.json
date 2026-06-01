@@ -1,8 +1,8 @@
 {
   "notifications": [
     {
-      "id": 6,
-      "type": "info",
+      "id": 7,
+      "type": "announcement",
       "title": "First of the Month",
       "message": "Movie: Swapped",
       "created_at": 1780318800

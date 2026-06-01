@@ -3,9 +3,9 @@
     {
       "id": 6,
       "type": "info",
-      "title": "{\"status\":\"ok\"}",
-      "message": "\"error\": null, \"data\": {\"bluey\": \"still_cute\", \"bingo\": \"also_cute\", \"bandit\": \"best_dad\": true}",
-      "created_at": 1779188400
+      "title": "First of the Month",
+      "message": "Movie: Swapped",
+      "created_at": 1780318800
     }
   ]
 }

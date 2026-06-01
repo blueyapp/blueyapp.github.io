@@ -18,7 +18,13 @@
         {"id": "303862", "title": "Bluey Puppets"},
         {"id": "304715", "title": "Bluey Fancy Restaurant"}
       ]
-    }
+    },
+    {
+      "section": "First of The Month",
+      "items": [
+        {"id": "358230", "title": "Swapped", "type": "movie"}
+      ]
+    },
   ],
   "listen": [
     {

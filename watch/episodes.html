@@ -1258,6 +1258,11 @@
       window.__castEpisode = null;
       window.__castEpisodeTitle = '';
       window.__isCasting = false;
+      // Subtitle tracks for the current episode, in cast-friendly
+      // form: [{ url, code, label, embyIndex }]. Read by
+      // modifyLoadRequestFn so the receiver gets them declared.
+      window.__castSubs = [];
+      window.__castActiveSubEmbyIndex = null;
 
       let nextPrefetchStarted = false;
 
@@ -1283,50 +1288,101 @@
         muted: false,
         fluid: false,
         techOrder: ['chromecast', 'html5'],
+        // ⚠ IMPORTANT: the Silvermine plugin reads these three
+        // functions from the TOP-LEVEL `chromecast` key (they are
+        // Tech options, not plugin options). They were previously
+        // nested inside plugins.chromecast, where the tech never
+        // saw them — which is why the TV showed no metadata and
+        // why none of the load-request customisation ever ran.
+        chromecast: {
+          requestTitleFn: () => window.__castTitle || document.title,
+          requestSubtitleFn: () => window.__castSubtitle || '',
+          modifyLoadRequestFn: (request) => {
+            if (window.__castMP4) {
+              request.media.contentId = window.__castMP4;
+              request.media.contentType = 'video/mp4';
+            } else {
+              // Casting the HLS URL directly: Emby serves fmp4
+              // segments, and the Default Media Receiver assumes
+              // TS unless told otherwise.
+              try {
+                request.media.hlsSegmentFormat = 'fmp4';
+                request.media.hlsVideoSegmentFormat = 'fmp4';
+              } catch {}
+            }
+            try { request.media.streamType = chrome.cast.media.StreamType.BUFFERED; } catch {}
+
+            // Default Media Receiver renders episode info from
+            // TvShowMediaMetadata (series + season/episode badge +
+            // poster). Fall back to GenericMediaMetadata if the
+            // Cast SDK build doesn't expose the TV type.
+            //
+            // Images MUST be chrome.cast.Image instances — plain
+            // { url } objects are silently ignored by the receiver.
+            let md = null;
+            try {
+              md = new chrome.cast.media.TvShowMediaMetadata();
+              md.metadataType = chrome.cast.media.MetadataType.TV_SHOW;
+              md.seriesTitle = window.__castSeriesTitle || 'Bluey';
+              if (window.__castSeason != null)   md.season  = Number(window.__castSeason);
+              if (window.__castEpisode != null)  md.episode = Number(window.__castEpisode);
+              md.episodeTitle =
+                window.__castEpisodeTitle ||
+                window.__castTitle ||
+                document.title || '';
+            } catch {
+              md = new chrome.cast.media.GenericMediaMetadata();
+              md.metadataType = chrome.cast.media.MetadataType.GENERIC;
+            }
+            md.title    = window.__castTitle    || document.title || 'Bluey';
+            md.subtitle = window.__castSubtitle || '';
+            if (window.__castPoster) {
+              try { md.images = [new chrome.cast.Image(window.__castPoster)]; }
+              catch { md.images = [{ url: window.__castPoster }]; }
+            }
+            request.media.metadata = md;
+
+            // ── Subtitles for the TV ──────────────────────────
+            // The Silvermine tech does NOT forward text tracks
+            // (its source literally says "Text tracks are not
+            // supported"), so we declare them ourselves as Cast
+            // sidecar tracks. The receiver fetches the VTT files
+            // directly from the Emby server.
+            const subs = window.__castSubs || [];
+            if (subs.length) {
+              try {
+                request.media.tracks = subs.map((s, i) => {
+                  const tr = new chrome.cast.media.Track(i + 1, chrome.cast.media.TrackType.TEXT);
+                  tr.trackContentId = s.url;
+                  tr.trackContentType = 'text/vtt';
+                  tr.subtype = chrome.cast.media.TextTrackType.SUBTITLES;
+                  tr.name = s.label || 'Subtitles';
+                  tr.language = srclangFromCode(s.code) || s.code || 'en';
+                  return tr;
+                });
+                const style = new chrome.cast.media.TextTrackStyle();
+                style.backgroundColor = '#00000099';
+                style.foregroundColor = '#FFFFFFFF';
+                style.edgeType = chrome.cast.media.TextTrackEdgeType.OUTLINE;
+                style.edgeColor = '#000000FF';
+                style.fontGenericFamily = chrome.cast.media.TextTrackFontGenericFamily.SANS_SERIF;
+                style.fontScale = 1.0;
+                request.media.textTrackStyle = style;
+                const activeIdx = subs.findIndex(
+                  s => s.embyIndex === window.__castActiveSubEmbyIndex
+                );
+                request.activeTrackIds = activeIdx >= 0 ? [activeIdx + 1] : [];
+              } catch {}
+            }
+
+            request.autoplay = true;
+            return request;
+          }
+        },
         plugins: {
           chromecast: {
             receiverAppID: 'CC1AD845',
-            addButtonToControlBar: true,
-            requestTitleFn: () => window.__castTitle || document.title,
-            requestSubtitleFn: () => window.__castSubtitle || '',
-            modifyLoadRequestFn: (request) => {
-              if (window.__castMP4) {
-                request.media.contentId = window.__castMP4;
-                request.media.contentType = 'video/mp4';
-              }
-              // Default Media Receiver renders episode info from
-              // TvShowMediaMetadata (series + season/episode badge +
-              // poster). Fall back to GenericMediaMetadata if the
-              // Cast SDK build doesn't expose the TV type.
-              //
-              // Images MUST be chrome.cast.Image instances — plain
-              // { url } objects are silently ignored by the receiver,
-              // which is why the poster never showed up before.
-              let md = null;
-              try {
-                md = new chrome.cast.media.TvShowMediaMetadata();
-                md.metadataType = chrome.cast.media.MetadataType.TV_SHOW;
-                md.seriesTitle = window.__castSeriesTitle || 'Bluey';
-                if (window.__castSeason != null)   md.season  = Number(window.__castSeason);
-                if (window.__castEpisode != null)  md.episode = Number(window.__castEpisode);
-                md.episodeTitle =
-                  window.__castEpisodeTitle ||
-                  window.__castTitle ||
-                  document.title || '';
-              } catch {
-                md = new chrome.cast.media.GenericMediaMetadata();
-                md.metadataType = chrome.cast.media.MetadataType.GENERIC;
-              }
-              md.title    = window.__castTitle    || document.title || 'Bluey';
-              md.subtitle = window.__castSubtitle || '';
-              if (window.__castPoster) {
-                try { md.images = [new chrome.cast.Image(window.__castPoster)]; }
-                catch { md.images = [{ url: window.__castPoster }]; }
-              }
-              request.media.metadata = md;
-              request.autoplay = true;
-              return request;
-            }
+            addButtonToControlBar: true
           }
         },
         html5: {
@@ -1427,6 +1483,14 @@
       }
       function scheduleFinishIfStuck(reason) {
         if (eosFired) return;
+        // Never run the stall-guard while casting. The cast tech only
+        // reports coarse time updates and no buffered ranges, which
+        // made nearEndNow() true ~3s before the real end — the
+        // synthetic 'ended' then yanked the receiver into a new load
+        // while it was still finishing the current item. The
+        // chromecast tech fires a genuine 'ended' itself, so the
+        // guard isn't needed there.
+        if (window.__isCasting) return;
         if (!nearEndNow()) {
           if (eosTimer) { clearTimeout(eosTimer); eosTimer = null; }
           return;
@@ -1453,6 +1517,21 @@
       let nextPrepared = null;
       let suppressEndedOnce = false;
       let nextPrepToken = 0;
+
+      // Single-flight guard for auto-advance. While casting, "the
+      // episode finished" is reported by BOTH the chromecast tech's
+      // 'ended' event AND our manual MediaSession listener — without
+      // this guard they raced each other, firing queueNextEpisode
+      // twice, issuing two overlapping cast load requests, and the
+      // receiver gave up and went idle (the "cast just stops on the
+      // next episode" bug).
+      let _lastAdvanceAt = 0;
+      function advanceGuard() {
+        const now = Date.now();
+        if (now - _lastAdvanceAt < 2500) return false;
+        _lastAdvanceAt = now;
+        return true;
+      }
 
       class UpNextOverlay extends BaseComp {
         constructor(player, options){
@@ -1613,6 +1692,18 @@
           window.__castSeason = nextPrepared.episode.ParentIndexNumber;
           window.__castEpisode = nextPrepared.episode.IndexNumber;
           window.__castEpisodeTitle = nextPrepared.episode.Name;
+          // Build cast subtitle declarations BEFORE src() — the
+          // chromecast tech assembles its load request during the
+          // src change, and modifyLoadRequestFn reads these globals
+          // at that moment.
+          const subStreams = nextPrepared.subStreams || [];
+          window.__castSubs = subStreams.map(s => ({
+            url: `${serverUrl}/emby/Videos/${nextPrepared.episode.Id}/${nextPrepared.mediaSourceId}/Subtitles/${s.Index}/0/Stream.vtt?api_key=${apiKey}`,
+            code: canonicalLangCode(s),
+            label: niceLangLabelFrom(s),
+            embyIndex: s.Index,
+          }));
+          window.__castActiveSubEmbyIndex = nextPrepared.subPickIndex;
           player.poster(nextPrepared.poster);
           // Override duration with Emby's exact ticks before the new
           // src loads so the display doesn't briefly show the HLS-
@@ -1620,20 +1711,22 @@
           setDurationOverrideFromTicks(nextPrepared.runTimeTicks);
           player.src({ src: nextPrepared.hls, type: 'application/x-mpegURL' });
           currentAudioStreamIndexUsed = nextPrepared.audioIndex;
+          currentSubStreamIndexUsed = nextPrepared.subPickIndex;
+          // While casting, the auto-advance creates a brand-new
+          // remote MediaSession — re-attach the finished-listener
+          // to it, or the NEXT episode's ending would go unnoticed
+          // and the queue would silently stop (the reported bug).
+          if (window.__isCasting) { setTimeout(attachCastMediaListener, 250); }
           try {
             const rtt = player.remoteTextTracks();
             for (let i = rtt.length - 1; i >= 0; i--) player.removeRemoteTextTrack(rtt[i]);
           } catch {}
           // Add every subtitle stream the prepared episode carries so
           // the dropdown can switch tracks without re-fetching media.
-          const subStreams = nextPrepared.subStreams || [];
-          subStreams.forEach(s => {
-            const vtt = `${serverUrl}/emby/Videos/${nextPrepared.episode.Id}/${nextPrepared.mediaSourceId}/Subtitles/${s.Index}/0/Stream.vtt?api_key=${apiKey}`;
-            const code = canonicalLangCode(s);
-            const niceLabel = niceLangLabelFrom(s);
+          window.__castSubs.forEach(s => {
             try {
               player.addRemoteTextTrack(
-                { kind: 'subtitles', src: vtt, srclang: code || srclangFromCode(code), label: niceLabel },
+                { kind: 'subtitles', src: s.url, srclang: s.code || srclangFromCode(s.code), label: s.label },
                 false,
               );
             } catch {}
@@ -1827,10 +1920,22 @@
           if (!castMedia) return;
           if (castMedia.playerState === chrome.cast.media.PlayerState.IDLE &&
               castMedia.idleReason === chrome.cast.media.IdleReason.FINISHED) {
+            // Fallback only — the chromecast tech already converts
+            // FINISHED into a videojs 'ended' event, which the
+            // onEndedHandler picks up. The guard keeps the two
+            // paths from double-advancing.
+            if (!advanceGuard()) return;
             queueNextEpisode();
           }
         } catch {}
       }
+
+      // attachCastMediaListener is idempotent (it bails if already
+      // attached to the current MediaSession), so re-checking on
+      // every 'playing' keeps the listener pointed at whatever
+      // media session the receiver is currently running — covering
+      // auto-advance, manual episode taps, and fallback reloads.
+      player.on('playing', () => { if (window.__isCasting) attachCastMediaListener(); });
 
       // Parse deep-link: ?s1e1 or ?s2e5 etc.
       function parseEpisodeFromURL() {
@@ -2163,6 +2268,23 @@
         const progressive = buildMp4Url(episode, currentAudioStreamIndexUsed);
         window.__castMP4 = progressive;
 
+        // Compute subtitle streams and the saved-preference pick
+        // BEFORE setting src — the chromecast tech builds its load
+        // request during src(), and modifyLoadRequestFn reads
+        // __castSubs / __castActiveSubEmbyIndex at that moment.
+        const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
+        const sortedSubStreams = sortStreamsByLabel(subStreams);
+        const subPick = pickSubtitleStream(subStreams, preferredSubLang);
+        currentSubStreamIndexUsed = subPick ? subPick.Index : null;
+        const subPickCode = subPick ? canonicalLangCode(subPick) : 'off';
+        window.__castSubs = sortedSubStreams.map(s => ({
+          url: `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/${s.Index}/0/Stream.vtt?api_key=${apiKey}`,
+          code: canonicalLangCode(s),
+          label: niceLangLabelFrom(s),
+          embyIndex: s.Index,
+        }));
+        window.__castActiveSubEmbyIndex = subPick ? subPick.Index : null;
+
         const rtt = player.remoteTextTracks();
         for (let i = rtt.length - 1; i >= 0; i--) player.removeRemoteTextTrack(rtt[i]);
 
@@ -2190,15 +2312,10 @@
         // can switch on the fly without a media reload. Adding
         // alphabetically by label so the menu reads tidily; the
         // active selection is decided separately below.
-        const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
-        const sortedSubStreams = sortStreamsByLabel(subStreams);
-        sortedSubStreams.forEach(s => {
-          const vtt = `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/${s.Index}/0/Stream.vtt?api_key=${apiKey}`;
-          const code = canonicalLangCode(s);
-          const niceLabel = niceLangLabelFrom(s);
+        window.__castSubs.forEach(s => {
           try {
             player.addRemoteTextTrack(
-              { kind: 'subtitles', src: vtt, srclang: code || srclangFromCode(code), label: niceLabel },
+              { kind: 'subtitles', src: s.url, srclang: s.code || srclangFromCode(s.code), label: s.label },
               false,
             );
           } catch {}
@@ -2208,9 +2325,6 @@
         // guards against the change handler firing during this
         // initial setup (which would otherwise persist the
         // not-yet-user-chosen state).
-        const subPick = pickSubtitleStream(subStreams, preferredSubLang);
-        currentSubStreamIndexUsed = subPick ? subPick.Index : null;
-        const subPickCode = subPick ? canonicalLangCode(subPick) : 'off';
         _suppressTextChange = true;
         const tt = player.textTracks();
         for (let i = 0; i < tt.length; i++) {
@@ -2226,13 +2340,23 @@
         }
         _suppressTextChange = false;
 
-        const onReadyToPlay = async () => { try { player.muted(false); } catch {}; await autoPlayMaybe(seekTime); };
+        // Fire onReadyToPlay exactly ONCE on whichever of these two
+        // events arrives first. Previously both one()s ran (html5
+        // fires both events), seeking and calling play() twice.
+        let _readyFired = false;
+        const onReadyToPlay = async () => {
+          if (_readyFired) return;
+          _readyFired = true;
+          try { player.muted(false); } catch {}
+          await autoPlayMaybe(seekTime);
+        };
         player.one('loadedmetadata', onReadyToPlay);
         player.one('loadeddata', onReadyToPlay);
 
         if (onEndedHandler) player.off('ended', onEndedHandler);
         onEndedHandler = () => {
           if (suppressEndedOnce){ suppressEndedOnce = false; return; }
+          if (!advanceGuard()) return;
           if (nextPrepared) { playNextPrepared(true); return; }
           queueNextEpisode();
         };
@@ -2440,6 +2564,34 @@
         }
       }
 
+      // Push a subtitle change to the Chromecast receiver mid-
+      // playback. trackId mapping matches modifyLoadRequestFn:
+      // cast track i+1 ↔ window.__castSubs[i].
+      function castSetActiveSubtitle(code) {
+        if (!window.__isCasting) return;
+        try {
+          const ctx = cast && cast.framework && cast.framework.CastContext.getInstance();
+          const session = ctx && ctx.getCurrentSession();
+          const media = session && session.getMediaSession();
+          if (!media) return;
+          let ids = [];
+          if (code && code !== 'off') {
+            const subs = window.__castSubs || [];
+            const i = subs.findIndex(s =>
+              (s.code || '').toLowerCase() === code ||
+              srclangFromCode(s.code) === code);
+            if (i >= 0) { ids = [i + 1]; window.__castActiveSubEmbyIndex = subs[i].embyIndex; }
+          } else {
+            window.__castActiveSubEmbyIndex = null;
+          }
+          media.editTracksInfo(
+            new chrome.cast.media.EditTracksInfoRequest(ids),
+            () => {},
+            (e) => console.warn('cast editTracksInfo failed', e)
+          );
+        } catch {}
+      }
+
       function _onTextTrackChange() {
         if (_suppressTextChange) return;
         const tt = player.textTracks();
@@ -2454,6 +2606,7 @@
         subsWanted = activeCode !== 'off';
         localStorage.setItem(SUB_LANG_STORAGE_KEY, activeCode);
         localStorage.setItem('bluey_subtitle_on', subsWanted ? '1' : '0');
+        castSetActiveSubtitle(activeCode);
       }
 
       function rebindTrackListeners() {
@@ -2637,6 +2790,7 @@
         const t = player.currentTime() || 0;
         if (isFinite(d) && d > 0 && (d - t) <= 3) {
           console.warn('Near-end hiccup detected — advancing.');
+          if (!advanceGuard()) return;
           if (nextPrepared) { playNextPrepared(true); } else { queueNextEpisode(); }
           return;
         }
@@ -2647,6 +2801,7 @@
         }
         consecutiveErrors = 0;
         showToast('That episode failed to load — jumping to the next.');
+        if (!advanceGuard()) return;
         if (nextPrepared) { playNextPrepared(true); } else { queueNextEpisode(); }
       });
     </script>

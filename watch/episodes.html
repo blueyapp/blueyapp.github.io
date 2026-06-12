@@ -1743,25 +1743,9 @@
                   ? [{ Index: nextPrepared.audioIndex, Language: preferredAudioLang }]
                   : []);
           populateAudioTracks(audioStreamsForNext, nextPrepared.audioIndex);
-          // Apply saved sub preference via the player's text track
-          // list. Suppress the change handler during this batch
-          // assignment so we don't accidentally persist transient
-          // state.
-          const pickedCode = nextPrepared.subPickCode || 'off';
-          _suppressTextChange = true;
-          const tt = player.textTracks();
-          for (let i = 0; i < tt.length; i++) {
-            const track = tt[i];
-            if (pickedCode === 'off') {
-              track.mode = 'disabled';
-            } else if ((track.language || '').toLowerCase() === srclangFromCode(pickedCode) ||
-                       (track.language || '').toLowerCase() === pickedCode) {
-              track.mode = 'showing';
-            } else {
-              track.mode = 'disabled';
-            }
-          }
-          _suppressTextChange = false;
+          // Apply saved sub preference — exactly one track showing
+          // (the helper suppresses the change handler itself).
+          applySubtitleSelection(nextPrepared.subPickCode || 'off');
           const niceTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
           setPlayerTitle(niceTitle);
           document.title = `Watch Bluey! | ${niceTitle}`;
@@ -1874,31 +1858,26 @@
       player.on('chromecastConnected', () => {
         window.__isCasting = true;
         attachCastMediaListener();
-        // Tech swap → re-bind listeners + repopulate the audio
-        // menu against the chromecast tech so the button stays
-        // visible (and our handler fires when the menu is used).
-        setTimeout(() => {
-          if (_lastAudioStreams) {
-            populateAudioTracks(_lastAudioStreams, currentAudioStreamIndexUsed);
-          } else {
-            rebindTrackListeners();
-          }
-        }, 0);
+        // Tech swap → rebuild the audio menu (repopulates the NEW
+        // tech's track list AND recreates the control-bar button,
+        // which video.js binds to a specific list at construction).
+        setTimeout(refreshAudioMenu, 0);
       });
       player.on('chromecastDisconnected', () => {
         window.__isCasting = false;
         detachCastMediaListener();
-        // Tech swapped back to html5 — the html5 tech has its own
-        // (now empty) AudioTrackList, so the menu vanished. Rebuild
-        // from the cached stream list to bring it back without
-        // waiting for the user to start a new episode.
-        setTimeout(() => {
-          if (_lastAudioStreams) {
-            populateAudioTracks(_lastAudioStreams, currentAudioStreamIndexUsed);
-          } else {
-            rebindTrackListeners();
-          }
-        }, 0);
+        // Tech swapped back to html5. Rebuild now AND once more on
+        // the next loadeddata — the plugin restores the source
+        // asynchronously, and a rebuild that runs before the html5
+        // tech finishes loading lands on yet another empty list.
+        setTimeout(refreshAudioMenu, 0);
+        player.one('loadeddata', () => {
+          refreshAudioMenu();
+          // Re-assert the single-showing subtitle state too — the
+          // restored source re-attaches text tracks and can leave
+          // more than one in 'showing'.
+          applySubtitleSelection(preferredSubLang);
+        });
       });
 
       let castMedia = null;
@@ -2321,24 +2300,10 @@
           } catch {}
         });
 
-        // Apply the saved subtitle preference. _suppressTextChange
-        // guards against the change handler firing during this
-        // initial setup (which would otherwise persist the
-        // not-yet-user-chosen state).
-        _suppressTextChange = true;
-        const tt = player.textTracks();
-        for (let i = 0; i < tt.length; i++) {
-          const track = tt[i];
-          if (!subPick) {
-            track.mode = 'disabled';
-          } else if ((track.language || '').toLowerCase() === srclangFromCode(subPickCode) ||
-                     (track.language || '').toLowerCase() === subPickCode) {
-            track.mode = 'showing';
-          } else {
-            track.mode = 'disabled';
-          }
-        }
-        _suppressTextChange = false;
+        // Apply the saved subtitle preference — exactly one track
+        // showing (the helper suppresses the change handler itself,
+        // so this initial setup doesn't persist transient state).
+        applySubtitleSelection(subPick ? subPickCode : 'off');
 
         // Fire onReadyToPlay exactly ONCE on whichever of these two
         // events arrives first. Previously both one()s ran (html5
@@ -2645,6 +2610,70 @@
           }));
         });
         _suppressAudioChange = false;
+      }
+
+      // Set EXACTLY ONE text track to 'showing' (or none for 'off').
+      // The previous inline loops set 'showing' on every track whose
+      // language matched — with two same-language streams (English +
+      // English SDH) or duplicate tracks surviving a Chromecast tech
+      // swap, both rendered at once and the cues stacked on screen.
+      function applySubtitleSelection(code) {
+        _suppressTextChange = true;
+        const tt = player.textTracks();
+        let shown = false;
+        for (let i = 0; i < tt.length; i++) {
+          const track = tt[i];
+          if (track.kind !== 'subtitles' && track.kind !== 'captions') continue;
+          const lang = (track.language || '').toLowerCase();
+          const matches = code && code !== 'off' &&
+            (lang === code || lang === srclangFromCode(code));
+          if (matches && !shown) {
+            track.mode = 'showing';
+            shown = true;
+          } else {
+            track.mode = 'disabled';
+          }
+        }
+        _suppressTextChange = false;
+      }
+
+      // Rebuild the audio menu AND recreate the control-bar button.
+      //
+      // Why recreating the button is necessary: video.js's
+      // AudioTrackButton binds its addtrack/removetrack listeners to
+      // player.audioTracks() AT CONSTRUCTION — and that list belongs
+      // to the tech. The Chromecast plugin swaps techs on connect /
+      // disconnect, so after a cast session the button is still
+      // listening to the old tech's dead list; tracks we add to the
+      // NEW list never reach it and it stays hidden. Disposing and
+      // re-adding the button makes it bind to the current tech's
+      // list.
+      function refreshAudioMenu() {
+        if (_lastAudioStreams) {
+          populateAudioTracks(_lastAudioStreams, currentAudioStreamIndexUsed);
+        } else {
+          rebindTrackListeners();
+        }
+        try {
+          const cb = player.controlBar;
+          const old = cb.getChild('audioTrackButton');
+          let index = -1;
+          if (old) {
+            index = cb.children().indexOf(old);
+            cb.removeChild(old);
+            old.dispose();
+          }
+          if (index < 0) {
+            // No previous button (e.g. it was never created because
+            // the page loaded with <2 tracks) — slot it before the
+            // fullscreen toggle like video.js's default layout.
+            const fs = cb.getChild('fullscreenToggle');
+            index = fs ? cb.children().indexOf(fs) : cb.children().length;
+          }
+          cb.addChild('audioTrackButton', {}, index);
+        } catch (e) {
+          console.warn('refreshAudioMenu: button rebuild failed', e);
+        }
       }
 
       function toggleShuffleMode() {

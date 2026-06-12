@@ -1913,6 +1913,7 @@
       player.on('chromecastConnected', () => {
         window.__isCasting = true;
         attachCastMediaListener();
+        startCastWatchdog();
         // Tech swap → rebuild the audio menu (repopulates the NEW
         // tech's track list AND recreates the control-bar button,
         // which video.js binds to a specific list at construction).
@@ -1920,6 +1921,7 @@
       });
       player.on('chromecastDisconnected', () => {
         window.__isCasting = false;
+        stopCastWatchdog();
         detachCastMediaListener();
         // Tech swapped back to html5. Rebuild now AND once more on
         // the next loadeddata — the plugin restores the source
@@ -1970,6 +1972,55 @@
       // media session the receiver is currently running — covering
       // auto-advance, manual episode taps, and fallback reloads.
       player.on('playing', () => { if (window.__isCasting) attachCastMediaListener(); });
+
+      // ── Cast end-of-media watchdog ────────────────────────────
+      // Listener-based end detection is fragile across consecutive
+      // cast loads: update listeners bind to a SPECIFIC MediaSession
+      // object, each new episode creates a NEW one, and the timed
+      // re-attach can lose the race — after which neither the tech's
+      // 'ended' nor castMediaUpdate ever fires again and auto-
+      // advance dies. This poller reads the CURRENT media session
+      // fresh on every tick, so it cannot go stale.
+      let _castWatchdog = null;
+      let _castSawNearEnd = false;
+      function startCastWatchdog() {
+        stopCastWatchdog();
+        _castSawNearEnd = false;
+        _castWatchdog = setInterval(() => {
+          try {
+            if (!window.__isCasting) { stopCastWatchdog(); return; }
+            const ctx = cast && cast.framework && cast.framework.CastContext.getInstance();
+            const session = ctx && ctx.getCurrentSession();
+            if (!session) return;
+            const msn = session.getMediaSession();
+            if (msn && msn.media) {
+              // Keep the legacy listener bound to the live session
+              // object too (no-op when already attached).
+              attachCastMediaListener();
+              const dur = msn.media.duration || window.__castDurationSec || 0;
+              const t = (typeof msn.getEstimatedTime === 'function')
+                  ? msn.getEstimatedTime()
+                  : (msn.currentTime || 0);
+              if (dur > 0 && t > 0 && (dur - t) <= 8) _castSawNearEnd = true;
+              if (msn.playerState === chrome.cast.media.PlayerState.IDLE &&
+                  msn.idleReason === chrome.cast.media.IdleReason.FINISHED) {
+                _castSawNearEnd = false;
+                if (advanceGuard()) queueNextEpisode();
+              }
+            } else if (_castSawNearEnd) {
+              // We were within seconds of the end and the media
+              // session has vanished — the receiver finished and
+              // dropped the session before any FINISHED status
+              // reached us. Treat as ended.
+              _castSawNearEnd = false;
+              if (advanceGuard()) queueNextEpisode();
+            }
+          } catch {}
+        }, 1500);
+      }
+      function stopCastWatchdog() {
+        if (_castWatchdog) { clearInterval(_castWatchdog); _castWatchdog = null; }
+      }
 
       // Parse deep-link: ?s1e1 or ?s2e5 etc.
       function parseEpisodeFromURL() {

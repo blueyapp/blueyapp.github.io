@@ -1,2912 +1,529 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Watch Bluey!</title>
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Watch Bluey!</title>
+      <link rel="icon" href="/bluey-star.ico" type="image/x-icon" />
+      <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
+      <style>
+         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <!-- Meta / OpenGraph -->
-    <meta name="description" content="Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures, developing her imagination as well as her mental, physical and emotional resilience." />
-    <meta name="keywords" content="bluey, children's show, family entertainment" />
-    <meta name="robots" content="index, follow" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="language" content="English" />
-    <meta name="author" content="Bluey Heeler" />
-    <meta property="og:title" content="Watch Bluey!" />
-    <meta property="og:description" content="Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures, developing her imagination as well as her mental, physical and emotional resilience." />
-    <meta property="og:image" content="https://cdn.iview.abc.net.au/thumbs/1200/ch/CH2003Q_66399c133e743_1920.jpg" />
-    <meta property="og:url" content="https://pages.blueynet.org/watch/episodes" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Watch Bluey!" />
-    <meta name="twitter:description" content="Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures, developing her imagination as well as her mental, physical and emotional resilience." />
-    <meta name="twitter:image" content="https://cdn.iview.abc.net.au/thumbs/1200/ch/CH2003Q_66399c133e743_1920.jpg" />
-    <link rel="icon" href="/bluey-star.ico" type="image/x-icon" />
+         body {
+            font-family: "Hello Headline", Arial, sans-serif !important;
+            background-color: #87c0e8 !important;
+            color: #fff;
+            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+            overflow-x: hidden;
+         }
 
-    <!-- Fonts -->
-    <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css" />
+         /* ===== TOP NAV BAR ===== */
+         .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 12px 30px;
+            gap: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 5000;
+         }
+         .top-nav a {
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+         }
+         .top-nav a:hover { color: #e0e0e0; }
 
-    <!-- Video.js core -->
-    <link href="https://vjs.zencdn.net/8.16.0/video-js.css" rel="stylesheet" />
-    <script src="https://vjs.zencdn.net/8.16.0/video.min.js"></script>
+         /* Hamburger menu button - hidden on desktop */
+         .hamburger-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            z-index: 1001;
+         }
+         .hamburger-btn svg { width: 28px; height: 28px; stroke: #fff; }
+         body.dark .hamburger-btn svg { stroke: #fbbf24; }
+         .nav-links { display: contents; }
 
-    <!-- Chromecast plugin for Video.js + Cast Sender SDK -->
-    <link rel="stylesheet" href="https://unpkg.com/@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css" />
-    <script>
-      window.SILVERMINE_VIDEOJS_CHROMECAST_CONFIG = { preloadWebComponents: false };
-    </script>
-    <script src="https://unpkg.com/@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.min.js"></script>
-    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+         /* Mobile menu overlay */
+         .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+         }
+         .mobile-menu-overlay.open { display: block; }
 
-    <style>
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      body {
-        font-family: "Hello Headline", Arial, sans-serif !important;
-        background-color: #87c0e8 !important;
-        color: #fff;
-        transition: background 0.3s, color 0.3s;
-        overflow-x: hidden;
-      }
+         /* ===== Hero ===== */
+         .hero {
+            position: relative;
+            height: 42vh;
+            min-height: 280px;
+            max-height: 460px;
+            background: radial-gradient(ellipse at center, #a8d5f0 0%, #5a9fd6 70%, #3d7fb8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+         }
+         .hero::before {
+            content: '';
+            position: absolute;
+            top: -20%; left: -10%; right: -10%; bottom: -20%;
+            background-image:
+               radial-gradient(circle at 15% 30%, rgba(255,255,255,0.3) 0%, transparent 40%),
+               radial-gradient(circle at 80% 70%, rgba(255,255,255,0.2) 0%, transparent 45%),
+               radial-gradient(circle at 50% 50%, rgba(255,255,255,0.15) 0%, transparent 60%);
+            pointer-events: none;
+         }
+         .hero::after {
+            content: '';
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            height: 65%;
+            z-index: 1;
+            background: linear-gradient(to bottom,
+               transparent 0%,
+               rgba(135,192,232,0.4) 40%,
+               rgba(135,192,232,0.85) 80%,
+               #87c0e8 100%);
+            pointer-events: none;
+         }
+         body.dark .hero::after {
+            background: linear-gradient(to bottom,
+               transparent 0%,
+               rgba(25,29,37,0.4) 40%,
+               rgba(25,29,37,0.85) 80%,
+               #191d25 100%);
+         }
+         .hero-logo {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            z-index: 0;
+         }
 
-      /* ===== TOP NAV BAR ===== */
-      .top-nav {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        padding: 12px 30px;
-        gap: 20px;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 5000;
-      }
-      .top-nav a {
-        text-decoration: none;
-        color: #fff;
-        font-weight: bold;
-        font-size: 16px;
-      }
-      .top-nav a:hover { color: #e0e0e0; }
+         /* ===== Category rows ===== */
+         .category {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 10px 20px 20px;
+         }
+         .category-title {
+            font-family: 'Hello Headline', Arial, sans-serif;
+            font-size: 26px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 14px;
+            padding-left: 6px;
+         }
 
-      /* Hamburger menu button - hidden on desktop */
-      .hamburger-btn {
-        display: none;
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 6px;
-        z-index: 1001;
-      }
-      .hamburger-btn svg { width: 28px; height: 28px; stroke: #fff; }
-      body.dark .hamburger-btn svg { stroke: #fbbf24; }
-      .nav-links { display: contents; }
+         .poster-row {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            overflow-y: visible;
+            padding: 24px 6px 40px;
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.35) transparent;
+         }
+         .poster-row::-webkit-scrollbar { height: 7px; }
+         .poster-row::-webkit-scrollbar-track { background: transparent; }
+         .poster-row::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.35);
+            border-radius: 4px;
+         }
 
-      /* Mobile menu overlay */
-      .mobile-menu-overlay {
-        display: none;
-        position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 999;
-      }
-      .mobile-menu-overlay.open { display: block; }
+         /* ===== Poster card ===== */
+         .poster-card {
+            position: relative;
+            flex: 0 0 auto;
+            width: 200px;
+            border-radius: 10px;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            background: rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            will-change: transform;
+         }
+         .poster-img {
+            display: block;
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+         }
 
-      /* ===== MAIN LAYOUT ===== */
-      /* ===== HERO BANNER (full viewport page) ===== */
-      .hero-banner {
-        position: relative;
-        width: 100%;
-        height: 100vh;
-        background: url('https://cdn.iview.abc.net.au/thumbs/i/ch/CH2003Q_66399c133e743_1920.jpg') center center / cover no-repeat;
-        display: flex;
-        align-items: flex-end;
-        padding: 60px 50px 80px;
-      }
-      .hero-banner::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(to right, rgba(135,192,232,0.85) 0%, rgba(135,192,232,0.45) 50%, transparent 100%),
-                    linear-gradient(to bottom, transparent 0%, transparent 50%, rgba(135,192,232,0.7) 70%, rgba(135,192,232,1) 100%);
-        pointer-events: none;
-      }
-      .hero-content {
-        position: relative;
-        z-index: 1;
-        max-width: 460px;
-      }
-      .hero-content .hero-logo {
-        width: 200px;
-        margin-bottom: 20px;
-      }
-      .hero-content .hero-label {
-        font-size: 15px;
-        font-weight: bold;
-        color: #1a5276;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 10px;
-      }
-      .hero-content .hero-desc {
-        font-size: 16px;
-        color: #1a3a4a;
-        line-height: 1.6;
-        margin-bottom: 12px;
-      }
-      .hero-content .hero-tagline {
-        font-size: 18px;
-        font-weight: bold;
-        color: #0d2f44;
-        margin-bottom: 24px;
-      }
-      .hero-scroll-hint {
-        position: absolute;
-        bottom: 30px;
-        left: 0;
-        right: 0;
-        margin: 0 auto;
-        width: fit-content;
-        z-index: 2;
-        font-size: 14px;
-        color: #1a3a4a;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-        animation: bounceDown 1.5s ease-in-out infinite;
-        cursor: pointer;
-      }
-      .hero-scroll-hint svg {
-        width: 24px; height: 24px;
-        stroke: #1a3a4a;
-      }
+         /* Info overlay — hidden by default */
+         .poster-info {
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            padding: 14px 12px 12px;
+            background: linear-gradient(to top,
+               rgba(0,0,0,0.95) 0%,
+               rgba(0,0,0,0.8) 40%,
+               rgba(0,0,0,0.45) 75%,
+               transparent 100%);
+            color: #fff;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            pointer-events: none;
+         }
+         .poster-info-title {
+            font-family: 'Hello Headline', Arial, sans-serif;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+         }
+         .poster-info-desc {
+            font-size: 12px;
+            color: #e2e2e2;
+            line-height: 1.4;
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+         }
+         .poster-info-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fff;
+            color: #111;
+            padding: 7px 14px;
+            border-radius: 4px;
+            font-family: 'Hello Headline', Arial, sans-serif;
+            font-weight: bold;
+            font-size: 13px;
+            transition: background 0.2s, color 0.2s;
+         }
+         .poster-info-btn svg {
+            width: 14px; height: 14px;
+            fill: currentColor;
+         }
 
-      /* Dark mode hero */
-      body.dark .hero-banner::before {
-        background: linear-gradient(to right, rgba(15,17,24,0.9) 0%, rgba(15,17,24,0.5) 50%, transparent 100%),
-                    linear-gradient(to bottom, transparent 0%, transparent 50%, rgba(15,17,24,0.75) 70%, rgba(15,17,24,1) 100%);
-      }
-      body.dark .hero-content .hero-label { color: #fbbf24; }
-      body.dark .hero-content .hero-desc { color: #b0c4d8; }
-      body.dark .hero-content .hero-tagline { color: #fff; }
-      body.dark .hero-scroll-hint { color: rgba(255,255,255,0.7); }
-      body.dark .hero-scroll-hint svg { stroke: rgba(255,255,255,0.7); }
-      @keyframes bounceDown {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(8px); }
-      }
+         /* Hover behavior — desktop with mouse only */
+         @media (hover: hover) and (pointer: fine) {
+            .poster-card:hover {
+               transform: scale(1.06);
+               box-shadow: 0 12px 34px rgba(0,0,0,0.45);
+               z-index: 5;
+            }
+            .poster-card:hover .poster-info {
+               opacity: 1;
+               transform: translateY(0);
+               pointer-events: auto;
+            }
+            .poster-info-btn:hover {
+               background: #e2793b;
+               color: #fff;
+            }
+         }
 
-      .app-layout {
-        display: flex;
-        min-height: 100vh;
-      }
+         /* Touch devices — no hover, just tap feedback. Poster art already has the title. */
+         @media (hover: none), (pointer: coarse) {
+            .poster-card:active { transform: scale(0.97); }
+            .poster-info { display: none; }
+         }
 
-      /* ===== LEFT SIDEBAR ===== */
-      .sidebar {
-        width: 300px;
-        min-width: 260px;
-        padding: 40px 30px 30px 40px;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .sidebar .logo {
-        width: 200px;
-        margin-bottom: 40px;
-        border-radius: 0;
-      }
-      .season-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-        width: 100%;
-      }
-      .season-selector__button {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        padding: 14px 20px;
-        border: none;
-        background: transparent;
-        color: #fff;
-        font-family: 'Hello Headline', sans-serif;
-        font-size: 18px;
-        cursor: pointer;
-        border-radius: 10px;
-        transition: background 0.2s, color 0.2s;
-      }
-      .season-selector__button:hover, .season-selector__button:focus {
-        background: rgba(255,255,255,0.15);
-        color: #fff;
-        outline: none;
-      }
-      .season-selector__button:focus {
-        box-shadow: inset 0 0 0 2px #00e5ff;
-      }
-      .season-selector__button.selected {
-        background: #00e5ff;
-        color: #1a1a2e;
-        font-weight: bold;
-      }
-      .season-selector__button .ep-count {
-        font-size: 15px;
-        opacity: 0.8;
-      }
-      .season-selector__button.selected .ep-count {
-        opacity: 1;
-      }
+         /* ===== Dark mode ===== */
+         body.dark {
+            background: #191d25 !important;
+            color: #dbeafe !important;
+         }
+         body.dark .top-nav a { color: #fbbf24 !important; }
+         body.dark .hero {
+            background: radial-gradient(ellipse at center, #2a3447 0%, #1a1f2c 70%, #0f131a 100%);
+         }
+         body.dark .hero::after {
+            background: linear-gradient(to bottom, transparent 0%, #191d25 100%);
+         }
+         body.dark .category-title { color: #fbbf24; }
+         body.dark .poster-card { background: #23293a; }
+         @media (hover: hover) and (pointer: fine) {
+            body.dark .poster-info-btn:hover {
+               background: #fbbf24;
+               color: #191d25;
+            }
+         }
 
-      /* Language & Shuffle under seasons */
-      .sidebar-controls {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-top: 20px;
-        width: 100%;
-        flex-wrap: wrap;
-      }
-      /* Custom dropdown */
-      .custom-dropdown {
-        position: relative;
-        flex: 1;
-        min-width: 120px;
-      }
-      .custom-dropdown__trigger {
-        width: 100%;
-        padding: 10px 36px 10px 14px;
-        border: none;
-        border-radius: 8px;
-        background: #404066;
-        color: #fff;
-        font-family: 'Hello Headline', sans-serif;
-        font-size: 15px;
-        cursor: pointer;
-        text-align: left;
-        position: relative;
-      }
-      .custom-dropdown__trigger::after {
-        content: '';
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
-        border-top: 6px solid #fff;
-        pointer-events: none;
-      }
-      .custom-dropdown__menu {
-        display: none;
-        position: absolute;
-        bottom: calc(100% + 6px);
-        left: 0;
-        right: 0;
-        background: #404066;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-        z-index: 200;
-        list-style: none;
-      }
-      .custom-dropdown.open .custom-dropdown__menu { display: block; }
-      .custom-dropdown__item {
-        padding: 10px 14px;
-        color: #fff;
-        font-family: 'Hello Headline', sans-serif;
-        font-size: 15px;
-        cursor: pointer;
-        transition: background 0.15s;
-      }
-      .custom-dropdown__item:hover,
-      .custom-dropdown__item:focus {
-        background: rgba(255,255,255,0.15);
-        outline: none;
-      }
-      .custom-dropdown__item.selected {
-        background: rgba(255,255,255,0.2);
-      }
-      #shuffle-button, #play-button {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 42px;
-        height: 42px;
-        border: none;
-        border-radius: 8px;
-        background: #404066;
-        color: #fff;
-        cursor: pointer;
-        transition: background 0.2s, box-shadow 0.2s;
-      }
-      #shuffle-button:hover, #shuffle-button:focus,
-      #play-button:hover, #play-button:focus {
-        background: #52527a;
-        outline: none;
-        box-shadow: 0 0 0 2px #00e5ff;
-      }
-      .custom-dropdown__trigger:focus { outline: none; box-shadow: 0 0 0 2px #00e5ff; }
-      #shuffle-icon {
-        color: #fff;
-        transition: color 0.2s, background 0.2s, box-shadow 0.2s;
-      }
-      #shuffle-icon.active {
-        color: #1a1a2e !important;
-        background: #00e5ff !important;
-        border-radius: 6px;
-        box-shadow: 0 0 10px 2px rgba(0,229,255,0.4);
-      }
+         /* ===== Dark mode toggle ===== */
+         .darkmode-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            margin-left: 8px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            outline: none;
+            padding: 2px;
+            transition: background 0.2s;
+         }
+         .darkmode-toggle:focus,
+         .darkmode-toggle:hover { background: rgba(128, 128, 128, 0.12); }
+         .darkmode-toggle svg {
+            width: 24px; height: 24px;
+            display: block;
+            pointer-events: none;
+         }
+         .dark .darkmode-toggle .sun { display: none; }
+         .dark .darkmode-toggle .moon { display: block; }
+         .darkmode-toggle .moon { display: none; }
+         .darkmode-toggle .sun { display: block; }
 
-      /* ===== RIGHT: EPISODES PANEL ===== */
-      .episodes-panel {
-        flex: 1;
-        padding: 20px 40px 30px 20px;
-        overflow-y: auto;
-        max-height: calc(100vh - 56px);
-      }
-
-      #episodes {
-        list-style: none;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        padding: 0;
-      }
-      #episodes li {
-        display: flex;
-        align-items: flex-start;
-        gap: 20px;
-        cursor: pointer;
-        border-radius: 12px;
-        padding: 0;
-        transition: background 0.2s, transform 0.15s;
-      }
-      #episodes li:hover, #episodes li:focus {
-        background: rgba(255,255,255,0.05);
-        transform: translateY(-1px);
-        outline: none;
-      }
-      #episodes li:focus {
-        box-shadow: inset 0 0 0 2px #00e5ff;
-      }
-      #episodes li.selected {
-        background: rgba(0,229,255,0.1);
-      }
-      #episodes li .ep-thumb {
-        width: 320px;
-        min-width: 260px;
-        height: 180px;
-        object-fit: cover;
-        border-radius: 12px;
-        flex-shrink: 0;
-      }
-      #episodes li .ep-info {
-        flex: 1;
-        padding: 12px 10px 12px 0;
-      }
-      #episodes li .ep-info h2 {
-        font-size: 20px;
-        font-weight: bold;
-        margin-bottom: 8px;
-        color: #fff;
-      }
-      #episodes li .ep-info p {
-        font-size: 14px;
-        color: #dce4ee;
-        line-height: 1.5;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-      #episodes li .ep-meta {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 10px;
-      }
-      #episodes li .ep-duration {
-        font-size: 14px;
-        color: #ccd6e0;
-        font-weight: bold;
-      }
-
-      /* ===== FULLSCREEN PLAYER OVERLAY ===== */
-      .player-overlay {
-        display: none;
-        position: fixed;
-        top: 0; left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0,0,0,0.8);
-        backdrop-filter: blur(8px);
-        z-index: 9000;
-        align-items: center;
-        justify-content: center;
-        padding: 30px;
-      }
-      .player-overlay.active {
-        display: flex;
-      }
-      .player-overlay .close-player {
-        position: absolute;
-        top: 12px;
-        right: 16px;
-        z-index: 9100;
-        background: rgba(255,255,255,0.12);
-        border: none;
-        color: #fff;
-        font-size: 28px;
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 0.2s;
-        font-family: 'Hello Headline', sans-serif;
-      }
-      .player-overlay .close-player:hover {
-        background: rgba(255,255,255,0.25);
-      }
-
-      /* Inner modal card */
-      .player-inner {
-        display: flex;
-        width: 100%;
-        max-width: 1100px;
-        max-height: 85vh;
-        background: #2d3047;
-        border-radius: 18px;
-        overflow: hidden;
-        box-shadow: 0 16px 60px rgba(0,0,0,0.5);
-        position: relative;
-      }
-      .player-overlay .player-container {
-        flex: 1;
-        min-width: 0;
-        display: flex;
-        align-items: stretch;
-        background: #000;
-      }
-      .player-overlay .video-js {
-        width: 100% !important;
-        height: 100% !important;
-        border-radius: 0;
-      }
-
-      /* video.js menu items (audio + subtitle pickers) default to
-         text-transform: lowercase, which mangles language labels
-         like "English" → "english". Render them exactly as we
-         pass them so "English" / "Malay" / "Director's Commentary"
-         keep their intended casing. */
-      .video-js .vjs-menu .vjs-menu-item,
-      .video-js .vjs-menu .vjs-menu-item-text,
-      .video-js .vjs-menu .vjs-menu-title {
-        text-transform: none !important;
-      }
-
-      /* Info panel */
-      .player-info {
-        width: 280px;
-        min-width: 240px;
-        padding: 28px 24px;
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-        overflow-y: auto;
-      }
-      .player-info .info-thumb {
-        width: 100%;
-        aspect-ratio: 16/9;
-        object-fit: cover;
-        border-radius: 10px;
-      }
-      .player-info .info-title {
-        font-size: 18px;
-        font-weight: bold;
-        color: #fff;
-        line-height: 1.3;
-      }
-      .player-info .info-desc {
-        font-size: 13px;
-        color: #a0aec0;
-        line-height: 1.55;
-        flex: 1;
-      }
-      .player-info .info-duration {
-        font-size: 13px;
-        color: #718096;
-        font-weight: bold;
-      }
-      .player-info .info-buttons {
-        display: flex;
-        gap: 8px;
-        width: 100%;
-      }
-      .player-info .info-download,
-      .player-info .info-share {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 12px 14px;
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        font-family: 'Hello Headline', sans-serif;
-        font-size: 15px;
-        cursor: pointer;
-        transition: background 0.2s;
-        flex: 1;
-      }
-      .player-info .info-download { background: #e2793b; }
-      .player-info .info-download:hover { background: #cf6b30; }
-      .player-info .info-share { background: #404066; }
-      .player-info .info-share:hover { background: #52527a; }
-      .player-info .info-download svg,
-      .player-info .info-share svg {
-        width: 18px; height: 18px;
-        stroke: currentColor; fill: none;
-        stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-      }
-
-      /* Dark mode player modal */
-      body.dark .player-inner { background: #191d25; }
-      body.dark .player-info .info-title { color: #fbbf24; }
-      body.dark .player-info .info-desc { color: #6b7a8d; }
-      body.dark .player-info .info-download { background: #394867; color: #ffd700; }
-      body.dark .player-info .info-share { background: #394867; color: #ffd700; }
-
-      /* Hide info panel in PiP */
-      .player-overlay.pip .player-inner {
-        background: transparent;
-        border-radius: 12px;
-        max-width: 100%;
-        max-height: 100%;
-        width: 100%;
-        height: 100%;
-        box-shadow: none;
-      }
-      .player-overlay.pip .player-info { display: none; }
-      .player-overlay.pip .player-container {
-        border-radius: 12px;
-        overflow: hidden;
-      }
-
-      /* Responsive: stack on small/portrait screens */
-      @media (max-width: 900px) {
-        .player-overlay { padding: 0; }
-        .player-inner {
-          flex-direction: column;
-          max-height: 100vh;
-          height: 100%;
-          width: 100%;
-          border-radius: 0;
-        }
-        .player-overlay .player-container {
-          flex: none;
-          width: 100%;
-          min-height: 0;
-        }
-        .player-overlay .video-js {
-          width: 100% !important;
-          height: auto !important;
-          aspect-ratio: 16/9;
-          position: relative;
-        }
-        .player-info {
-          width: 100%;
-          min-width: unset;
-          flex: 1;
-          padding: 20px;
-          overflow-y: auto;
-        }
-        .player-overlay .close-player {
-          top: 10px;
-          right: 12px;
-          width: 40px;
-          height: 40px;
-          font-size: 24px;
-        }
-      }
-
-      /* Small landscape: keep side-by-side so info panel stays visible */
-      @media (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
-        .player-inner {
-          flex-direction: row !important;
-          height: 100vh;
-        }
-        .player-overlay .player-container {
-          flex: 1;
-          min-width: 0;
-        }
-        .player-overlay .video-js {
-          aspect-ratio: unset !important;
-          height: 100% !important;
-        }
-        .player-info {
-          width: 200px !important;
-          min-width: 180px;
-          flex: none !important;
-          padding: 14px 12px;
-          overflow-y: auto;
-          flex-direction: column !important;
-        }
-        .player-info .info-thumb {
-          width: 70px;
-        }
-        .player-info .info-title { font-size: 13px; }
-        .player-info .info-desc { font-size: 11px; -webkit-line-clamp: 3; }
-        .player-info .info-duration { font-size: 11px; }
-        .player-info .info-download,
-        .player-info .info-share { font-size: 11px; padding: 5px 10px; }
-        .player-overlay .close-player {
-          top: 6px; right: 6px;
-          width: 32px; height: 32px;
-          font-size: 20px;
-        }
-      }
-
-      /* PiP mini player */
-      .player-overlay.pip {
-        display: flex;
-        top: auto; left: auto;
-        bottom: 20px; right: 20px;
-        width: 360px;
-        height: 210px;
-        padding: 0;
-        border-radius: 12px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-        overflow: hidden;
-        cursor: pointer;
-        background: #000;
-        backdrop-filter: none;
-        transition: width 0.3s, height 0.3s, bottom 0.3s, right 0.3s, border-radius 0.3s;
-        z-index: 8000;
-      }
-      .player-overlay.pip .close-player {
-        top: 6px;
-        right: 6px;
-        width: 30px;
-        height: 30px;
-        font-size: 18px;
-      }
-      .player-overlay.pip .pip-expand {
-        display: flex;
-      }
-      .pip-expand {
-        display: none;
-        position: absolute;
-        top: 6px;
-        left: 6px;
-        z-index: 9100;
-        background: rgba(255,255,255,0.15);
-        border: none;
-        color: #fff;
-        font-size: 16px;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        cursor: pointer;
-        align-items: center;
-        justify-content: center;
-        transition: background 0.2s;
-      }
-      .pip-expand:hover { background: rgba(255,255,255,0.3); }
-      .player-overlay.pip .video-js {
-        border-radius: 12px;
-      }
-      .player-overlay.pip .vjs-episode-title { display: none; }
-      .player-overlay.pip .vjs-skip-intro-overlay { display: none; }
-      .player-overlay.pip .vjs-upnext-overlay { display: none; }
-
-      @media (max-width: 600px) {
-        .player-overlay.pip {
-          width: 200px;
-          height: 120px;
-          bottom: 10px;
-          right: 10px;
-        }
-      }
-
-      /* Episode title overlay on video */
-      .vjs-episode-title {
-        position: absolute; left: 12px; top: 12px; z-index: 3;
-        padding: 6px 10px; border-radius: 6px;
-        background: rgba(0,0,0,0.55); color: #fff;
-        font-family: 'Hello Headline', sans-serif; font-size: 14px;
-        pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,0.4);
-        opacity: 0; transition: opacity .2s ease;
-      }
-      .vjs-user-inactive .vjs-episode-title { opacity: 0; }
-      .vjs-user-active .vjs-episode-title { opacity: 1; }
-
-      /* Toast */
-      .toast {
-        position: fixed;
-        left: 50%;
-        bottom: 20px;
-        transform: translateX(-50%);
-        background: rgba(0,0,0,0.88);
-        color: #fff;
-        padding: 10px 14px;
-        border-radius: 8px;
-        font-family: 'Hello Headline', sans-serif;
-        font-size: 14px;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity .25s, transform .25s;
-        z-index: 9999;
-      }
-      .toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
-
-      /* Skip Intro */
-      .vjs-skip-intro-overlay {
-        position: absolute;
-        right: 35px;
-        bottom: 35px;
-        z-index: 4;
-        background: rgba(0,0,0,0.55);
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        padding: 10px 14px;
-        font-family: 'Hello Headline', sans-serif;
-        font-size: 14px;
-        cursor: pointer;
-        display: none;
-      }
-      .vjs-skip-intro-overlay:focus,
-      .vjs-skip-intro-overlay:hover { background: rgba(0,0,0,0.75); }
-
-      /* Up Next */
-      .vjs-upnext-overlay{
-        position:absolute; right:35px; bottom:35px; z-index:4;
-        display:none; align-items:center; gap:12px;
-        background:rgba(0,0,0,.65); backdrop-filter: blur(4px);
-        color:#fff; border-radius:10px; padding:10px 12px;
-        box-shadow:0 8px 20px rgba(0,0,0,.35);
-        font-family:'Hello Headline', sans-serif;
-      }
-      .vjs-upnext-overlay img{
-        width:120px; height:68px; object-fit:cover; border-radius:6px;
-      }
-      .vjs-upnext-meta{ display:flex; flex-direction:column; line-height:1.2 }
-      .vjs-upnext-label{ font-size:12px; opacity:.9; margin-bottom:4px }
-      .vjs-upnext-title{ font-size:14px; font-weight:700; margin-bottom:6px }
-      .vjs-upnext-btn{
-        border:0; border-radius:6px; padding:8px 10px; cursor:pointer;
-        background:#e2793b; color:#fff; font-family:'Hello Headline', sans-serif;
-        font-size:14px;
-      }
-      .vjs-upnext-btn:focus, .vjs-upnext-btn:hover{ filter:brightness(1.05) }
-      .vjs-upnext-count{ font-weight:800 }
-
-      /* Dark mode toggle */
-      .darkmode-toggle {
-        background: none; border: none; cursor: pointer; border-radius: 50%;
-        width: 36px; height: 36px; display: flex; align-items: center;
-        justify-content: center; outline: none; padding: 2px; transition: background 0.2s;
-      }
-      .darkmode-toggle:focus, .darkmode-toggle:hover { background: rgba(128,128,128,0.12); }
-      .darkmode-toggle svg { width: 24px; height: 24px; display: block; pointer-events: none; }
-      .dark .darkmode-toggle .sun { display: none; }
-      .dark .darkmode-toggle .moon { display: block; }
-      .darkmode-toggle .moon { display: none; }
-      .darkmode-toggle .sun { display: block; }
-
-      /* Dark mode overrides */
-      body.dark { background: #0f1118 !important; color: #dbeafe !important; }
-      body.dark .top-nav a { color: #fbbf24 !important; }
-      body.dark .sidebar { background: none; }
-      body.dark .season-selector__button { color: #8899aa; }
-      body.dark .season-selector__button:hover { color: #fbbf24; background: rgba(255,255,255,0.05); }
-      body.dark .season-selector__button.selected { background: #fbbf24; color: #1a1a2e; }
-      body.dark .custom-dropdown__trigger { background: rgba(255,255,255,0.08); color: #fbbf24; }
-      body.dark .custom-dropdown__trigger::after { border-top-color: #fbbf24; }
-      body.dark .custom-dropdown__menu { background: #1e2230; }
-      body.dark .custom-dropdown__item { color: #fbbf24; }
-      body.dark .custom-dropdown__item:hover,
-      body.dark .custom-dropdown__item:focus { background: rgba(251,191,36,0.15); }
-      body.dark .custom-dropdown__item.selected { background: rgba(251,191,36,0.2); }
-      body.dark #shuffle-button, body.dark #play-button { background: rgba(255,255,255,0.08); }
-      body.dark #shuffle-icon, body.dark #play-button { color: #fbbf24; }
-      body.dark #shuffle-icon.active { color: #1a1a2e !important; background: #fbbf24 !important; box-shadow: 0 0 10px 2px rgba(251,191,36,0.4); }
-      body.dark #episodes li:hover, body.dark #episodes li:focus { background: rgba(255,255,255,0.04); }
-      body.dark #episodes li:focus { box-shadow: inset 0 0 0 2px #fbbf24; }
-      body.dark .season-selector__button:focus { box-shadow: inset 0 0 0 2px #fbbf24; }
-      body.dark #shuffle-button:focus, body.dark #play-button:focus { box-shadow: 0 0 0 2px #fbbf24; }
-      body.dark .custom-dropdown__trigger:focus { box-shadow: 0 0 0 2px #fbbf24; }
-      body.dark #episodes li.selected { background: rgba(251,191,36,0.1); }
-      body.dark #episodes li .ep-info h2 { color: #fbbf24; }
-      body.dark #episodes li .ep-info p { color: #8899aa; }
-      body.dark .toast { background: rgba(15,17,24,0.95); color: #fbbf24; }
-      body.dark .vjs-episode-title { background: rgba(15,17,24,0.6); color: #fbbf24; }
-      body.dark .vjs-skip-intro-overlay { background: rgba(15,17,24,0.6); color: #fbbf24; }
-      body.dark .vjs-skip-intro-overlay:hover { background: rgba(15,17,24,0.85); }
-      body.dark .vjs-upnext-overlay { background: rgba(15,17,24,0.7); color: #fbbf24; }
-      body.dark .vjs-upnext-btn { background: #394867; color: #ffd700; }
-
-      /* ===== RESPONSIVE ===== */
-      @media (max-width: 900px) {
-        .app-layout { flex-direction: column; }
-        .sidebar {
-          width: 100%;
-          min-width: unset;
-          padding: 20px;
-          align-items: center;
-        }
-        .sidebar .logo { width: 140px; margin-bottom: 20px; }
-        .season-list { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 8px; }
-        .season-selector__button {
-          width: auto;
-          padding: 10px 18px;
-          gap: 10px;
-          font-size: 16px;
-        }
-        .sidebar-controls { justify-content: center; }
-        .episodes-panel {
-          padding: 10px 16px;
-          max-height: unset;
-        }
-        #episodes li .ep-thumb {
-          width: 180px;
-          min-width: 140px;
-          height: 110px;
-        }
-      }
-      @media (max-width: 600px) {
-        .hero-banner { height: 100vh; padding: 40px 20px 80px; }
-        .hero-content .hero-logo { width: 140px; margin-bottom: 14px; }
-        .hero-content .hero-desc { font-size: 14px; }
-        .hero-content .hero-tagline { font-size: 15px; }
-        .top-nav { padding: 10px 16px; justify-content: space-between; }
-        .hamburger-btn { display: block; }
-        .nav-links {
-          display: none;
-          position: fixed;
-          top: 0; left: 0;
-          width: 220px; height: 100vh;
-          background: #5a9fc6;
-          flex-direction: column;
-          padding: 60px 24px 24px;
-          gap: 20px;
-          z-index: 1000;
-          box-shadow: 4px 0 20px rgba(0,0,0,0.4);
-        }
-        body.dark .nav-links { background: #191d25; }
-        .nav-links.open { display: flex; }
-        .nav-links a { font-size: 18px; }
-        .nav-links .darkmode-toggle { align-self: flex-start; }
-        .sidebar { padding: 16px 12px; }
-        .sidebar .logo { width: 120px; margin-bottom: 14px; }
-        .season-list { gap: 6px; }
-        .season-selector__button {
-          padding: 8px 12px;
-          font-size: 14px;
-          gap: 6px;
-          border-radius: 8px;
-        }
-        .season-selector__button .ep-count {
-          font-size: 12px;
-        }
-        .sidebar-controls { gap: 8px; margin-top: 14px; }
-        .custom-dropdown__trigger { padding: 8px 10px; font-size: 13px; }
-        .custom-dropdown__item { padding: 8px 10px; font-size: 13px; }
-        #shuffle-button { width: 36px; height: 36px; }
-        #episodes li { flex-direction: column; gap: 8px; }
-        #episodes li .ep-thumb { width: 100%; min-width: unset; height: auto; }
-        #episodes li .ep-info h2 { font-size: 17px; }
-        #episodes li .ep-info p { font-size: 13px; }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Top Navigation -->
-    <nav class="top-nav">
-      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="3" y1="6" x2="21" y2="6"/>
-          <line x1="3" y1="12" x2="21" y2="12"/>
-          <line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
-      </button>
-      <div class="nav-links" id="navLinks">
-        <a href="/">Home</a>
-        <a href="/watch">Watch</a>
-        <a href="/music">Music</a>
-        <a href="/listen">Listen</a>
-        <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
-        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="5"/>
-          <g>
-            <line x1="12" y1="1" x2="12" y2="3"/>
-            <line x1="12" y1="21" x2="12" y2="23"/>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-            <line x1="1" y1="12" x2="3" y2="12"/>
-            <line x1="21" y1="12" x2="23" y2="12"/>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-          </g>
-        </svg>
-        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-        </svg>
-      </button>
-      </div><!-- /nav-links -->
-    </nav>
-    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
-
-    <!-- Hamburger menu script -->
-    <script>
-      const hamburgerBtn = document.getElementById('hamburgerBtn');
-      const navLinks = document.getElementById('navLinks');
-      const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
-      hamburgerBtn.addEventListener('click', () => {
-        navLinks.classList.toggle('open');
-        mobileMenuOverlay.classList.toggle('open');
-      });
-      mobileMenuOverlay.addEventListener('click', () => {
-        navLinks.classList.remove('open');
-        mobileMenuOverlay.classList.remove('open');
-      });
-      navLinks.querySelectorAll('a').forEach(a => {
-        a.addEventListener('click', () => {
-          navLinks.classList.remove('open');
-          mobileMenuOverlay.classList.remove('open');
-        });
-      });
-    </script>
-
-    <!-- Hero Banner -->
-    <div class="hero-banner">
-      <div class="hero-content">
-        <img src="/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="hero-logo" />
-        <div class="hero-label">All Episodes</div>
-        <p class="hero-desc">Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures, developing her imagination as well as her mental, physical and emotional resilience.</p>
-        <div class="hero-tagline">The Biggest Little Show!</div>
-      </div>
-      <div class="hero-scroll-hint" tabindex="0" role="button" onclick="document.getElementById('episode-section').scrollIntoView({behavior:'smooth'})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('episode-section').scrollIntoView({behavior:'smooth'})}">
-        Scroll down to see episode list
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9"/>
-        </svg>
-      </div>
-    </div>
-
-    <!-- Main Layout -->
-    <div class="app-layout" id="episode-section">
-      <!-- Left Sidebar -->
-      <div class="sidebar">
-        <img src="/images/uFYNVaPt6dz1PH6tZ4vfdyOnKS.png" alt="Bluey" class="logo" />
-        <div class="season-list" id="seasons"></div>
-
-        <!-- Shuffle (audio + subtitle language pickers now live
-             inside the video.js control bar — see the audioTracks /
-             remoteTextTracks population in playEpisode). -->
-        <div class="sidebar-controls">
-          <!-- Play starts from S1E1, or fires a random episode when
-               shuffle is active. Same 42×42 footprint as the shuffle
-               button for a tidy row. -->
-          <button id="play-button" onclick="playFromStart()" title="Play">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-              <polygon points="6,4 20,12 6,20" />
+         /* ===== Responsive ===== */
+         @media (max-width: 768px) {
+            .hero { height: 34vh; min-height: 220px; }
+            .hero::after { height: 85%; }
+            .category { padding: 8px 14px 16px; }
+            .category-title { font-size: 22px; }
+            .poster-card { width: 150px; }
+            .poster-img { height: 215px; }
+         }
+         @media (max-width: 600px) {
+            .top-nav { padding: 10px 16px; justify-content: space-between; }
+            .hamburger-btn { display: block; }
+            .nav-links {
+               display: none;
+               position: fixed;
+               top: 0; left: 0;
+               width: 220px; height: 100vh;
+               background: #5a9fc6;
+               flex-direction: column;
+               padding: 60px 24px 24px;
+               gap: 20px;
+               z-index: 1000;
+               box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+            }
+            body.dark .nav-links { background: #191d25; }
+            .nav-links.open { display: flex; }
+            .nav-links a { font-size: 18px; }
+            .nav-links .darkmode-toggle { align-self: flex-start; }
+         }
+         @media (max-width: 480px) {
+            .poster-card { width: 130px; }
+            .poster-img { height: 185px; }
+         }
+      </style>
+   </head>
+   <body>
+      <!-- Top Navigation -->
+      <nav class="top-nav">
+         <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+               <line x1="3" y1="6" x2="21" y2="6"/>
+               <line x1="3" y1="12" x2="21" y2="12"/>
+               <line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
-          </button>
-          <button id="shuffle-button" onclick="toggleShuffleMode()" title="Shuffle">
-            <svg id="shuffle-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <polyline points="16 3 21 3 21 8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="4" y1="20" x2="21" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <polyline points="21 16 21 21 16 21" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="15" y1="15" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Right: Episodes -->
-      <div class="episodes-panel">
-        <ul id="episodes"></ul>
-      </div>
-    </div>
-
-    <!-- Fullscreen Player Overlay -->
-    <div class="player-overlay" id="playerOverlay">
-      <button class="pip-expand" id="pipExpandBtn" onclick="expandFromPip()" title="Expand">&#x26F6;</button>
-      <button class="close-player" id="closePlayerBtn" onclick="closePlayer()" title="Close player">&times;</button>
-      <div class="player-inner">
-        <div class="player-container">
-          <video id="bluey" class="video-js vjs-default-skin vjs-fluid" controls preload="auto" playsinline autoplay></video>
-        </div>
-        <div class="player-info" id="playerInfo">
-          <img class="info-thumb" id="infoThumb" src="" alt="Episode thumbnail" />
-          <div class="info-title" id="infoTitle"></div>
-          <div class="info-desc" id="infoDesc"></div>
-          <div class="info-duration" id="infoDuration"></div>
-          <div class="info-buttons">
-            <button class="info-download" id="infoDownload" onclick="downloadEpisode()">
-              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Download
+         </button>
+         <div class="nav-links" id="navLinks">
+            <a href="/">Home</a>
+            <a href="/watch">Watch</a>
+            <a href="/music">Music</a>
+            <a href="/listen">Listen</a>
+            <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+               <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="5"/>
+                  <g>
+                     <line x1="12" y1="1" x2="12" y2="3"/>
+                     <line x1="12" y1="21" x2="12" y2="23"/>
+                     <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                     <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                     <line x1="1" y1="12" x2="3" y2="12"/>
+                     <line x1="21" y1="12" x2="23" y2="12"/>
+                     <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                     <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                  </g>
+               </svg>
+               <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+               </svg>
             </button>
-            <button class="info-share" id="infoShare" onclick="shareEpisode()">
-              <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-              Share
-            </button>
-          </div>
-        </div>
+         </div><!-- /nav-links -->
+      </nav>
+      <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+      <!-- Hero -->
+      <div class="hero">
+         <img src="https://disney.images.edge.bamgrid.com/ripcut-delivery/v2/variant/disney/246798610C1DE100DB1D7BB2D517B5836E94F1B5F9E0DF4B7AD7BB44FE413302/scale?format=png" alt="Bluey" class="hero-logo">
       </div>
-    </div>
 
-    <!-- Toast -->
-    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      <!-- Category: Bluey -->
+      <div class="category">
+         <h2 class="category-title">Bluey</h2>
+         <div class="poster-row">
+            <a class="poster-card" href="/watch/episodes">
+               <img class="poster-img" src="https://cdn.iview.abc.net.au/thumbs/i/X0_69c5fef39aa8d_2000.jpg" alt="Bluey Poster" loading="lazy">
+               <div class="poster-info">
+                  <div class="poster-info-title">Bluey</div>
+                  <div class="poster-info-desc">Bluey is an inexhaustible six year-old Blue Heeler dog, who loves to play and turns everyday family life into extraordinary adventures.</div>
+                  <span class="poster-info-btn">
+                     <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                     Watch Now
+                  </span>
+               </div>
+            </a>
+            <a class="poster-card" href="/watch/minisodes">
+               <img class="poster-img" src="/images/X0_6662527d1bebc_2000.webp" alt="Bluey Minisodes Poster" loading="lazy">
+               <div class="poster-info">
+                  <div class="poster-info-title">Bluey Minisodes</div>
+                  <div class="poster-info-desc">A collection of funny and sweet episodes featuring Bluey and her family and friends — with new characters and games they have been playing together.</div>
+                  <span class="poster-info-btn">
+                     <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                     Watch Now
+                  </span>
+               </div>
+            </a>
+         </div>
+      </div>
 
-    <!-- DARK MODE SCRIPT -->
-    <script>
-      const themeKey = "bluey-site-theme";
-      const root = document.body;
-      const darkToggle = document.getElementById("darkToggle");
-      function setTheme(dark) {
-        if (dark) { root.classList.add('dark'); localStorage.setItem(themeKey, "dark"); }
-        else { root.classList.remove('dark'); localStorage.setItem(themeKey, "light"); }
-      }
-      (() => {
-        const saved = localStorage.getItem(themeKey);
-        if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) { setTheme(true); } else { setTheme(false); }
-      })();
-      darkToggle.onclick = () => setTheme(!root.classList.contains('dark'));
-    </script>
+      <!-- Category: Specials -->
+      <div class="category">
+         <h2 class="category-title">Specials</h2>
+         <div class="poster-row">
+            <a class="poster-card" href="/watch/blueys-big-play">
+               <img class="poster-img" src="/images/X0_67ec7a2ace7cb_2000.webp" alt="Bluey's Big Play Poster" loading="lazy">
+               <div class="poster-info">
+                  <div class="poster-info-title">Bluey's Big Play</div>
+                  <div class="poster-info-desc">Bluey and Bingo pull out all the stops to try to get Dad off his phone in their first live stage show, brought to life by brilliant puppets and featuring brand new original music.</div>
+                  <span class="poster-info-btn">
+                     <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                     Watch Now
+                  </span>
+               </div>
+            </a>
+            <a class="poster-card" href="/watch/bluey-book-reads">
+               <img class="poster-img" src="https://cdn.iview.abc.net.au/thumbs/i/X0_68d33f9252bcd_2000.jpg" alt="Bluey Book Reads" loading="lazy">
+               <div class="poster-info">
+                  <div class="poster-info-title">Bluey Book Reads</div>
+                  <div class="poster-info-desc">Enjoy your favourite tales in Heeler History, read by some big Bluey fans you might recognise.</div>
+                  <span class="poster-info-btn">
+                     <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                     Watch Now
+                  </span>
+               </div>
+            </a>
+            <a class="poster-card" href="/watch/bluey-tunes">
+               <img class="poster-img" src="https://cdn.iview.abc.net.au/thumbs/i/X0_68db1b83995bf_2000.jpg" alt="Bluey Tunes" loading="lazy">
+               <div class="poster-info">
+                  <div class="poster-info-title">Bluey Tunes</div>
+                  <div class="poster-info-desc">Enjoy the most popular Bluey Songs with the Bluey Tunes music video series.</div>
+                  <span class="poster-info-btn">
+                     <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                     Watch Now
+                  </span>
+               </div>
+            </a>
+            <a class="poster-card" href="/watch/bluey-puppets">
+               <img class="poster-img" src="https://cdn.iview.abc.net.au/thumbs/i/X0_68db1c05cd798_2000.jpg" alt="Bluey Puppets" loading="lazy">
+               <div class="poster-info">
+                  <div class="poster-info-title">Bluey Puppets</div>
+                  <div class="poster-info-desc">Bluey's favourite toys come to life in this joyful crafting series! Follow along at home with easy steps - perfect for kids and grown-ups to make together.</div>
+                  <span class="poster-info-btn">
+                     <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                     Watch Now
+                  </span>
+               </div>
+            </a>
+            <a class="poster-card" href="/watch/bluey-fancy-restaurant">
+               <img class="poster-img" src="https://blueynet.org/emby/Items/304715/Images/Primary?tag=0d599edf174ed366c6f55ae33c30d45f" alt="Bluey Fancy Restaurant" loading="lazy">
+               <div class="poster-info">
+                  <div class="poster-info-title">Bluey Fancy Restaurant</div>
+                  <div class="poster-info-desc">Inspired by Bluey's "Fancy Restaurant" kids transform their homes into themed restaurants to give their parents a romantic night, complete with creative menus, decorations, and sweet surprises.</div>
+                  <span class="poster-info-btn">
+                     <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                     Watch Now
+                  </span>
+               </div>
+            </a>
+            <a class="poster-card" href="/watch/bluey-cookalongs">
+               <img class="poster-img" src="https://cdn.iview.abc.net.au/thumbs/i/X0_68db1e1ea8cda_2000.jpg" alt="Bluey Cookalongs" loading="lazy">
+               <div class="poster-info">
+                  <div class="poster-info-title">Bluey Cookalongs</div>
+                  <div class="poster-info-desc">Join for real life Australian families as they bring the magic of Bluey into their own kitchens! From poffertjes to pizzas, each family's creation is inspired by their favourite Bluey episodes.</div>
+                  <span class="poster-info-btn">
+                     <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                     Watch Now
+                  </span>
+               </div>
+            </a>
+         </div>
+      </div>
+<!--  
+      <div class="category">
+         <h2 class="category-title">First of The Month</h2>
+         <div class="poster-row">
+            <a class="poster-card" href="/watch/swapped">
+               <img class="poster-img" src="https://image.tmdb.org/t/p/original/tHhxWxge06goXU6ZQH1hj7vK8Hd.jpg" alt="Swapped" loading="lazy">
+               <div class="poster-info">
+                  <div class="poster-info-title">Swapped</div>
+                  <div class="poster-info-desc">A small woodland creature and a majestic bird, two natural sworn enemies of the Valley, magically trade places and set off on an adventure of a lifetime to switch back. Their journey soon uncovers a greater threat—one that could endanger not only their species, but the entire valley they call home.</div>
+                  <span class="poster-info-btn">
+                     <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                     Watch Now
+                  </span>
+               </div>
+            </a>
+         </div>
+      </div> 
+      -->
+      <script>
+         // Hamburger menu (mobile)
+         const hamburgerBtn = document.getElementById('hamburgerBtn');
+         const navLinks = document.getElementById('navLinks');
+         const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+         hamburgerBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('open');
+            mobileMenuOverlay.classList.toggle('open');
+         });
+         mobileMenuOverlay.addEventListener('click', () => {
+            navLinks.classList.remove('open');
+            mobileMenuOverlay.classList.remove('open');
+         });
 
-    <!-- App Scripts -->
-    <script>
-      // Toast helper
-      function showToast(msg, duration = 2500) {
-        const t = document.getElementById('toast');
-        if (!t) return;
-        t.textContent = msg;
-        t.classList.add('show');
-        clearTimeout(showToast._t);
-        showToast._t = setTimeout(() => t.classList.remove('show'), duration);
-      }
-
-      function normalizeLangHint(stream) {
-        const a = [
-          stream.Language, stream.DisplayLanguage, stream.DisplayTitle, stream.Title, stream.Codec
-        ].filter(Boolean).join(' ').toLowerCase();
-        return a;
-      }
-
-      // Browser-native language-code → display-name resolver. Covers
-      // every ISO 639-1 / 639-2 / 639-3 code the runtime knows about
-      // (in practice ≈300 languages on modern Chromium / Firefox /
-      // Safari) without us having to maintain a manual list — so
-      // adding a Swahili or Welsh audio track just works.
-      let _languageDisplay = null;
-      try {
-        _languageDisplay = new Intl.DisplayNames(['en'], { type: 'language' });
-      } catch {}
-
-      // Tiny manual map kept around as a fallback for ancient
-      // browsers without Intl.DisplayNames AND for the 3-letter
-      // codes Intl is sometimes inconsistent on. Order isn't
-      // significant.
-      const ISO_LANG_NAMES = {
-        eng: 'English', en: 'English',
-        msa: 'Malay',   may: 'Malay', zsm: 'Malay', ms: 'Malay',
-        ara: 'Arabic',  ar: 'Arabic',
-        tgl: 'Tagalog', fil: 'Filipino', tl: 'Tagalog',
-      };
-
-      function lookupLangName(code) {
-        if (!code) return null;
-        if (_languageDisplay) {
-          try {
-            const name = _languageDisplay.of(code);
-            // Intl returns the input back when it doesn't recognise
-            // the code; treat that as "not found".
-            if (name && name.toLowerCase() !== code.toLowerCase()) {
-              return name;
-            }
-          } catch {}
-        }
-        return ISO_LANG_NAMES[code] || null;
-      }
-
-      // True when every word in [title] is a codec / channel /
-      // throwaway keyword (e.g. "AAC", "Stereo", "5.1", "Default")
-      // and there's nothing left that might identify a language or
-      // a meaningful descriptor. Inverted from a "does it contain a
-      // known language word?" check so adding a track in a language
-      // we don't have hardcoded (Swahili, Welsh, …) keeps its title
-      // intact instead of getting overwritten to "English".
-      const CODEC_ONLY_WORDS = new Set([
-        'track','audio','subtitle','subtitles','stream',
-        'aac','ac3','eac3','dts','dtshd','flac','mp3','mp2',
-        'opus','vorbis','pcm','lpcm','truehd','dolby','atmos',
-        'alac','wav','wma',
-        'stereo','mono','surround','quad',
-        'default','forced','sdh','hi','hearing','impaired',
-        'kbps','hz','khz','bit','ch',
-        // Common single-letter / glue tokens that pop out of split.
-        'a','b','c',
-      ]);
-      function isCodecOnlyLabel(title) {
-        if (!title) return true;
-        const t = title.toLowerCase().trim();
-        if (/^(track|audio|subtitle|stream)\s*\d*$/.test(t)) return true;
-        const tokens = t.split(/[^a-z0-9]+/).filter(Boolean);
-        if (tokens.length === 0) return true;
-        const numeric = /^\d+(\.\d+)?$/;
-        return tokens.every(tok => CODEC_ONLY_WORDS.has(tok) || numeric.test(tok));
-      }
-
-      // Canonical lowercased language code we use as the persisted
-      // preference. An entirely unlabelled stream (no Language,
-      // codec-only title) defaults to `eng` — Emby leaves the first
-      // audio track untagged on English-only sources, so this
-      // matches the common case.
-      function canonicalLangCode(stream) {
-        const raw = (stream.Language || stream.DisplayLanguage || '').toLowerCase().trim();
-        if (raw) return raw;
-        const title = (stream.DisplayTitle || stream.Title || '').trim();
-        if (title && isCodecOnlyLabel(title)) return 'eng';
-        return '';
-      }
-
-      // Friendly label for the dropdown item. Prefer Intl-derived
-      // language name → fall back to a non-codec DisplayTitle →
-      // raw code uppercased → final default of "English" for
-      // codec-only / blank titles.
-      function niceLangLabelFrom(stream) {
-        const code = (stream.Language || stream.DisplayLanguage || '').toLowerCase().trim();
-        if (code) {
-          const name = lookupLangName(code);
-          if (name) return name;
-        }
-        const title = (stream.DisplayTitle || stream.Title || '').trim();
-        if (title && !isCodecOnlyLabel(title)) return title;
-        if (code) return code.toUpperCase();
-        return 'English';
-      }
-
-      // Return a NEW array of streams sorted alphabetically by the
-      // label users see in the menu. Used purely for display order —
-      // callers run pickAudioStreamIndex / pickSubtitleStream on the
-      // original (file-order) array first so the "no preference"
-      // default still resolves to the file's first track, not the
-      // alphabetically-first one.
-      function sortStreamsByLabel(streams) {
-        return (streams || []).slice().sort((a, b) => {
-          const la = niceLangLabelFrom(a).toLowerCase();
-          const lb = niceLangLabelFrom(b).toLowerCase();
-          return la.localeCompare(lb);
-        });
-      }
-
-      // Pick an audio stream by saved language code. Falls back to
-      // English, then to the first stream the episode carries.
-      function pickAudioStreamIndex(audioStreams, preferredLangCode) {
-        if (!audioStreams || audioStreams.length === 0) return { index: null, reason: 'none' };
-        if (preferredLangCode) {
-          const match = audioStreams.find(s => canonicalLangCode(s) === preferredLangCode);
-          if (match) return { index: match.Index, reason: 'pref' };
-        }
-        const eng = audioStreams.find(s => /(^|[^a-z])(eng|english|en)([^a-z]|$)/.test(normalizeLangHint(s)));
-        if (eng) return { index: eng.Index, reason: 'fallback_en' };
-        return { index: audioStreams[0].Index, reason: 'fallback_first' };
-      }
-
-      // Pick a subtitle stream by saved code. 'off' means user
-      // explicitly disabled subs; null means no preference yet (and
-      // we leave them off by default rather than surprising the user).
-      function pickSubtitleStream(subStreams, preferredLangCode) {
-        if (!subStreams || subStreams.length === 0) return null;
-        if (!preferredLangCode || preferredLangCode === 'off') return null;
-        return subStreams.find(s => canonicalLangCode(s) === preferredLangCode) || null;
-      }
-
-      function srclangFromCode(code) {
-        // 2-letter shortlist for HTML <track srclang>. Falls back to
-        // the code itself if we don't recognise it — browsers accept
-        // any IETF tag.
-        const map = { eng:'en', msa:'ms', may:'ms', zsm:'ms', ara:'ar', tgl:'tl', fil:'tl',
-          spa:'es', fre:'fr', fra:'fr', ger:'de', deu:'de', ita:'it', por:'pt',
-          rus:'ru', jpn:'ja', kor:'ko', chi:'zh', zho:'zh', hin:'hi', ind:'id',
-          tha:'th', vie:'vi', dut:'nl', nld:'nl', pol:'pl', tur:'tr', swe:'sv',
-          nor:'no', nob:'no', dan:'da', fin:'fi' };
-        return map[code] || code || 'en';
-      }
-
-      // Global config
-      const serverUrl = "https://blueynet.org:443";
-      const apiKey = "6b2548952ea2439ea800b8cd3f1072d1";
-      const itemId = "11";
-      // Storage keys — both hold ISO language codes (e.g. 'eng',
-      // 'msa', 'ara'). Sub key may also be 'off' meaning "user
-      // explicitly turned subtitles off".
-      const AUDIO_LANG_STORAGE_KEY = "bluey_episodes_audio_lang";
-      const SUB_LANG_STORAGE_KEY   = "bluey_episodes_sub_lang";
-
-      let preferredAudioLang = 'eng';
-      let preferredSubLang   = 'off';
-      let currentAudioStreamIndexUsed = null;
-      let currentSubStreamIndexUsed   = null;
-      // Cached per-episode stream facts for code that runs outside
-      // playEpisode's scope (the MP4 error-fallback path needs them
-      // to build a correct cast / fallback URL).
-      let currentDefaultAudioIndex    = null;
-      let currentMediaSourceId        = null;
-
-      let selectedSeason = null;
-      let episodes = [];
-      let currentEpisodeIndex = -1;
-      let episodesCache = {};
-
-      let seasonsList = [];
-      let currentSeason = null;
-      let currentSeasonIndex = -1;
-
-      let allEpisodes = [];
-      let shuffleMode = false;
-
-      let subsWanted = localStorage.getItem('bluey_subtitle_on') === '1';
-      const VOL_KEY = 'bluey_vol';
-
-      window.__castTitle = '';
-      window.__castSubtitle = '';
-      window.__castPoster = '';
-      window.__castMP4 = '';
-      window.__castSeriesTitle = 'Bluey';
-      window.__castSeason = null;
-      window.__castEpisode = null;
-      window.__castEpisodeTitle = '';
-      window.__isCasting = false;
-      // Subtitle tracks for the current episode, in cast-friendly
-      // form: [{ url, code, label, embyIndex }]. Read by
-      // modifyLoadRequestFn so the receiver gets them declared.
-      window.__castSubs = [];
-      window.__castActiveSubEmbyIndex = null;
-
-      let nextPrefetchStarted = false;
-
-      // video.js's English language pack ships several strings in
-      // lowercase ("captions off", "subtitles settings", etc.) and
-      // relies on its menu CSS to .text-transform them. We disabled
-      // that lowercase transform above (so labels like "English"
-      // render correctly) — which means these defaults now show
-      // as-is. Re-cap them properly via addLanguage.
-      videojs.addLanguage('en', {
-        'captions off':     'Captions Off',
-        'subtitles off':    'Subtitles Off',
-        'descriptions off': 'Descriptions Off',
-        'audio track off':  'Audio Track Off',
-        'captions settings':  'Captions Settings',
-        'subtitles settings': 'Subtitles Settings',
-        'audio track settings':'Audio Track Settings',
-      });
-
-      const player = videojs('bluey', {
-        controls: true,
-        preload: 'auto',
-        muted: false,
-        fluid: false,
-        techOrder: ['chromecast', 'html5'],
-        // ⚠ IMPORTANT: the Silvermine plugin reads these three
-        // functions from the TOP-LEVEL `chromecast` key (they are
-        // Tech options, not plugin options). They were previously
-        // nested inside plugins.chromecast, where the tech never
-        // saw them — which is why the TV showed no metadata and
-        // why none of the load-request customisation ever ran.
-        chromecast: {
-          requestTitleFn: () => window.__castTitle || document.title,
-          requestSubtitleFn: () => window.__castSubtitle || '',
-          modifyLoadRequestFn: (request) => {
-            if (window.__castMP4) {
-              request.media.contentId = window.__castMP4;
-              request.media.contentType = 'video/mp4';
+         // Dark mode logic (shared across site)
+         const themeKey = "bluey-site-theme";
+         const root = document.body;
+         const darkToggle = document.getElementById("darkToggle");
+         function setTheme(dark) {
+            if (dark) {
+               root.classList.add('dark');
+               localStorage.setItem(themeKey, "dark");
             } else {
-              // Casting the HLS URL directly: Emby serves fmp4
-              // segments, and the Default Media Receiver assumes
-              // TS unless told otherwise.
-              try {
-                request.media.hlsSegmentFormat = 'fmp4';
-                request.media.hlsVideoSegmentFormat = 'fmp4';
-              } catch {}
+               root.classList.remove('dark');
+               localStorage.setItem(themeKey, "light");
             }
-            try { request.media.streamType = chrome.cast.media.StreamType.BUFFERED; } catch {}
-
-            // Default Media Receiver renders episode info from
-            // TvShowMediaMetadata (series + season/episode badge +
-            // poster). Fall back to GenericMediaMetadata if the
-            // Cast SDK build doesn't expose the TV type.
-            //
-            // Images MUST be chrome.cast.Image instances — plain
-            // { url } objects are silently ignored by the receiver.
-            let md = null;
-            try {
-              md = new chrome.cast.media.TvShowMediaMetadata();
-              md.metadataType = chrome.cast.media.MetadataType.TV_SHOW;
-              md.seriesTitle = window.__castSeriesTitle || 'Bluey';
-              if (window.__castSeason != null)   md.season  = Number(window.__castSeason);
-              if (window.__castEpisode != null)  md.episode = Number(window.__castEpisode);
-              md.episodeTitle =
-                window.__castEpisodeTitle ||
-                window.__castTitle ||
-                document.title || '';
-            } catch {
-              md = new chrome.cast.media.GenericMediaMetadata();
-              md.metadataType = chrome.cast.media.MetadataType.GENERIC;
-            }
-            md.title    = window.__castTitle    || document.title || 'Bluey';
-            md.subtitle = window.__castSubtitle || '';
-            if (window.__castPoster) {
-              try { md.images = [new chrome.cast.Image(window.__castPoster)]; }
-              catch { md.images = [{ url: window.__castPoster }]; }
-            }
-            request.media.metadata = md;
-
-            // ── Subtitles for the TV ──────────────────────────
-            // The Silvermine tech does NOT forward text tracks
-            // (its source literally says "Text tracks are not
-            // supported"), so we declare them ourselves as Cast
-            // sidecar tracks. The receiver fetches the VTT files
-            // directly from the Emby server.
-            const subs = window.__castSubs || [];
-            if (subs.length) {
-              try {
-                request.media.tracks = subs.map((s, i) => {
-                  const tr = new chrome.cast.media.Track(i + 1, chrome.cast.media.TrackType.TEXT);
-                  tr.trackContentId = s.url;
-                  tr.trackContentType = 'text/vtt';
-                  tr.subtype = chrome.cast.media.TextTrackType.SUBTITLES;
-                  tr.name = s.label || 'Subtitles';
-                  tr.language = srclangFromCode(s.code) || s.code || 'en';
-                  return tr;
-                });
-                const style = new chrome.cast.media.TextTrackStyle();
-                style.backgroundColor = '#00000099';
-                style.foregroundColor = '#FFFFFFFF';
-                style.edgeType = chrome.cast.media.TextTrackEdgeType.OUTLINE;
-                style.edgeColor = '#000000FF';
-                style.fontGenericFamily = chrome.cast.media.TextTrackFontGenericFamily.SANS_SERIF;
-                style.fontScale = 1.0;
-                request.media.textTrackStyle = style;
-                const activeIdx = subs.findIndex(
-                  s => s.embyIndex === window.__castActiveSubEmbyIndex
-                );
-                request.activeTrackIds = activeIdx >= 0 ? [activeIdx + 1] : [];
-              } catch {}
-            }
-
-            request.autoplay = true;
-            return request;
-          }
-        },
-        plugins: {
-          chromecast: {
-            receiverAppID: 'CC1AD845',
-            addButtonToControlBar: true
-          }
-        },
-        html5: {
-          vhs: {
-            smoothQualityChange: true,
-            limitRenditionByPlayerDimensions: true,
-            overrideNative: false
-          }
-        }
-      });
-
-      // ── Duration override ──────────────────────────────────────
-      // video.js reads duration from the HLS manifest, which rounds
-      // up to the nearest segment boundary (Emby default segments
-      // are 6 s) and reports a value typically 2–4 s longer than
-      // the actual file. Emby's PlaybackInfo carries the exact
-      // duration in RunTimeTicks (units of 100 ns); we set that
-      // here and have player.duration() prefer it for UI purposes.
-      //
-      // The override only changes what video.js *displays* — the
-      // tech's real duration still drives the 'ended' event and
-      // network buffering decisions, so playback / next-episode
-      // handoff still fire when the media actually finishes.
-      let __overrideDurationSec = null;
-      const _origDuration = player.duration.bind(player);
-      player.duration = function(...args) {
-        if (args.length === 0) {
-          if (typeof __overrideDurationSec === 'number' &&
-              !isNaN(__overrideDurationSec) &&
-              __overrideDurationSec > 0) {
-            return __overrideDurationSec;
-          }
-        }
-        return _origDuration(...args);
-      };
-
-      function setDurationOverrideFromTicks(ticks) {
-        if (typeof ticks === 'number' && ticks > 0) {
-          __overrideDurationSec = ticks / 10000000;
-        } else {
-          __overrideDurationSec = null;
-        }
-        // Nudge video.js so the duration display + seek bar pick up
-        // the new value without waiting for the next tech tick.
-        try { player.trigger('durationchange'); } catch {}
-      }
-
-      // Episode title overlay
-      const BaseComp = videojs.getComponent('Component');
-      class TitleOverlay extends BaseComp {
-        createEl() { return videojs.dom.createEl('div', { className: 'vjs-episode-title' }); }
-        set(text) { this.el().textContent = text || ''; }
-      }
-      videojs.registerComponent('TitleOverlay', TitleOverlay);
-      const titleOverlay = player.addChild('TitleOverlay', {});
-      function setPlayerTitle(text) { if (titleOverlay) titleOverlay.set(text); }
-
-      /* EOS GUARD */
-      function bufferedEndSafe() {
-        try {
-          if (typeof player.bufferedEnd === 'function') return player.bufferedEnd();
-          const br = player.buffered();
-          if (!br || br.length === 0) return player.currentTime() || 0;
-          return br.end(br.length - 1);
-        } catch { return player.currentTime() || 0; }
-      }
-      const EOS_REMAIN_TOL = 3.0;
-      const EOS_BUF_TOL = 2.5;
-      const EOS_STALL_WINDOW = 1200;
-      let eosTimer = null;
-      let eosFired = false;
-
-      // The EOS guard needs the TECH's real duration (what the
-      // HLS / video element actually reports) — not our cosmetic
-      // override. The override is shorter than reality (Emby's
-      // RunTimeTicks vs HLS's segment-rounded value), and using
-      // it here was firing 'ended' 2-3 seconds early because the
-      // (override - currentTime) gap hit the EOS tolerance well
-      // before playback actually reached the tail.
-      function realDuration() {
-        try {
-          const d = _origDuration();
-          if (typeof d === 'number' && !isNaN(d) && d > 0) return d;
-        } catch {}
-        return player.duration() || 0;
-      }
-
-      function nearEndNow() {
-        const d = realDuration();
-        const t = player.currentTime() || 0;
-        const be = bufferedEndSafe();
-        if (!isFinite(d) || d === 0) return false;
-        if ((d - t) <= EOS_REMAIN_TOL) return true;
-        const tailUnbuffered = Math.max(0, d - be);
-        const bufferAhead = Math.max(0, be - t);
-        if (tailUnbuffered <= EOS_BUF_TOL && bufferAhead <= 0.15) return true;
-        return false;
-      }
-      function scheduleFinishIfStuck(reason) {
-        if (eosFired) return;
-        // Never run the stall-guard while casting. The cast tech only
-        // reports coarse time updates and no buffered ranges, which
-        // made nearEndNow() true ~3s before the real end — the
-        // synthetic 'ended' then yanked the receiver into a new load
-        // while it was still finishing the current item. The
-        // chromecast tech fires a genuine 'ended' itself, so the
-        // guard isn't needed there.
-        if (window.__isCasting) return;
-        if (!nearEndNow()) {
-          if (eosTimer) { clearTimeout(eosTimer); eosTimer = null; }
-          return;
-        }
-        if (!eosTimer) {
-          eosTimer = setTimeout(() => {
-            eosTimer = null;
-            if (!nearEndNow()) return;
-            eosFired = true;
-            setTimeout(() => { eosFired = false; }, 2500);
-            console.warn('EOS guard: finishing playback (', reason, ')');
-            try { player.trigger('ended'); } catch {}
-          }, EOS_STALL_WINDOW);
-        }
-      }
-      player.on('loadedmetadata', () => { if (eosTimer) clearTimeout(eosTimer); eosTimer = null; eosFired = false; });
-      player.on('timeupdate', () => scheduleFinishIfStuck('timeupdate'));
-      player.on('progress',   () => scheduleFinishIfStuck('progress'));
-      player.on('waiting',    () => scheduleFinishIfStuck('waiting'));
-      player.on('stalled',    () => scheduleFinishIfStuck('stalled'));
-      player.on('error',      () => scheduleFinishIfStuck('error'));
-
-      /* Up Next overlay + prefetch */
-      let nextPrepared = null;
-      let suppressEndedOnce = false;
-      let nextPrepToken = 0;
-
-      // Single-flight guard for auto-advance. While casting, "the
-      // episode finished" is reported by BOTH the chromecast tech's
-      // 'ended' event AND our manual MediaSession listener — without
-      // this guard they raced each other, firing queueNextEpisode
-      // twice, issuing two overlapping cast load requests, and the
-      // receiver gave up and went idle (the "cast just stops on the
-      // next episode" bug).
-      let _lastAdvanceAt = 0;
-      function advanceGuard() {
-        const now = Date.now();
-        if (now - _lastAdvanceAt < 2500) return false;
-        _lastAdvanceAt = now;
-        return true;
-      }
-
-      class UpNextOverlay extends BaseComp {
-        constructor(player, options){
-          super(player, options);
-          this.addClass('vjs-upnext-overlay');
-          this.showAt = (options && options.showAt) || 10;
-          this._visible = false;
-
-          this.thumb = document.createElement('img');
-          this.meta = document.createElement('div');
-          this.meta.className = 'vjs-upnext-meta';
-
-          this.label = document.createElement('div');
-          this.label.className = 'vjs-upnext-label';
-          this.label.textContent = 'Playing next in ';
-          this.count = document.createElement('span');
-          this.count.className = 'vjs-upnext-count';
-          this.count.textContent = '10';
-          this.label.append(this.count, 's');
-
-          this.title = document.createElement('div');
-          this.title.className = 'vjs-upnext-title';
-
-          this.btn = document.createElement('button');
-          this.btn.className = 'vjs-upnext-btn';
-          this.btn.type = 'button';
-          this.btn.textContent = 'Play now';
-          this.btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (nextPrepared) { playNextPrepared(false); }
-          });
-
-          this.meta.append(this.label, this.title, this.btn);
-          this.el().append(this.thumb, this.meta);
-
-          const update = () => {
-            const d = player.duration() || 0;
-            const t = player.currentTime() || 0;
-            if (!isFinite(d) || d === 0) { this.hide(); return; }
-            const remaining = d - t;
-            if (!nextPrefetchStarted && remaining > 0 && remaining <= (this.showAt + 5)) {
-              try {
-                const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-                const slow = !!(conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType)));
-                if (!slow) { nextPrefetchStarted = true; prepareNextEpisodePreview(); }
-              } catch {}
-            }
-            if (remaining <= this.showAt && remaining > 0 && !player.paused()){
-              if (!this._visible) this.show();
-              this.count.textContent = String(Math.ceil(remaining));
+         }
+         (() => {
+            const saved = localStorage.getItem(themeKey);
+            if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+               setTheme(true);
             } else {
-              this.hide();
+               setTheme(false);
             }
-          };
-
-          this.onPlayerEvents = () => update();
-          player.on('timeupdate', this.onPlayerEvents);
-          player.on('seeking', this.onPlayerEvents);
-          player.on('pause', this.onPlayerEvents);
-          player.on('play', this.onPlayerEvents);
-          player.on('loadedmetadata', () => { this.hide(); nextPrefetchStarted = false; });
-          player.on('ended', () => { this.hide(); });
-        }
-        createEl(){ return videojs.dom.createEl('div', { className: 'vjs-upnext-overlay' }); }
-        setNext(data){
-          if (!data) { this.hide(); return; }
-          this.thumb.src = data.poster;
-          const s = data.episode.ParentIndexNumber, e = data.episode.IndexNumber;
-          this.title.textContent = `S${s}E${e}: ${data.episode.Name}`;
-        }
-        show(){ this._visible = true; this.el().style.display = 'flex'; }
-        hide(){ this._visible = false; this.el().style.display = 'none'; }
-      }
-      videojs.registerComponent('UpNextOverlay', UpNextOverlay);
-      const upNextOverlay = player.addChild('UpNextOverlay', { showAt: 10 });
-
-      function findNextCandidate(){
-        if (!seasonsList.length || currentEpisodeIndex < 0) return null;
-        if (shuffleMode && allEpisodes.length > 0){
-          if (allEpisodes.length === 1) return null;
-          let nextIndex; const currentId = episodes[currentEpisodeIndex]?.Id;
-          do { nextIndex = Math.floor(Math.random()*allEpisodes.length); } while (allEpisodes[nextIndex].Id === currentId);
-          const ep = allEpisodes[nextIndex];
-          const season = seasonsList.find(s => s.Id === ep.SeasonId);
-          if (!season) return null;
-          return { episode: ep, season };
-        }
-        if (currentEpisodeIndex + 1 < episodes.length){ return { episode: episodes[currentEpisodeIndex + 1], season: currentSeason }; }
-        if (currentSeasonIndex < seasonsList.length - 1){ const season = seasonsList[currentSeasonIndex + 1]; return { episode: null, season }; }
-        return null;
-      }
-
-      async function prepareNextEpisodePreview(){
-        const token = ++nextPrepToken;
-        const cand = findNextCandidate();
-        if (!cand){ nextPrepared = null; upNextOverlay.setNext(null); return; }
-        if (!episodesCache[cand.season.Id]){
-          try { await fetchEpisodes(cand.season); } catch {}
-        }
-        const list = episodesCache[cand.season.Id] || [];
-        let ep = cand.episode || (list.length ? list[0] : null);
-        if (!ep){ nextPrepared = null; upNextOverlay.setNext(null); return; }
-        const seasonIndex = seasonsList.indexOf(cand.season);
-        const epIndex = list.findIndex(x => x.Id === ep.Id);
-        const poster = `${serverUrl}/emby/Items/${ep.Id}/Images/Primary?api_key=${apiKey}`;
-        let prepared = { episode: ep, season: cand.season, seasonIndex, epIndex, poster, hls:null, mp4:null, audioIndex:null, audioStreams:[], mediaSourceId:null, subStreams:[], subPickIndex:null, subPickCode:'off', runTimeTicks:0 };
-        try{
-          const timestamp = Date.now();
-          const info = await fetch(`${serverUrl}/emby/Items/${ep.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources&t=${timestamp}`).then(r=>r.json());
-          const ms = info.MediaSources[0];
-          const audioStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Audio');
-          const pick = pickAudioStreamIndex(audioStreams, preferredAudioLang);
-          const mediaSourceId = ms.Id;
-          const VideoBitRate = ms.MediaStreams[0]?.BitRate || 5000000;
-          const AudioBitRate = (audioStreams.find(s => s.Index === pick.index)?.BitRate) || 192000;
-          const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
-          const subPick = pickSubtitleStream(subStreams, preferredSubLang);
-          const hls = buildHlsUrl(ep, mediaSourceId, info.PlaySessionId, VideoBitRate, AudioBitRate, pick.index);
-          const defaultAudioIndex =
-            (audioStreams.find(s => s.IsDefault) || audioStreams[0])?.Index;
-          prepared.defaultAudioIndex = defaultAudioIndex;
-          const mp4 = buildMp4Url(ep, pick.index, { defaultAudioIndex, mediaSourceId });
-          try { const img = new Image(); img.src = poster; } catch {}
-          prepared.hls = hls;
-          prepared.mp4 = mp4;
-          prepared.audioIndex = pick.index;
-          // Sort both lists for display now (cheap, once per
-          // prefetch). pickAudioStreamIndex above already ran on
-          // the original order, so the default selection stays
-          // file-order driven.
-          prepared.audioStreams = sortStreamsByLabel(audioStreams);
-          prepared.mediaSourceId = mediaSourceId;
-          prepared.subStreams = sortStreamsByLabel(subStreams);
-          prepared.subPickIndex = subPick ? subPick.Index : null;
-          prepared.subPickCode = subPick ? canonicalLangCode(subPick) : 'off';
-          // Cache the exact duration so the auto-advance path can
-          // apply the same override the interactive playEpisode path
-          // does — keeps the displayed length consistent across the
-          // hand-off and avoids a half-second flash of the rounded
-          // HLS value when the prefetched HLS loads.
-          prepared.runTimeTicks = ms.RunTimeTicks || ep.RunTimeTicks || 0;
-        }catch{}
-        if (token !== nextPrepToken) return;
-        nextPrepared = prepared;
-        upNextOverlay.setNext(nextPrepared);
-      }
-
-      function playNextPrepared(fromEnded){
-        if (!nextPrepared) return;
-        currentSeason = nextPrepared.season;
-        currentSeasonIndex = nextPrepared.seasonIndex;
-        episodes = episodesCache[currentSeason.Id] || episodes;
-        currentEpisodeIndex = nextPrepared.epIndex >= 0 ? nextPrepared.epIndex : 0;
-        renderEpisodes(episodes);
-        suppressEndedOnce = !!fromEnded ? false : true;
-        if (nextPrepared.hls){
-          window.__castTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
-          window.__castSubtitle = `Bluey | Season ${nextPrepared.episode.ParentIndexNumber}`;
-          window.__castPoster = nextPrepared.poster;
-          // Same gating as playEpisode: only cast the static MP4
-          // when the selected audio IS the container default —
-          // otherwise leave empty so the receiver gets the HLS URL,
-          // which actually carries the selected audio.
-          window.__castMP4 =
-            (nextPrepared.audioIndex === nextPrepared.defaultAudioIndex)
-              ? (nextPrepared.mp4 || '')
-              : '';
-          window.__castSeason = nextPrepared.episode.ParentIndexNumber;
-          window.__castEpisode = nextPrepared.episode.IndexNumber;
-          window.__castEpisodeTitle = nextPrepared.episode.Name;
-          // Build cast subtitle declarations BEFORE src() — the
-          // chromecast tech assembles its load request during the
-          // src change, and modifyLoadRequestFn reads these globals
-          // at that moment.
-          const subStreams = nextPrepared.subStreams || [];
-          window.__castSubs = subStreams.map(s => ({
-            url: `${serverUrl}/emby/Videos/${nextPrepared.episode.Id}/${nextPrepared.mediaSourceId}/Subtitles/${s.Index}/0/Stream.vtt?api_key=${apiKey}`,
-            code: canonicalLangCode(s),
-            label: niceLangLabelFrom(s),
-            embyIndex: s.Index,
-          }));
-          window.__castActiveSubEmbyIndex = nextPrepared.subPickIndex;
-          player.poster(nextPrepared.poster);
-          // Override duration with Emby's exact ticks before the new
-          // src loads so the display doesn't briefly show the HLS-
-          // manifest's rounded-up length and then flip.
-          setDurationOverrideFromTicks(nextPrepared.runTimeTicks);
-          player.src({ src: nextPrepared.hls, type: 'application/x-mpegURL' });
-          currentAudioStreamIndexUsed = nextPrepared.audioIndex;
-          currentDefaultAudioIndex = nextPrepared.defaultAudioIndex ?? null;
-          currentMediaSourceId = nextPrepared.mediaSourceId || null;
-          currentSubStreamIndexUsed = nextPrepared.subPickIndex;
-          // While casting, the auto-advance creates a brand-new
-          // remote MediaSession — re-attach the finished-listener
-          // to it, or the NEXT episode's ending would go unnoticed
-          // and the queue would silently stop (the reported bug).
-          if (window.__isCasting) { setTimeout(attachCastMediaListener, 250); }
-          try {
-            const rtt = player.remoteTextTracks();
-            for (let i = rtt.length - 1; i >= 0; i--) player.removeRemoteTextTrack(rtt[i]);
-          } catch {}
-          // Add every subtitle stream the prepared episode carries so
-          // the dropdown can switch tracks without re-fetching media.
-          window.__castSubs.forEach(s => {
-            try {
-              player.addRemoteTextTrack(
-                { kind: 'subtitles', src: s.url, srclang: s.code || srclangFromCode(s.code), label: s.label },
-                false,
-              );
-            } catch {}
-          });
-          // Populate the player's audio menu with the FULL stream
-          // list so video.js's built-in control-bar button stays
-          // visible (it only renders when there's >1 track). The
-          // single-item shortcut we used previously made the button
-          // disappear on every auto-advance, even though audio
-          // playback was correct.
-          const audioStreamsForNext = nextPrepared.audioStreams && nextPrepared.audioStreams.length
-              ? nextPrepared.audioStreams
-              : (nextPrepared.audioIndex != null
-                  ? [{ Index: nextPrepared.audioIndex, Language: preferredAudioLang }]
-                  : []);
-          populateAudioTracks(audioStreamsForNext, nextPrepared.audioIndex);
-          // Apply saved sub preference — exactly one track showing
-          // (the helper suppresses the change handler itself).
-          applySubtitleSelection(nextPrepared.subPickCode || 'off');
-          const niceTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
-          setPlayerTitle(niceTitle);
-          document.title = `Watch Bluey! | ${niceTitle}`;
-          // Update info panel
-          const ep = nextPrepared.episode;
-          const runtime = ep.RunTimeTicks ? Math.round(ep.RunTimeTicks / 600000000) : 7;
-          document.getElementById('infoThumb').src = nextPrepared.poster;
-          document.getElementById('infoTitle').textContent = niceTitle;
-          document.getElementById('infoDesc').textContent = ep.Overview || '';
-          document.getElementById('infoDuration').textContent = `${runtime}m`;
-          try { wireMediaSession(nextPrepared.episode); } catch {}
-          syncSeasonHighlight(nextPrepared.episode);
-          const prevSelected = document.querySelector('#episodes li.selected');
-          if (prevSelected) prevSelected.classList.remove('selected');
-          const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${currentEpisodeIndex + 1})`);
-          if (selectedEpisodeItem) selectedEpisodeItem.classList.add('selected');
-          player.one('loadedmetadata', async () => { try{ player.muted(false); }catch{}; await autoPlayMaybe(0); });
-        } else {
-          playEpisode(nextPrepared.episode, currentEpisodeIndex, 0);
-        }
-        upNextOverlay.hide();
-        nextPrepared = null;
-      }
-
-      /* Skip Intro
-       *
-       * ╔══════════════════════════════════════════════════════════╗
-       * ║  TO CHANGE WHERE "SKIP INTRO" JUMPS TO, EDIT THIS LINE:  ║
-       * ╚══════════════════════════════════════════════════════════╝ */
-      const SKIP_INTRO_SECONDS = 24;
-
-      class SkipIntroOverlay extends BaseComp {
-        constructor(player, options) {
-          super(player, options);
-          this.addClass('vjs-skip-intro-overlay');
-          this.el().setAttribute('type', 'button');
-          this.el().setAttribute('aria-label', 'Skip Intro');
-          this.el().setAttribute('title', 'Skip Intro');
-          this.el().textContent = 'Skip Intro';
-          this.introAt = (options && options.introAt) || SKIP_INTRO_SECONDS;
-          this.showFrom = (options && options.showFrom) || 0.5;
-          this.autoHideAfter = (options && options.autoHideAfter) || 8;
-          this._visible = false;
-          this._hideTimer = null;
-          this._dismissed = false;
-          this.on('click', () => {
-            try { this.player_.currentTime(this.introAt); } catch {}
-            this._dismissed = true;
-            this._setVisible(false);
-          });
-          this._setVisible = (show) => {
-            if (show && !this._visible) {
-              this._visible = true;
-              this.show();
-              clearTimeout(this._hideTimer);
-              this._hideTimer = setTimeout(() => {
-                this._dismissed = true;
-                this._setVisible(false);
-              }, this.autoHideAfter * 1000);
-            } else if (!show && this._visible) {
-              this._visible = false;
-              clearTimeout(this._hideTimer);
-              this.hide();
-            }
-          };
-          this._toggle = () => {
-            const t = player.currentTime() || 0;
-            const d = player.duration() || Infinity;
-            if (this._dismissed || this.introAt >= d || t >= this.introAt) {
-              this._setVisible(false);
-              return;
-            }
-            if (t >= this.showFrom && t < this.introAt) {
-              this._setVisible(true);
-            } else {
-              this._setVisible(false);
-            }
-          };
-          player.on('timeupdate', this._toggle);
-          player.on('seeking', () => {
-            // If user seeks back before intro, allow showing again
-            const t = player.currentTime() || 0;
-            if (t < this.introAt) this._dismissed = false;
-            this._toggle();
-          });
-          player.on('loadedmetadata', () => { this._dismissed = false; this._toggle(); });
-          player.on('ended', () => this._setVisible(false));
-        }
-        createEl() { return videojs.dom.createEl('button', { className: 'vjs-skip-intro-overlay' }); }
-        setIntroAt(sec) { this.introAt = Number(sec) || SKIP_INTRO_SECONDS; this._dismissed = false; this._toggle(); }
-      }
-      videojs.registerComponent('SkipIntroOverlay', SkipIntroOverlay);
-      const skipOverlay = player.addChild('SkipIntroOverlay', { introAt: SKIP_INTRO_SECONDS, showFrom: 0.5, autoHideAfter: 8 });
-
-      // Persist captions
-      player.on('texttrackchange', () => {
-        const on = Array.from(player.textTracks()).some(t => t.mode === 'showing');
-        subsWanted = on; localStorage.setItem('bluey_subtitle_on', on ? '1' : '0');
-      });
-
-      // Volume
-      player.ready(() => {
-        const savedVol = parseFloat(localStorage.getItem(VOL_KEY));
-        try { player.muted(false); } catch {}
-        player.volume(!isNaN(savedVol) ? savedVol : 0.8);
-      });
-      player.on('volumechange', () => { localStorage.setItem(VOL_KEY, String(player.volume())); });
-
-      // CAST
-      player.on('chromecastConnected', () => {
-        window.__isCasting = true;
-        attachCastMediaListener();
-        // Tech swap → rebuild the audio menu (repopulates the NEW
-        // tech's track list AND recreates the control-bar button,
-        // which video.js binds to a specific list at construction).
-        setTimeout(refreshAudioMenu, 0);
-      });
-      player.on('chromecastDisconnected', () => {
-        window.__isCasting = false;
-        detachCastMediaListener();
-        // Tech swapped back to html5. Rebuild now AND once more on
-        // the next loadeddata — the plugin restores the source
-        // asynchronously, and a rebuild that runs before the html5
-        // tech finishes loading lands on yet another empty list.
-        setTimeout(refreshAudioMenu, 0);
-        player.one('loadeddata', () => {
-          refreshAudioMenu();
-          // Re-assert the single-showing subtitle state too — the
-          // restored source re-attaches text tracks and can leave
-          // more than one in 'showing'.
-          applySubtitleSelection(preferredSubLang);
-        });
-      });
-
-      let castMedia = null;
-      function attachCastMediaListener() {
-        try {
-          const ctx = cast && cast.framework && cast.framework.CastContext.getInstance();
-          const session = ctx && ctx.getCurrentSession();
-          const media = session && session.getMediaSession();
-          if (!media) return;
-          if (castMedia === media) return;
-          detachCastMediaListener();
-          castMedia = media;
-          castMedia.addUpdateListener(castMediaUpdate);
-        } catch {}
-      }
-      function detachCastMediaListener() { try { if (castMedia) castMedia.removeUpdateListener(castMediaUpdate); } catch {} castMedia = null; }
-      function castMediaUpdate() {
-        try {
-          if (!castMedia) return;
-          if (castMedia.playerState === chrome.cast.media.PlayerState.IDLE &&
-              castMedia.idleReason === chrome.cast.media.IdleReason.FINISHED) {
-            // Fallback only — the chromecast tech already converts
-            // FINISHED into a videojs 'ended' event, which the
-            // onEndedHandler picks up. The guard keeps the two
-            // paths from double-advancing.
-            if (!advanceGuard()) return;
-            queueNextEpisode();
-          }
-        } catch {}
-      }
-
-      // attachCastMediaListener is idempotent (it bails if already
-      // attached to the current MediaSession), so re-checking on
-      // every 'playing' keeps the listener pointed at whatever
-      // media session the receiver is currently running — covering
-      // auto-advance, manual episode taps, and fallback reloads.
-      player.on('playing', () => { if (window.__isCasting) attachCastMediaListener(); });
-
-      // Parse deep-link: ?s1e1 or ?s2e5 etc.
-      function parseEpisodeFromURL() {
-        const search = window.location.search.replace('?', '').toLowerCase();
-        const match = search.match(/^s(\d+)e(\d+)$/);
-        if (match) return { season: parseInt(match[1], 10), episode: parseInt(match[2], 10) };
-        return null;
-      }
-
-      let pendingDeepLink = parseEpisodeFromURL();
-
-      // Navigate to the correct season/episode from deep link (no autoplay)
-      function tryDeepLink() {
-        if (!pendingDeepLink) return;
-        const target = pendingDeepLink;
-        const seasonObj = seasonsList.find(s => s.IndexNumber === target.season);
-        if (!seasonObj) return;
-        const cachedEps = episodesCache[seasonObj.Id];
-        if (!cachedEps) {
-          setTimeout(tryDeepLink, 300);
-          return;
-        }
-        const epIndex = cachedEps.findIndex(ep => ep.IndexNumber === target.episode);
-        if (epIndex < 0) return;
-
-        pendingDeepLink = null;
-
-        // Select the season
-        const seasonIdx = seasonsList.indexOf(seasonObj);
-        const seasonBtn = document.querySelectorAll('.season-selector__button')[seasonIdx];
-        if (seasonBtn) {
-          handleSeasonClick(seasonBtn, seasonObj, seasonIdx);
-          episodes = cachedEps;
-          renderEpisodes(episodes);
-        }
-
-        // Highlight, scroll to the episode, then play
-        currentEpisodeIndex = epIndex;
-        const epItem = document.querySelector(`#episodes li:nth-child(${epIndex + 1})`);
-        if (epItem) {
-          epItem.classList.add('selected');
-          epItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          // Wait for scroll to finish, then play
-          setTimeout(() => {
-            playEpisode(cachedEps[epIndex], epIndex);
-          }, 800);
-        } else {
-          playEpisode(cachedEps[epIndex], epIndex);
-        }
-      }
-
-      // Load saved language preferences. Both fall back to sensible
-      // defaults if nothing's been picked yet. We also migrate the
-      // legacy numeric key from the old hardcoded dropdown so users
-      // upgrading don't lose their choice.
-      document.addEventListener('DOMContentLoaded', () => {
-        const savedAudio = localStorage.getItem(AUDIO_LANG_STORAGE_KEY);
-        if (savedAudio) {
-          preferredAudioLang = savedAudio;
-        } else {
-          const legacy = localStorage.getItem('bluey_watch_selected_language_episodes');
-          if (legacy != null) {
-            preferredAudioLang =
-              ({ '1': 'eng', '3': 'msa', '4': 'ara', '5': 'tgl' })[legacy] || 'eng';
-          }
-        }
-        const savedSub = localStorage.getItem(SUB_LANG_STORAGE_KEY);
-        if (savedSub) preferredSubLang = savedSub;
-
-        fetchSeasons();
-      });
-
-      // MediaSession
-      function wireMediaSession(episode) {
-        if (!('mediaSession' in navigator)) return;
-        navigator.mediaSession.metadata = new MediaMetadata({
-          title: `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`,
-          artist: 'Bluey',
-          album: `Season ${episode.ParentIndexNumber}`,
-          artwork: [{ src: `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`, sizes: '1920x1080', type: 'image/png' }]
-        });
-        navigator.mediaSession.setActionHandler('previoustrack', () => jumpPrev());
-        navigator.mediaSession.setActionHandler('nexttrack', () => jumpNext());
-      }
-      function jumpPrev() {
-        if (shuffleMode && allEpisodes.length > 1) {
-          let prevIndex; const currentId = episodes[currentEpisodeIndex]?.Id;
-          do { prevIndex = Math.floor(Math.random() * allEpisodes.length); } while (allEpisodes[prevIndex].Id === currentId);
-          const prevEp = allEpisodes[prevIndex];
-          const season = seasonsList.find(s => s.Id === prevEp.SeasonId);
-          if (season) {
-            currentSeason = season; currentSeasonIndex = seasonsList.indexOf(season);
-            episodes = episodesCache[season.Id] || []; renderEpisodes(episodes);
-            const epIndex = episodes.findIndex(e => e.Id === prevEp.Id);
-            if (epIndex !== -1) { currentEpisodeIndex = epIndex; playEpisode(prevEp, epIndex); }
-          }
-        } else if (currentEpisodeIndex > 0) {
-          currentEpisodeIndex--; playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
-        } else if (currentSeasonIndex > 0) {
-          currentSeasonIndex--; currentSeason = seasonsList[currentSeasonIndex];
-          episodes = episodesCache[currentSeason.Id] || []; renderEpisodes(episodes);
-          currentEpisodeIndex = episodes.length - 1; playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
-        }
-      }
-      function jumpNext() {
-        if (nextPrepared) { playNextPrepared(false); return; }
-        if (shuffleMode && allEpisodes.length > 1) {
-          let nextIndex; const currentId = episodes[currentEpisodeIndex]?.Id;
-          do { nextIndex = Math.floor(Math.random() * allEpisodes.length); } while (allEpisodes[nextIndex].Id === currentId);
-          const nextEp = allEpisodes[nextIndex];
-          const season = seasonsList.find(s => s.Id === nextEp.SeasonId);
-          if (season) {
-            currentSeason = season; currentSeasonIndex = seasonsList.indexOf(season);
-            episodes = episodesCache[season.Id] || []; renderEpisodes(episodes);
-            const epIndex = episodes.findIndex(e => e.Id === nextEp.Id);
-            if (epIndex !== -1) { currentEpisodeIndex = epIndex; playEpisode(nextEp, epIndex); }
-          }
-        } else if (currentEpisodeIndex < episodes.length - 1) {
-          currentEpisodeIndex++; playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
-        } else if (currentSeasonIndex < seasonsList.length - 1) {
-          currentSeasonIndex++; currentSeason = seasonsList[currentSeasonIndex];
-          episodes = episodesCache[currentSeason.Id] || []; renderEpisodes(episodes);
-          currentEpisodeIndex = 0; playEpisode(episodes[0], 0);
-        }
-      }
-
-      async function autoPlayMaybe(seek) {
-        if (typeof seek === 'number') { try { player.currentTime(seek); } catch {} }
-        try {
-          await player.play();
-        } catch (e) {
-          try { player.muted(false); } catch {}
-          player.bigPlayButton.show();
-          player.one('play', () => player.muted(false));
-        }
-      }
-
-      // Build Emby URLs
-      function buildHlsUrl(episode, mediaSourceId, PlaySessionId, VideoBitRate, AudioBitRate, audioIndex) {
-        let url = `${serverUrl}/emby/videos/${episode.Id}/master.m3u8` +
-                  `?MediaSourceId=${mediaSourceId}` +
-                  `&PlaySessionId=${PlaySessionId}` +
-                  `&api_key=${apiKey}` +
-                  `&VideoCodec=h264&AudioCodec=aac` +
-                  `&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}` +
-                  `&TranscodingMaxAudioChannels=2` +
-                  `&SegmentContainer=fmp4&MinSegments=2&h264-profile=main`;
-        if (typeof audioIndex === 'number') url += `&AudioStreamIndex=${audioIndex}`;
-        return url;
-      }
-      // Progressive MP4 URL — used as the Chromecast contentId.
-      //
-      // Static=true serves the ORIGINAL file and silently ignores
-      // AudioStreamIndex, so the cast receiver always played the
-      // container's default (first) audio track regardless of the
-      // user's selection. When the chosen track isn't the default,
-      // we drop Static and ask Emby for a remux: the h264 video is
-      // stream-copied (EnableAutoStreamCopy is on by default — no
-      // re-encode), only the selected audio is transcoded to AAC.
-      function buildMp4Url(episode, audioIndex, opts) {
-        const o = opts || {};
-        const isDefaultTrack =
-          (typeof audioIndex !== 'number') ||
-          (typeof o.defaultAudioIndex === 'number' && audioIndex === o.defaultAudioIndex);
-        if (isDefaultTrack) {
-          // Original file untouched — the container default IS the
-          // selected track, so static streaming is correct and free.
-          let url = `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`;
-          if (typeof audioIndex === 'number') url += `&AudioStreamIndex=${audioIndex}`;
-          return url;
-        }
-        // AllowAudioStreamCopy=false forces Emby to decode + re-encode
-        // the SELECTED audio stream. Without it the server may
-        // stream-copy the container default and quietly ignore
-        // AudioStreamIndex (the source of "still plays English").
-        // Video still stream-copies, so this stays cheap.
-        let url = `${serverUrl}/emby/videos/${episode.Id}/stream.mp4` +
-                  `?api_key=${apiKey}` +
-                  `&VideoCodec=h264&AudioCodec=aac&MaxAudioChannels=2` +
-                  `&AudioStreamIndex=${audioIndex}` +
-                  `&AllowAudioStreamCopy=false`;
-        if (o.mediaSourceId) url += `&MediaSourceId=${o.mediaSourceId}`;
-        return url;
-      }
-
-      function getCurrentTime() { return player.currentTime() || 0; }
-
-      // Fullscreen player overlay controls
-      function openPlayer() {
-        const overlay = document.getElementById('playerOverlay');
-        overlay.classList.remove('pip');
-        overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
-      }
-      function closePlayer() {
-        const overlay = document.getElementById('playerOverlay');
-        if (overlay.classList.contains('pip')) {
-          // Closing PiP = stop entirely
-          player.pause();
-          overlay.classList.remove('active', 'pip');
-          document.body.style.overflow = '';
-        } else {
-          // Closing fullscreen = shrink to PiP
-          overlay.classList.remove('active');
-          overlay.classList.add('pip');
-          document.body.style.overflow = '';
-        }
-      }
-      function expandFromPip() {
-        const overlay = document.getElementById('playerOverlay');
-        overlay.classList.remove('pip');
-        overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
-      }
-      // Close on Escape
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          const overlay = document.getElementById('playerOverlay');
-          if (overlay.classList.contains('active')) {
-            closePlayer();
-          } else if (overlay.classList.contains('pip')) {
-            player.pause();
-            overlay.classList.remove('active', 'pip');
-            document.body.style.overflow = '';
-          }
-        }
-      });
-
-      // ===== REMOTE / ARROW KEY NAVIGATION =====
-      document.addEventListener('keydown', (e) => {
-        // Don't intercept when player overlay is active or typing in a form field
-        const overlay = document.getElementById('playerOverlay');
-        if (overlay.classList.contains('active') && !overlay.classList.contains('pip')) return;
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
-        const focused = document.activeElement;
-        const isEpisode = focused && focused.closest('#episodes');
-        const isSeason = focused && focused.classList.contains('season-selector__button');
-        const isSidebar = focused && focused.closest('.sidebar');
-        const isNav = focused && focused.closest('.top-nav');
-
-        // Gather navigable groups
-        const seasonBtns = Array.from(document.querySelectorAll('.season-selector__button'));
-        const epItems = Array.from(document.querySelectorAll('#episodes li'));
-        const sidebarControls = [
-          document.querySelector('.custom-dropdown__trigger'),
-          document.getElementById('shuffle-button')
-        ].filter(Boolean);
-
-        if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          if (isSeason) {
-            const idx = seasonBtns.indexOf(focused);
-            if (idx < seasonBtns.length - 1) seasonBtns[idx + 1].focus();
-            else if (sidebarControls.length) sidebarControls[0].focus();
-          } else if (isSidebar && !isSeason) {
-            const idx = sidebarControls.indexOf(focused);
-            if (idx < sidebarControls.length - 1) sidebarControls[idx + 1].focus();
-          } else if (isEpisode) {
-            const idx = epItems.indexOf(focused);
-            if (idx < epItems.length - 1) { epItems[idx + 1].focus(); epItems[idx + 1].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
-          } else {
-            // Nothing focused in app — focus first season or first episode
-            if (seasonBtns.length) seasonBtns[0].focus();
-            else if (epItems.length) epItems[0].focus();
-          }
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          if (isSeason) {
-            const idx = seasonBtns.indexOf(focused);
-            if (idx > 0) seasonBtns[idx - 1].focus();
-          } else if (isSidebar && !isSeason) {
-            const idx = sidebarControls.indexOf(focused);
-            if (idx > 0) sidebarControls[idx - 1].focus();
-            else if (seasonBtns.length) seasonBtns[seasonBtns.length - 1].focus();
-          } else if (isEpisode) {
-            const idx = epItems.indexOf(focused);
-            if (idx > 0) { epItems[idx - 1].focus(); epItems[idx - 1].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
-          }
-        } else if (e.key === 'ArrowRight') {
-          e.preventDefault();
-          if (isSeason || isSidebar) {
-            // Jump from sidebar to episode list
-            if (epItems.length) { epItems[0].focus(); epItems[0].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
-          }
-        } else if (e.key === 'ArrowLeft') {
-          e.preventDefault();
-          if (isEpisode) {
-            // Jump from episode list back to sidebar
-            const sel = document.querySelector('.season-selector__button.selected');
-            if (sel) sel.focus();
-            else if (seasonBtns.length) seasonBtns[0].focus();
-          }
-        }
-      });
-
-      // Click PiP body to expand (but not on buttons)
-      document.getElementById('playerOverlay').addEventListener('click', (e) => {
-        const overlay = document.getElementById('playerOverlay');
-        if (!overlay.classList.contains('pip')) return;
-        if (e.target.closest('.close-player') || e.target.closest('.pip-expand')) return;
-        expandFromPip();
-      });
-
-      // PLAY EPISODE
-      let onEndedHandler = null;
-      async function playEpisode(episode, index, seekTime) {
-        openPlayer();
-        wireMediaSession(episode);
-
-        const niceTitle = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
-        setPlayerTitle(niceTitle);
-        document.title = `Watch Bluey! | ${niceTitle}`;
-        syncSeasonHighlight(episode);
-
-        const poster = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
-        window.__castTitle = niceTitle;
-        window.__castSubtitle = `Bluey | Season ${episode.ParentIndexNumber}`;
-        window.__castPoster = poster;
-        // Cast-specific episode metadata (TvShowMediaMetadata fields
-        // the Default Media Receiver reads in modifyLoadRequestFn).
-        window.__castSeason = episode.ParentIndexNumber;
-        window.__castEpisode = episode.IndexNumber;
-        window.__castEpisodeTitle = episode.Name;
-
-        // Populate info panel
-        const runtime = episode.RunTimeTicks ? Math.round(episode.RunTimeTicks / 600000000) : 7;
-        document.getElementById('infoThumb').src = poster;
-        document.getElementById('infoTitle').textContent = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
-        document.getElementById('infoDesc').textContent = episode.Overview || '';
-        document.getElementById('infoDuration').textContent = `${runtime}m`;
-
-        const timestamp = Date.now();
-        const info = await fetch(`${serverUrl}/emby/Items/${episode.Id}/PlaybackInfo?api_key=${apiKey}&Fields=MediaSources&t=${timestamp}`).then(r => r.json());
-        const ms = info.MediaSources[0];
-
-        // Override the player's reported duration with Emby's exact
-        // RunTimeTicks before the new src loads — keeps the
-        // displayed length matching the actual file instead of the
-        // HLS-manifest's rounded-up value (typically a few seconds
-        // longer because of segment boundary padding).
-        setDurationOverrideFromTicks(ms.RunTimeTicks || episode.RunTimeTicks);
-
-        const audioStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Audio');
-        const pick = pickAudioStreamIndex(audioStreams, preferredAudioLang);
-        currentAudioStreamIndexUsed = pick.index;
-        if (pick.reason === 'fallback_en' && preferredAudioLang && preferredAudioLang !== 'eng') {
-          showToast('Selected language not available for this episode — using English.');
-        } else if (pick.reason === 'fallback_first') {
-          showToast('Selected language not available — using default audio.');
-        }
-
-        const mediaSourceId = ms.Id;
-        const PlaySessionId = info.PlaySessionId;
-        const VideoBitRate = ms.MediaStreams[0]?.BitRate || 5000000;
-        const AudioBitRate = (audioStreams.find(s => s.Index === currentAudioStreamIndexUsed)?.BitRate) || 192000;
-
-        const hls = buildHlsUrl(episode, mediaSourceId, PlaySessionId, VideoBitRate, AudioBitRate, currentAudioStreamIndexUsed);
-        // Default = the container's flagged-default audio stream (or
-        // the first one). buildMp4Url only remuxes when the selection
-        // differs from this, so English-on-English stays Static.
-        const defaultAudioIndex =
-          (audioStreams.find(s => s.IsDefault) || audioStreams[0])?.Index;
-        currentDefaultAudioIndex = defaultAudioIndex;
-        currentMediaSourceId = mediaSourceId;
-        const progressive = buildMp4Url(episode, currentAudioStreamIndexUsed,
-            { defaultAudioIndex, mediaSourceId });
-        // Cast contentId strategy: the static MP4 is only correct
-        // when the SELECTED audio is the container default — Emby's
-        // /stream.mp4 endpoint doesn't reliably honor
-        // AudioStreamIndex for compatible sources (it stream-copies
-        // the default track), which made the receiver play English
-        // no matter what the user picked. For any non-default
-        // selection, leave __castMP4 empty so modifyLoadRequestFn
-        // falls through to casting the HLS master playlist — that
-        // transcode session provably carries the selected audio
-        // (it's the same URL local playback uses).
-        window.__castMP4 =
-          (currentAudioStreamIndexUsed === defaultAudioIndex) ? progressive : '';
-
-        // Compute subtitle streams and the saved-preference pick
-        // BEFORE setting src — the chromecast tech builds its load
-        // request during src(), and modifyLoadRequestFn reads
-        // __castSubs / __castActiveSubEmbyIndex at that moment.
-        const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
-        const sortedSubStreams = sortStreamsByLabel(subStreams);
-        const subPick = pickSubtitleStream(subStreams, preferredSubLang);
-        currentSubStreamIndexUsed = subPick ? subPick.Index : null;
-        const subPickCode = subPick ? canonicalLangCode(subPick) : 'off';
-        window.__castSubs = sortedSubStreams.map(s => ({
-          url: `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/${s.Index}/0/Stream.vtt?api_key=${apiKey}`,
-          code: canonicalLangCode(s),
-          label: niceLangLabelFrom(s),
-          embyIndex: s.Index,
-        }));
-        window.__castActiveSubEmbyIndex = subPick ? subPick.Index : null;
-
-        const rtt = player.remoteTextTracks();
-        for (let i = rtt.length - 1; i >= 0; i--) player.removeRemoteTextTrack(rtt[i]);
-
-        player.poster(poster);
-        player.src({ src: hls, type: 'application/x-mpegURL' });
-
-        if (window.__isCasting) { setTimeout(attachCastMediaListener, 250); }
-
-        // Populate the player's built-in AudioTrackList. video.js
-        // surfaces this through its control-bar audio button when
-        // there's more than one track — clicking an item there
-        // fires the 'change' listener (see ensureTrackListeners)
-        // which persists the language and reloads with the matching
-        // AudioStreamIndex.
-        //
-        // Items are added alphabetically by label for display, but
-        // the default selection (currentAudioStreamIndexUsed) was
-        // already chosen from the file's original order above, so
-        // the player still starts on whichever track Emby served
-        // first for tracks with no language tag.
-        populateAudioTracks(sortStreamsByLabel(audioStreams), currentAudioStreamIndexUsed);
-
-        // Add EVERY subtitle stream as a remote text track so
-        // video.js's built-in CC menu lists them all and the user
-        // can switch on the fly without a media reload. Adding
-        // alphabetically by label so the menu reads tidily; the
-        // active selection is decided separately below.
-        window.__castSubs.forEach(s => {
-          try {
-            player.addRemoteTextTrack(
-              { kind: 'subtitles', src: s.url, srclang: s.code || srclangFromCode(s.code), label: s.label },
-              false,
-            );
-          } catch {}
-        });
-
-        // Apply the saved subtitle preference — exactly one track
-        // showing (the helper suppresses the change handler itself,
-        // so this initial setup doesn't persist transient state).
-        applySubtitleSelection(subPick ? subPickCode : 'off');
-
-        // Fire onReadyToPlay exactly ONCE on whichever of these two
-        // events arrives first. Previously both one()s ran (html5
-        // fires both events), seeking and calling play() twice.
-        let _readyFired = false;
-        const onReadyToPlay = async () => {
-          if (_readyFired) return;
-          _readyFired = true;
-          try { player.muted(false); } catch {}
-          await autoPlayMaybe(seekTime);
-        };
-        player.one('loadedmetadata', onReadyToPlay);
-        player.one('loadeddata', onReadyToPlay);
-
-        if (onEndedHandler) player.off('ended', onEndedHandler);
-        onEndedHandler = () => {
-          if (suppressEndedOnce){ suppressEndedOnce = false; return; }
-          if (!advanceGuard()) return;
-          if (nextPrepared) { playNextPrepared(true); return; }
-          queueNextEpisode();
-        };
-        player.on('ended', onEndedHandler);
-
-        const prevSelected = document.querySelector('#episodes li.selected');
-        if (prevSelected) prevSelected.classList.remove('selected');
-        const selectedEpisodeItem = document.querySelector(`#episodes li:nth-child(${index + 1})`);
-        if (selectedEpisodeItem) selectedEpisodeItem.classList.add('selected');
-
-        // Reset the skip-intro state for the new episode (and keep
-        // the time in sync with the SKIP_INTRO_SECONDS constant).
-        if (typeof skipOverlay?.setIntroAt === 'function') {
-          skipOverlay.setIntroAt(SKIP_INTRO_SECONDS);
-        }
-      }
-
-      function syncSeasonHighlight(episode) {
-        if (!episode || !seasonsList || !seasonsList.length) return;
-        const season = seasonsList.find(s => s.Id === episode.SeasonId);
-        if (!season) return;
-        const btn = document.querySelector(`.season-selector__button[data-season-id="${season.Id}"]`);
-        if (btn && !btn.classList.contains('selected')) {
-          document.querySelectorAll('.season-selector__button').forEach(b => b.classList.remove('selected'));
-          btn.classList.add('selected');
-          currentSeason = season;
-          currentSeasonIndex = seasonsList.indexOf(season);
-        }
-      }
-
-      function queueNextEpisode() {
-        if (nextPrepared) { playNextPrepared(true); return; }
-        if (shuffleMode && allEpisodes.length > 0) {
-          let nextIndex; const currentId = episodes[currentEpisodeIndex]?.Id;
-          do { nextIndex = Math.floor(Math.random() * allEpisodes.length); } while (allEpisodes.length > 1 && allEpisodes[nextIndex].Id === currentId);
-          const ep = allEpisodes[nextIndex];
-          const season = seasonsList.find(s => s.Id === ep.SeasonId);
-          if (season) {
-            currentSeason = season; currentSeasonIndex = seasonsList.indexOf(season);
-            document.querySelectorAll('.season-selector__button').forEach(btn => btn.classList.remove('selected'));
-            const seasonBtn = document.querySelector(`.season-selector__button[data-season-id="${season.Id}"]`);
-            if (seasonBtn) seasonBtn.classList.add('selected');
-            const ensure = episodesCache[season.Id] ? Promise.resolve(episodesCache[season.Id]) : fetchEpisodes(season);
-            ensure.then(list => {
-              episodes = list; renderEpisodes(episodes);
-              const epIndex = episodes.findIndex(e => e.Id === ep.Id);
-              if (epIndex !== -1) { currentEpisodeIndex = epIndex; playEpisode(ep, epIndex); }
-            }).catch(() => showToast('Could not load next episode. Tap any episode to continue.'));
-          }
-          return;
-        }
-        if (currentEpisodeIndex >= 0 && currentEpisodeIndex + 1 < episodes.length) {
-          currentEpisodeIndex++; playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
-        } else if (currentEpisodeIndex >= 0 && currentSeasonIndex < seasonsList.length - 1) {
-          currentSeasonIndex++; currentSeason = seasonsList[currentSeasonIndex];
-          document.querySelectorAll('.season-selector__button').forEach(btn => btn.classList.remove('selected'));
-          const nextSeasonButton = document.querySelector(`.season-selector__button[data-season-id="${currentSeason.Id}"]`);
-          if (nextSeasonButton) nextSeasonButton.classList.add('selected');
-          const ensure = episodesCache[currentSeason.Id] ? Promise.resolve(episodesCache[currentSeason.Id]) : fetchEpisodes(currentSeason);
-          ensure.then(list => {
-            episodes = list; renderEpisodes(episodes); currentEpisodeIndex = 0; playEpisode(episodes[0], 0);
-          }).catch(() => showToast('Could not load next episode. Tap any episode to continue.'));
-        }
-      }
-
-      function prefetchEpisodes(season) {
-        if (!episodesCache[season.Id]) {
-          fetch(`${serverUrl}/emby/Shows/${itemId}/Episodes?SeasonId=${season.Id}&api_key=${apiKey}&Fields=Overview`)
-            .then(r => r.json())
-            .then(data => {
-              episodesCache[season.Id] = data.Items;
-              data.Items.forEach(ep => { if (!allEpisodes.find(e => e.Id === ep.Id)) { allEpisodes.push(ep); } });
-            })
-            .catch(err => console.error('prefetch error:', err));
-        }
-      }
-
-      function fetchSeasons() {
-        fetch(`${serverUrl}/emby/Shows/${itemId}/Seasons?api_key=${apiKey}`)
-          .then(r => r.json())
-          .then(seasons => {
-            const seasonsContainer = document.getElementById('seasons');
-            seasonsList = seasons.Items.filter(season => season.SeriesId === itemId);
-            seasonsList.forEach((season, i) => {
-              prefetchEpisodes(season);
-              const seasonBtn = document.createElement('button');
-              seasonBtn.classList.add('season-selector__button');
-              seasonBtn.setAttribute('data-season-id', season.Id);
-              seasonBtn.innerHTML = `<span>Season ${season.IndexNumber}</span><span class="ep-count"></span>`;
-              // Fill episode count once available
-              const fillCount = () => {
-                if (episodesCache[season.Id]) {
-                  seasonBtn.querySelector('.ep-count').textContent = `${episodesCache[season.Id].length} Episodes`;
-                } else {
-                  setTimeout(fillCount, 500);
-                }
-              };
-              fillCount();
-              seasonBtn.addEventListener('click', () => {
-                handleSeasonClick(seasonBtn, season, i);
-                if (episodesCache[season.Id]) { episodes = episodesCache[season.Id]; renderEpisodes(episodes); }
-                else { fetchEpisodes(season); }
-                prepareNextEpisodePreview();
-              });
-              seasonsContainer.appendChild(seasonBtn);
-            });
-            // Auto-select the first season
-            if (seasonsList.length > 0 && !pendingDeepLink) {
-              const firstBtn = seasonsContainer.querySelector('.season-selector__button');
-              const firstSeason = seasonsList[0];
-              if (firstBtn) {
-                handleSeasonClick(firstBtn, firstSeason, 0);
-                if (episodesCache[firstSeason.Id]) {
-                  episodes = episodesCache[firstSeason.Id];
-                  renderEpisodes(episodes);
-                } else {
-                  fetchEpisodes(firstSeason);
-                }
-              }
-            }
-
-            // Deep link: navigate to correct season/episode
-            if (pendingDeepLink) tryDeepLink();
-          })
-          .catch(err => console.error('seasons error:', err));
-      }
-
-      function fetchEpisodes(season) {
-        return fetch(`${serverUrl}/emby/Shows/${itemId}/Episodes?SeasonId=${season.Id}&api_key=${apiKey}&Fields=Overview`)
-          .then(r => r.json())
-          .then(data => {
-            episodesCache[season.Id] = data.Items; episodes = data.Items;
-            data.Items.forEach(ep => { if (!allEpisodes.find(e => e.Id === ep.Id)) { allEpisodes.push(ep); } });
-            renderEpisodes(episodes);
-            return data.Items;
-          })
-          .catch(err => { console.error('episodes error:', err); throw err; });
-      }
-
-      function handleSeasonClick(button, season, seasonIndex) {
-        if (selectedSeason) selectedSeason.classList.remove('selected');
-        selectedSeason = button; selectedSeason.classList.add('selected');
-        currentSeason = season; currentSeasonIndex = seasonIndex; currentEpisodeIndex = -1;
-      }
-
-      function renderEpisodes(episodesArr) {
-        const episodeList = document.getElementById('episodes');
-        episodeList.innerHTML = '';
-        episodesArr.forEach((episode, index) => {
-          const li = document.createElement('li');
-          const runtime = episode.RunTimeTicks ? Math.round(episode.RunTimeTicks / 600000000) : 7;
-          li.innerHTML = `
-            <img class="ep-thumb" src="${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}" alt="${episode.Name}">
-            <div class="ep-info">
-              <h2>Episode ${episode.IndexNumber}: ${episode.Name}</h2>
-              <p>${episode.Overview || ''}</p>
-              <div class="ep-meta">
-                <span class="ep-duration">${runtime}m</span>
-              </div>
-            </div>
-          `;
-          li.setAttribute('tabindex', '0');
-          li.addEventListener('click', () => { currentEpisodeIndex = index; playEpisode(episode, index); });
-          li.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); currentEpisodeIndex = index; playEpisode(episode, index); }
-          });
-          if (currentEpisodeIndex === index) li.classList.add('selected');
-          episodeList.appendChild(li);
-        });
-      }
-
-      // Track-list change listeners.
-      //
-      // The Chromecast plugin swaps the player's tech on connect /
-      // disconnect, and each tech has its OWN AudioTrackList /
-      // TextTrackList instance. Listeners bound to the html5 list
-      // become orphaned after a cast session, and the new tech's
-      // empty list hides the audio menu button. Solution: keep
-      // the handler functions as stable module-level refs, re-bind
-      // them every time we (re)populate, and cache the last set of
-      // audio streams so we can rebuild on tech swap.
-      let _suppressAudioChange = false;
-      let _suppressTextChange  = false;
-      let _lastAudioStreams = null;
-
-      function _onAudioTrackChange() {
-        if (_suppressAudioChange) return;
-        const at = player.audioTracks();
-        for (let i = 0; i < at.length; i++) {
-          if (!at[i].enabled) continue;
-          const code = (at[i].language || '').toLowerCase();
-          if (code && code !== preferredAudioLang) {
-            preferredAudioLang = code;
-            localStorage.setItem(AUDIO_LANG_STORAGE_KEY, code);
-            if (episodes.length > 0 && currentEpisodeIndex >= 0) {
-              playEpisode(
-                episodes[currentEpisodeIndex],
-                currentEpisodeIndex,
-                getCurrentTime(),
-              );
-            }
-            prepareNextEpisodePreview();
-          }
-          break;
-        }
-      }
-
-      // Push a subtitle change to the Chromecast receiver mid-
-      // playback. trackId mapping matches modifyLoadRequestFn:
-      // cast track i+1 ↔ window.__castSubs[i].
-      function castSetActiveSubtitle(code) {
-        if (!window.__isCasting) return;
-        try {
-          const ctx = cast && cast.framework && cast.framework.CastContext.getInstance();
-          const session = ctx && ctx.getCurrentSession();
-          const media = session && session.getMediaSession();
-          if (!media) return;
-          let ids = [];
-          if (code && code !== 'off') {
-            const subs = window.__castSubs || [];
-            const i = subs.findIndex(s =>
-              (s.code || '').toLowerCase() === code ||
-              srclangFromCode(s.code) === code);
-            if (i >= 0) { ids = [i + 1]; window.__castActiveSubEmbyIndex = subs[i].embyIndex; }
-          } else {
-            window.__castActiveSubEmbyIndex = null;
-          }
-          media.editTracksInfo(
-            new chrome.cast.media.EditTracksInfoRequest(ids),
-            () => {},
-            (e) => console.warn('cast editTracksInfo failed', e)
-          );
-        } catch {}
-      }
-
-      function _onTextTrackChange() {
-        if (_suppressTextChange) return;
-        const tt = player.textTracks();
-        let activeCode = 'off';
-        for (let i = 0; i < tt.length; i++) {
-          if (tt[i].mode === 'showing' && tt[i].kind === 'subtitles') {
-            activeCode = (tt[i].language || '').toLowerCase() || 'off';
-            break;
-          }
-        }
-        preferredSubLang = activeCode;
-        subsWanted = activeCode !== 'off';
-        localStorage.setItem(SUB_LANG_STORAGE_KEY, activeCode);
-        localStorage.setItem('bluey_subtitle_on', subsWanted ? '1' : '0');
-        castSetActiveSubtitle(activeCode);
-      }
-
-      function rebindTrackListeners() {
-        const at = player.audioTracks();
-        const tt = player.textTracks();
-        // removeEventListener with the same fn ref is a no-op if it
-        // was never added, so this is safe to call repeatedly.
-        try { at.removeEventListener('change', _onAudioTrackChange); } catch {}
-        try { tt.removeEventListener('change', _onTextTrackChange); } catch {}
-        try { at.addEventListener('change', _onAudioTrackChange); } catch {}
-        try { tt.addEventListener('change', _onTextTrackChange); } catch {}
-      }
-
-      // Populate the player's AudioTrackList from the current
-      // episode's audio streams. Also re-binds the change listener
-      // to the current tech's track list so a Chromecast session
-      // (which swaps techs) doesn't strand the listener on the old
-      // list. Caches the stream list so we can rebuild after a tech
-      // swap without re-fetching PlaybackInfo.
-      function populateAudioTracks(audioStreams, currentIndex) {
-        _lastAudioStreams = audioStreams || _lastAudioStreams;
-        rebindTrackListeners();
-        const at = player.audioTracks();
-        _suppressAudioChange = true;
-        for (let i = at.length - 1; i >= 0; i--) {
-          at.removeTrack(at[i]);
-        }
-        (_lastAudioStreams || []).forEach(s => {
-          const code = canonicalLangCode(s);
-          at.addTrack(new videojs.AudioTrack({
-            id: String(s.Index),
-            kind: 'main',
-            label: niceLangLabelFrom(s),
-            language: code || srclangFromCode(code),
-            enabled: s.Index === currentIndex,
-          }));
-        });
-        _suppressAudioChange = false;
-      }
-
-      // Set EXACTLY ONE text track to 'showing' (or none for 'off').
-      // The previous inline loops set 'showing' on every track whose
-      // language matched — with two same-language streams (English +
-      // English SDH) or duplicate tracks surviving a Chromecast tech
-      // swap, both rendered at once and the cues stacked on screen.
-      function applySubtitleSelection(code) {
-        _suppressTextChange = true;
-        const tt = player.textTracks();
-        let shown = false;
-        for (let i = 0; i < tt.length; i++) {
-          const track = tt[i];
-          if (track.kind !== 'subtitles' && track.kind !== 'captions') continue;
-          const lang = (track.language || '').toLowerCase();
-          const matches = code && code !== 'off' &&
-            (lang === code || lang === srclangFromCode(code));
-          if (matches && !shown) {
-            track.mode = 'showing';
-            shown = true;
-          } else {
-            track.mode = 'disabled';
-          }
-        }
-        _suppressTextChange = false;
-      }
-
-      // Rebuild the audio menu AND recreate the control-bar button.
-      //
-      // Why recreating the button is necessary: video.js's
-      // AudioTrackButton binds its addtrack/removetrack listeners to
-      // player.audioTracks() AT CONSTRUCTION — and that list belongs
-      // to the tech. The Chromecast plugin swaps techs on connect /
-      // disconnect, so after a cast session the button is still
-      // listening to the old tech's dead list; tracks we add to the
-      // NEW list never reach it and it stays hidden. Disposing and
-      // re-adding the button makes it bind to the current tech's
-      // list.
-      function refreshAudioMenu() {
-        if (_lastAudioStreams) {
-          populateAudioTracks(_lastAudioStreams, currentAudioStreamIndexUsed);
-        } else {
-          rebindTrackListeners();
-        }
-        try {
-          const cb = player.controlBar;
-          const old = cb.getChild('audioTrackButton');
-          let index = -1;
-          if (old) {
-            index = cb.children().indexOf(old);
-            cb.removeChild(old);
-            old.dispose();
-          }
-          if (index < 0) {
-            // No previous button (e.g. it was never created because
-            // the page loaded with <2 tracks) — slot it before the
-            // fullscreen toggle like video.js's default layout.
-            const fs = cb.getChild('fullscreenToggle');
-            index = fs ? cb.children().indexOf(fs) : cb.children().length;
-          }
-          cb.addChild('audioTrackButton', {}, index);
-        } catch (e) {
-          console.warn('refreshAudioMenu: button rebuild failed', e);
-        }
-      }
-
-      function toggleShuffleMode() {
-        shuffleMode = !shuffleMode;
-        const shuffleIcon = document.getElementById('shuffle-icon');
-        if (shuffleMode) shuffleIcon.classList.add('active'); else shuffleIcon.classList.remove('active');
-        prepareNextEpisodePreview();
-      }
-
-      // Hard-start the watch flow.
-      //   - shuffle ON  → pick a random episode from the full list.
-      //   - shuffle OFF → jump to Season 1 Episode 1.
-      // Either branch updates the season highlight + fetches the
-      // target season's episode list if it isn't cached yet, then
-      // hands off to playEpisode like everywhere else.
-      async function playFromStart() {
-        if (!seasonsList || seasonsList.length === 0) {
-          showToast('Still loading seasons — try again in a sec.');
-          return;
-        }
-        if (shuffleMode) {
-          // Need the master list of episodes to pick from. If it
-          // hasn't been built yet, fall back to S1E1 instead of
-          // showing nothing.
-          if (allEpisodes.length > 0) {
-            const ep = allEpisodes[Math.floor(Math.random() * allEpisodes.length)];
-            await jumpToEpisode(ep);
-            return;
-          }
-        }
-        // Default path: Season 1 Episode 1. Prefer the season whose
-        // IndexNumber is 1 in case the list isn't strictly ordered.
-        const firstSeason = seasonsList.find(s => s.IndexNumber === 1) || seasonsList[0];
-        const list = episodesCache[firstSeason.Id]
-          ? episodesCache[firstSeason.Id]
-          : await fetchEpisodes(firstSeason);
-        if (!list || list.length === 0) {
-          showToast('No episodes in Season 1.');
-          return;
-        }
-        await jumpToEpisode(list[0], firstSeason, list);
-      }
-
-      // Shared helper used by playFromStart for both shuffle and S1E1
-      // paths. Resolves the episode's season (or accepts an already-
-      // known season + list to avoid a second lookup) and plays the
-      // episode after updating UI state.
-      async function jumpToEpisode(ep, knownSeason, knownList) {
-        const season = knownSeason || seasonsList.find(s => s.Id === ep.SeasonId);
-        if (!season) return;
-        currentSeason = season;
-        currentSeasonIndex = seasonsList.indexOf(season);
-        document.querySelectorAll('.season-selector__button').forEach(b => b.classList.remove('selected'));
-        const sb = document.querySelector(`.season-selector__button[data-season-id="${season.Id}"]`);
-        if (sb) sb.classList.add('selected');
-
-        const list = knownList ||
-          (episodesCache[season.Id] ? episodesCache[season.Id] : await fetchEpisodes(season));
-        if (!list || list.length === 0) return;
-        episodes = list;
-        renderEpisodes(episodes);
-        const idx = episodes.findIndex(e => e.Id === ep.Id);
-        if (idx < 0) return;
-        currentEpisodeIndex = idx;
-        playEpisode(ep, idx);
-      }
-
-      function downloadEpisode() {
-        if (currentEpisodeIndex >= 0 && episodes[currentEpisodeIndex]) {
-          const episode = episodes[currentEpisodeIndex];
-          const downloadUrl = `${serverUrl}/emby/Items/${episode.Id}/Download?api_key=${apiKey}`;
-          window.location.href = downloadUrl;
-        }
-      }
-
-      function shareEpisode() {
-        if (currentEpisodeIndex < 0 || !episodes[currentEpisodeIndex]) return;
-        const ep = episodes[currentEpisodeIndex];
-        const s = ep.ParentIndexNumber;
-        const e = ep.IndexNumber;
-        const shareUrl = `${window.location.origin}${window.location.pathname}?s${s}e${e}`;
-        const shareTitle = `Bluey S${s}E${e}: ${ep.Name}`;
-
-        // Use native share if available (mobile), else copy to clipboard
-        if (navigator.share) {
-          navigator.share({ title: shareTitle, url: shareUrl }).catch(() => {});
-        } else {
-          navigator.clipboard.writeText(shareUrl).then(() => {
-            showToast('Link copied to clipboard!');
-          }).catch(() => {
-            // Fallback for older browsers
-            const input = document.createElement('input');
-            input.value = shareUrl;
-            document.body.appendChild(input);
-            input.select();
-            document.execCommand('copy');
-            document.body.removeChild(input);
-            showToast('Link copied to clipboard!');
-          });
-        }
-      }
-
-      document.addEventListener('fullscreenchange', () => {
-        if (document.fullscreenElement) {
-          if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {});
-        } else {
-          if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
-        }
-      });
-
-      // Error handling
-      let consecutiveErrors = 0;
-      player.on('playing', () => { consecutiveErrors = 0; });
-      player.off('vhs-error');
-      player.on('vhs-error', (_evt, data = {}) => {
-        console.warn('vhs-error', data);
-        const fatal =
-          data.severity === 'FATAL' ||
-          data.fatal === true ||
-          data.type === 'NETWORK_ERROR' ||
-          (data.request && data.request.status >= 400);
-        if (fatal) { fallbackToMp4AtCurrentTime(); }
-      });
-
-      function fallbackToMp4AtCurrentTime(){
-        const ep = episodes[currentEpisodeIndex];
-        if (!ep) return;
-        const t = getCurrentTime();
-        const mp4 = buildMp4Url(ep, currentAudioStreamIndexUsed, {
-          defaultAudioIndex: currentDefaultAudioIndex,
-          mediaSourceId: currentMediaSourceId,
-        });
-        // Same gating: a static MP4 contentId only matches the
-        // user's audio choice when that choice IS the container
-        // default. Otherwise leave empty so a cast load falls back
-        // to the HLS URL (the local fallback below still plays the
-        // mp4 — this only affects what the RECEIVER gets).
-        window.__castMP4 =
-          (currentAudioStreamIndexUsed === currentDefaultAudioIndex) ? mp4 : '';
-        showToast('Stream hiccup — switching to fallback.');
-        try { player.src({ src: mp4, type: 'video/mp4' }); } catch {}
-        player.one('loadedmetadata', () => autoPlayMaybe(t));
-      }
-
-      player.on('error', () => {
-        const err = player.error?.();
-        console.warn('videojs error:', err);
-        // Use the tech's real duration here — same reasoning as
-        // nearEndNow(). Our cosmetic override would make this
-        // think we're at the tail when we're really 3s away.
-        const d = realDuration();
-        const t = player.currentTime() || 0;
-        if (isFinite(d) && d > 0 && (d - t) <= 3) {
-          console.warn('Near-end hiccup detected — advancing.');
-          if (!advanceGuard()) return;
-          if (nextPrepared) { playNextPrepared(true); } else { queueNextEpisode(); }
-          return;
-        }
-        if (episodes[currentEpisodeIndex] && consecutiveErrors === 0) {
-          consecutiveErrors++;
-          fallbackToMp4AtCurrentTime();
-          return;
-        }
-        consecutiveErrors = 0;
-        showToast('That episode failed to load — jumping to the next.');
-        if (!advanceGuard()) return;
-        if (nextPrepared) { playNextPrepared(true); } else { queueNextEpisode(); }
-      });
-    </script>
-  </body>
+         })();
+         darkToggle.onclick = () => setTheme(!root.classList.contains('dark'));
+      </script>
+   </body>
 </html>

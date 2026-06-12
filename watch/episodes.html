@@ -1233,6 +1233,11 @@
       let preferredSubLang   = 'off';
       let currentAudioStreamIndexUsed = null;
       let currentSubStreamIndexUsed   = null;
+      // Cached per-episode stream facts for code that runs outside
+      // playEpisode's scope (the MP4 error-fallback path needs them
+      // to build a correct cast / fallback URL).
+      let currentDefaultAudioIndex    = null;
+      let currentMediaSourceId        = null;
 
       let selectedSeason = null;
       let episodes = [];
@@ -1650,7 +1655,10 @@
           const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
           const subPick = pickSubtitleStream(subStreams, preferredSubLang);
           const hls = buildHlsUrl(ep, mediaSourceId, info.PlaySessionId, VideoBitRate, AudioBitRate, pick.index);
-          const mp4 = buildMp4Url(ep, pick.index);
+          const defaultAudioIndex =
+            (audioStreams.find(s => s.IsDefault) || audioStreams[0])?.Index;
+          prepared.defaultAudioIndex = defaultAudioIndex;
+          const mp4 = buildMp4Url(ep, pick.index, { defaultAudioIndex, mediaSourceId });
           try { const img = new Image(); img.src = poster; } catch {}
           prepared.hls = hls;
           prepared.mp4 = mp4;
@@ -1688,6 +1696,10 @@
           window.__castTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
           window.__castSubtitle = `Bluey | Season ${nextPrepared.episode.ParentIndexNumber}`;
           window.__castPoster = nextPrepared.poster;
+          // Always the progressive MP4 — for non-default audio it's
+          // the single-track remux (AllowAudioStreamCopy=false), so
+          // the receiver's "play the default track" behaviour plays
+          // the SELECTED language. Same strategy as playEpisode.
           window.__castMP4 = nextPrepared.mp4 || '';
           window.__castSeason = nextPrepared.episode.ParentIndexNumber;
           window.__castEpisode = nextPrepared.episode.IndexNumber;
@@ -1711,6 +1723,8 @@
           setDurationOverrideFromTicks(nextPrepared.runTimeTicks);
           player.src({ src: nextPrepared.hls, type: 'application/x-mpegURL' });
           currentAudioStreamIndexUsed = nextPrepared.audioIndex;
+          currentDefaultAudioIndex = nextPrepared.defaultAudioIndex ?? null;
+          currentMediaSourceId = nextPrepared.mediaSourceId || null;
           currentSubStreamIndexUsed = nextPrepared.subPickIndex;
           // While casting, the auto-advance creates a brand-new
           // remote MediaSession — re-attach the finished-listener
@@ -2065,9 +2079,38 @@
         if (typeof audioIndex === 'number') url += `&AudioStreamIndex=${audioIndex}`;
         return url;
       }
-      function buildMp4Url(episode, audioIndex) {
-        let url = `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`;
-        if (typeof audioIndex === 'number') url += `&AudioStreamIndex=${audioIndex}`;
+      // Progressive MP4 URL — used as the Chromecast contentId.
+      //
+      // Static=true serves the ORIGINAL file and silently ignores
+      // AudioStreamIndex, so the cast receiver always played the
+      // container's default (first) audio track regardless of the
+      // user's selection. When the chosen track isn't the default,
+      // we drop Static and ask Emby for a remux: the h264 video is
+      // stream-copied (EnableAutoStreamCopy is on by default — no
+      // re-encode), only the selected audio is transcoded to AAC.
+      function buildMp4Url(episode, audioIndex, opts) {
+        const o = opts || {};
+        const isDefaultTrack =
+          (typeof audioIndex !== 'number') ||
+          (typeof o.defaultAudioIndex === 'number' && audioIndex === o.defaultAudioIndex);
+        if (isDefaultTrack) {
+          // Original file untouched — the container default IS the
+          // selected track, so static streaming is correct and free.
+          let url = `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`;
+          if (typeof audioIndex === 'number') url += `&AudioStreamIndex=${audioIndex}`;
+          return url;
+        }
+        // AllowAudioStreamCopy=false forces Emby to decode + re-encode
+        // the SELECTED audio stream. Without it the server may
+        // stream-copy the container default and quietly ignore
+        // AudioStreamIndex (the source of "still plays English").
+        // Video still stream-copies, so this stays cheap.
+        let url = `${serverUrl}/emby/videos/${episode.Id}/stream.mp4` +
+                  `?api_key=${apiKey}` +
+                  `&VideoCodec=h264&AudioCodec=aac&MaxAudioChannels=2` +
+                  `&AudioStreamIndex=${audioIndex}` +
+                  `&AllowAudioStreamCopy=false`;
+        if (o.mediaSourceId) url += `&MediaSourceId=${o.mediaSourceId}`;
         return url;
       }
 
@@ -2244,7 +2287,25 @@
         const AudioBitRate = (audioStreams.find(s => s.Index === currentAudioStreamIndexUsed)?.BitRate) || 192000;
 
         const hls = buildHlsUrl(episode, mediaSourceId, PlaySessionId, VideoBitRate, AudioBitRate, currentAudioStreamIndexUsed);
-        const progressive = buildMp4Url(episode, currentAudioStreamIndexUsed);
+        // Default = the container's flagged-default audio stream (or
+        // the first one). buildMp4Url only remuxes when the selection
+        // differs from this, so English-on-English stays Static.
+        const defaultAudioIndex =
+          (audioStreams.find(s => s.IsDefault) || audioStreams[0])?.Index;
+        currentDefaultAudioIndex = defaultAudioIndex;
+        currentMediaSourceId = mediaSourceId;
+        const progressive = buildMp4Url(episode, currentAudioStreamIndexUsed,
+            { defaultAudioIndex, mediaSourceId });
+        // Cast contentId: always the progressive MP4. For default
+        // audio that's the untouched static file; for any other
+        // selection buildMp4Url returns a remux with
+        // AllowAudioStreamCopy=false, whose output contains exactly
+        // ONE audio track — the selected one (verified with ffprobe
+        // against the live server: AudioStreamIndex=3 → single
+        // 'may'-tagged AAC track). The Cast receiver always plays
+        // an MP4's only/default track, so the selection is
+        // guaranteed to reach the TV, with no dependency on the
+        // receiver's HLS support.
         window.__castMP4 = progressive;
 
         // Compute subtitle streams and the saved-preference pick
@@ -2802,7 +2863,13 @@
         const ep = episodes[currentEpisodeIndex];
         if (!ep) return;
         const t = getCurrentTime();
-        const mp4 = buildMp4Url(ep, currentAudioStreamIndexUsed);
+        const mp4 = buildMp4Url(ep, currentAudioStreamIndexUsed, {
+          defaultAudioIndex: currentDefaultAudioIndex,
+          mediaSourceId: currentMediaSourceId,
+        });
+        // Always the progressive MP4 — single-track remux for
+        // non-default audio selections, so the receiver plays the
+        // selected language here too.
         window.__castMP4 = mp4;
         showToast('Stream hiccup — switching to fallback.');
         try { player.src({ src: mp4, type: 'video/mp4' }); } catch {}

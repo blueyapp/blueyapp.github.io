@@ -1258,6 +1258,7 @@
       window.__castSubtitle = '';
       window.__castPoster = '';
       window.__castMP4 = '';
+      window.__castHLS = '';
       window.__castDurationSec = null;
       window.__castSeriesTitle = 'Bluey';
       window.__castSeason = null;
@@ -1304,13 +1305,25 @@
           requestTitleFn: () => window.__castTitle || document.title,
           requestSubtitleFn: () => window.__castSubtitle || '',
           modifyLoadRequestFn: (request) => {
-            if (window.__castMP4) {
+            if (window.__castHLS) {
+              // Non-default audio: cast a dedicated TS-segment HLS
+              // session. Emby's variant playlist is VOD-type with
+              // every segment + EXT-X-ENDLIST listed up front
+              // (verified against the live server), so the receiver
+              // knows the real duration immediately — unlike the
+              // on-the-fly MP4 remux, which looks like a growing
+              // live file (creeping end time + premature FINISHED
+              // that skipped to the next episode).
+              request.media.contentId = window.__castHLS;
+              request.media.contentType = 'application/x-mpegURL';
+              try { request.media.hlsSegmentFormat = 'ts'; } catch {}
+            } else if (window.__castMP4) {
               request.media.contentId = window.__castMP4;
               request.media.contentType = 'video/mp4';
             } else {
-              // Casting the HLS URL directly: Emby serves fmp4
-              // segments, and the Default Media Receiver assumes
-              // TS unless told otherwise.
+              // Casting the player's own HLS URL directly: Emby
+              // serves fmp4 segments there, and the Default Media
+              // Receiver assumes TS unless told otherwise.
               try {
                 request.media.hlsSegmentFormat = 'fmp4';
                 request.media.hlsVideoSegmentFormat = 'fmp4';
@@ -1680,6 +1693,12 @@
           try { const img = new Image(); img.src = poster; } catch {}
           prepared.hls = hls;
           prepared.mp4 = mp4;
+          // Cast HLS for non-default audio — same strategy as
+          // playEpisode (TS segments, separate -cast session id).
+          prepared.castHls = (pick.index === defaultAudioIndex)
+            ? ''
+            : buildCastHlsUrl(ep, mediaSourceId, info.PlaySessionId,
+                VideoBitRate, AudioBitRate, pick.index);
           prepared.audioIndex = pick.index;
           // Sort both lists for display now (cheap, once per
           // prefetch). pickAudioStreamIndex above already ran on
@@ -1714,11 +1733,15 @@
           window.__castTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
           window.__castSubtitle = `Bluey | Season ${nextPrepared.episode.ParentIndexNumber}`;
           window.__castPoster = nextPrepared.poster;
-          // Always the progressive MP4 — for non-default audio it's
-          // the single-track remux (AllowAudioStreamCopy=false), so
-          // the receiver's "play the default track" behaviour plays
-          // the SELECTED language. Same strategy as playEpisode.
-          window.__castMP4 = nextPrepared.mp4 || '';
+          // Same strategy as playEpisode: static MP4 for default
+          // audio, TS-segment cast HLS for any other selection.
+          if (nextPrepared.castHls) {
+            window.__castMP4 = '';
+            window.__castHLS = nextPrepared.castHls;
+          } else {
+            window.__castMP4 = nextPrepared.mp4 || '';
+            window.__castHLS = '';
+          }
           window.__castSeason = nextPrepared.episode.ParentIndexNumber;
           window.__castEpisode = nextPrepared.episode.IndexNumber;
           window.__castEpisodeTitle = nextPrepared.episode.Name;
@@ -2097,6 +2120,26 @@
         if (typeof audioIndex === 'number') url += `&AudioStreamIndex=${audioIndex}`;
         return url;
       }
+      // HLS URL for the CAST RECEIVER (non-default audio only).
+      // Differs from the local buildHlsUrl in two ways:
+      //   - SegmentContainer=ts: the most compatible segment format
+      //     for the Default Media Receiver (the local player uses
+      //     fmp4, which is what made earlier HLS casts fail).
+      //   - "-cast" suffix on the PlaySessionId so the receiver's
+      //     transcode session doesn't collide with (or tear down)
+      //     the local player's session for the same episode.
+      function buildCastHlsUrl(episode, mediaSourceId, PlaySessionId, VideoBitRate, AudioBitRate, audioIndex) {
+        let url = `${serverUrl}/emby/videos/${episode.Id}/master.m3u8` +
+                  `?MediaSourceId=${mediaSourceId}` +
+                  `&PlaySessionId=${PlaySessionId}-cast` +
+                  `&api_key=${apiKey}` +
+                  `&VideoCodec=h264&AudioCodec=aac` +
+                  `&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}` +
+                  `&TranscodingMaxAudioChannels=2` +
+                  `&SegmentContainer=ts&MinSegments=2&h264-profile=main`;
+        if (typeof audioIndex === 'number') url += `&AudioStreamIndex=${audioIndex}`;
+        return url;
+      }
       // Progressive MP4 URL — used as the Chromecast contentId.
       //
       // Static=true serves the ORIGINAL file and silently ignores
@@ -2314,17 +2357,26 @@
         currentMediaSourceId = mediaSourceId;
         const progressive = buildMp4Url(episode, currentAudioStreamIndexUsed,
             { defaultAudioIndex, mediaSourceId });
-        // Cast contentId: always the progressive MP4. For default
-        // audio that's the untouched static file; for any other
-        // selection buildMp4Url returns a remux with
-        // AllowAudioStreamCopy=false, whose output contains exactly
-        // ONE audio track — the selected one (verified with ffprobe
-        // against the live server: AudioStreamIndex=3 → single
-        // 'may'-tagged AAC track). The Cast receiver always plays
-        // an MP4's only/default track, so the selection is
-        // guaranteed to reach the TV, with no dependency on the
-        // receiver's HLS support.
-        window.__castMP4 = progressive;
+        // Cast contentId strategy:
+        //   - Default audio → static MP4 (byte-for-byte original,
+        //     exact duration, byte-range seeking — proven working).
+        //   - Non-default audio → dedicated TS-segment HLS session.
+        //     The MP4 remux DID carry the right audio (verified via
+        //     ffprobe), but it transcodes on the fly: the receiver
+        //     saw a growing file → creeping end time + premature
+        //     FINISHED that auto-skipped to the next episode. The
+        //     HLS variant playlist is VOD-type with all segments +
+        //     ENDLIST up front, so duration is stable and 'ended'
+        //     fires only at the true end.
+        if (currentAudioStreamIndexUsed === defaultAudioIndex) {
+          window.__castMP4 = progressive;
+          window.__castHLS = '';
+        } else {
+          window.__castMP4 = '';
+          window.__castHLS = buildCastHlsUrl(
+            episode, mediaSourceId, PlaySessionId,
+            VideoBitRate, AudioBitRate, currentAudioStreamIndexUsed);
+        }
 
         // Compute subtitle streams and the saved-preference pick
         // BEFORE setting src — the chromecast tech builds its load
@@ -2885,10 +2937,12 @@
           defaultAudioIndex: currentDefaultAudioIndex,
           mediaSourceId: currentMediaSourceId,
         });
-        // Always the progressive MP4 — single-track remux for
-        // non-default audio selections, so the receiver plays the
-        // selected language here too.
+        // Local fallback path — the MP4 (single-track remux for
+        // non-default audio) becomes the cast contentId too; clear
+        // the HLS global so the load-request branch order doesn't
+        // pick a stale playlist from the previous source.
         window.__castMP4 = mp4;
+        window.__castHLS = '';
         showToast('Stream hiccup — switching to fallback.');
         try { player.src({ src: mp4, type: 'video/mp4' }); } catch {}
         player.one('loadedmetadata', () => autoPlayMaybe(t));

@@ -1696,7 +1696,14 @@
           window.__castTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
           window.__castSubtitle = `Bluey | Season ${nextPrepared.episode.ParentIndexNumber}`;
           window.__castPoster = nextPrepared.poster;
-          window.__castMP4 = nextPrepared.mp4 || '';
+          // Same gating as playEpisode: only cast the static MP4
+          // when the selected audio IS the container default —
+          // otherwise leave empty so the receiver gets the HLS URL,
+          // which actually carries the selected audio.
+          window.__castMP4 =
+            (nextPrepared.audioIndex === nextPrepared.defaultAudioIndex)
+              ? (nextPrepared.mp4 || '')
+              : '';
           window.__castSeason = nextPrepared.episode.ParentIndexNumber;
           window.__castEpisode = nextPrepared.episode.IndexNumber;
           window.__castEpisodeTitle = nextPrepared.episode.Name;
@@ -2096,10 +2103,16 @@
           if (typeof audioIndex === 'number') url += `&AudioStreamIndex=${audioIndex}`;
           return url;
         }
+        // AllowAudioStreamCopy=false forces Emby to decode + re-encode
+        // the SELECTED audio stream. Without it the server may
+        // stream-copy the container default and quietly ignore
+        // AudioStreamIndex (the source of "still plays English").
+        // Video still stream-copies, so this stays cheap.
         let url = `${serverUrl}/emby/videos/${episode.Id}/stream.mp4` +
                   `?api_key=${apiKey}` +
                   `&VideoCodec=h264&AudioCodec=aac&MaxAudioChannels=2` +
-                  `&AudioStreamIndex=${audioIndex}`;
+                  `&AudioStreamIndex=${audioIndex}` +
+                  `&AllowAudioStreamCopy=false`;
         if (o.mediaSourceId) url += `&MediaSourceId=${o.mediaSourceId}`;
         return url;
       }
@@ -2286,7 +2299,18 @@
         currentMediaSourceId = mediaSourceId;
         const progressive = buildMp4Url(episode, currentAudioStreamIndexUsed,
             { defaultAudioIndex, mediaSourceId });
-        window.__castMP4 = progressive;
+        // Cast contentId strategy: the static MP4 is only correct
+        // when the SELECTED audio is the container default — Emby's
+        // /stream.mp4 endpoint doesn't reliably honor
+        // AudioStreamIndex for compatible sources (it stream-copies
+        // the default track), which made the receiver play English
+        // no matter what the user picked. For any non-default
+        // selection, leave __castMP4 empty so modifyLoadRequestFn
+        // falls through to casting the HLS master playlist — that
+        // transcode session provably carries the selected audio
+        // (it's the same URL local playback uses).
+        window.__castMP4 =
+          (currentAudioStreamIndexUsed === defaultAudioIndex) ? progressive : '';
 
         // Compute subtitle streams and the saved-preference pick
         // BEFORE setting src — the chromecast tech builds its load
@@ -2847,7 +2871,13 @@
           defaultAudioIndex: currentDefaultAudioIndex,
           mediaSourceId: currentMediaSourceId,
         });
-        window.__castMP4 = mp4;
+        // Same gating: a static MP4 contentId only matches the
+        // user's audio choice when that choice IS the container
+        // default. Otherwise leave empty so a cast load falls back
+        // to the HLS URL (the local fallback below still plays the
+        // mp4 — this only affects what the RECEIVER gets).
+        window.__castMP4 =
+          (currentAudioStreamIndexUsed === currentDefaultAudioIndex) ? mp4 : '';
         showToast('Stream hiccup — switching to fallback.');
         try { player.src({ src: mp4, type: 'video/mp4' }); } catch {}
         player.one('loadedmetadata', () => autoPlayMaybe(t));

@@ -1258,6 +1258,7 @@
       window.__castSubtitle = '';
       window.__castPoster = '';
       window.__castMP4 = '';
+      window.__castDurationSec = null;
       window.__castSeriesTitle = 'Bluey';
       window.__castSeason = null;
       window.__castEpisode = null;
@@ -1316,6 +1317,15 @@
               } catch {}
             }
             try { request.media.streamType = chrome.cast.media.StreamType.BUFFERED; } catch {}
+
+            // Declare the exact duration so the receiver's seek bar
+            // is correct from the first frame. Without this, the
+            // on-the-fly remux looks like a growing/live file and
+            // the TV's end time creeps upward as new data arrives.
+            if (typeof window.__castDurationSec === 'number' &&
+                window.__castDurationSec > 0) {
+              try { request.media.duration = window.__castDurationSec; } catch {}
+            }
 
             // Default Media Receiver renders episode info from
             // TvShowMediaMetadata (series + season/episode badge +
@@ -1430,6 +1440,14 @@
         } else {
           __overrideDurationSec = null;
         }
+        // Published for the Chromecast load request: the remux MP4
+        // is transcoded on the fly, so the receiver can't read a
+        // duration from the (still-growing) file and shows a creeping
+        // end time. Declaring media.duration up front fixes the TV's
+        // seek bar. Both playEpisode and playNextPrepared call this
+        // before src(), so the value is always current when
+        // modifyLoadRequestFn reads it.
+        window.__castDurationSec = __overrideDurationSec;
         // Nudge video.js so the duration display + seek bar pick up
         // the new value without waiting for the next tech tick.
         try { player.trigger('durationchange'); } catch {}

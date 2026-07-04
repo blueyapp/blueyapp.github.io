@@ -711,17 +711,200 @@
         }
       }
 
-      /* Episode title overlay on video */
+      /* == TV-style player skin (Apple TV reference) ============== */
+
+      /* Episode title — big bold text, top-left, no pill. */
       .vjs-episode-title {
-        position: absolute; left: 12px; top: 12px; z-index: 3;
-        padding: 6px 10px; border-radius: 6px;
-        background: rgba(0,0,0,0.55); color: #fff;
-        font-family: 'Hello Headline', sans-serif; font-size: 14px;
-        pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+        position: absolute; left: 28px; top: 20px; z-index: 3;
+        padding: 0; border-radius: 0; background: transparent;
+        color: #fff;
+        font-family: 'Hello Headline', sans-serif;
+        font-size: clamp(15px, 1.8vw, 24px);
+        font-weight: 700;
+        pointer-events: none;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+        opacity: 0; transition: opacity .2s ease;
+        max-width: 70%;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .vjs-user-inactive.vjs-playing .vjs-episode-title { opacity: 0; }
+      .vjs-user-active .vjs-episode-title,
+      .vjs-paused .vjs-episode-title { opacity: 1; }
+
+      /* Top-right cluster: tracks (audio+subs) button + cast button.
+         right offset clears the overlay's close (X) button, which
+         occupies top:12px/right:16px at 44px wide. */
+      .bluey-topright {
+        position: absolute; top: 16px; right: 76px; z-index: 4;
+        display: flex; align-items: center; gap: 6px;
         opacity: 0; transition: opacity .2s ease;
       }
-      .vjs-user-inactive .vjs-episode-title { opacity: 0; }
-      .vjs-user-active .vjs-episode-title { opacity: 1; }
+      .vjs-user-active .bluey-topright,
+      .vjs-paused .bluey-topright { opacity: 1; }
+      .vjs-user-inactive.vjs-playing .bluey-topright { opacity: 0; pointer-events: none; }
+      .bluey-topright .vjs-button,
+      .bluey-topright .bluey-tracks-btn {
+        width: 44px; height: 36px;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(0,0,0,0.45); border: none; border-radius: 8px;
+        color: #fff; cursor: pointer;
+      }
+      .bluey-topright .bluey-tracks-btn:hover,
+      .bluey-topright .bluey-tracks-btn:focus,
+      .bluey-topright .vjs-button:hover {
+        background: rgba(0,0,0,0.7); outline: none;
+      }
+      .bluey-topright .vjs-button .vjs-icon-placeholder::before {
+        font-size: 22px; line-height: 36px;
+      }
+
+      /* Combined Audio / Subtitles panel */
+      .bluey-tracks-panel {
+        position: absolute; top: 60px; right: 20px; z-index: 5;
+        display: none;
+        background: rgba(18,18,24,0.95);
+        border-radius: 12px;
+        padding: 14px 6px 10px;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+        max-height: 60%;
+        min-width: 320px;
+      }
+      .bluey-tracks-panel.open { display: flex; gap: 4px; }
+      .bluey-tracks-panel .bluey-tracks-col {
+        flex: 1; min-width: 140px; max-height: 100%;
+        overflow-y: auto; padding: 0 8px;
+      }
+      .bluey-tracks-panel h4 {
+        margin: 0 0 8px; padding: 0 10px;
+        color: rgba(255,255,255,0.55);
+        font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+        font-family: 'Hello Headline', sans-serif;
+      }
+      .bluey-tracks-panel ul { list-style: none; margin: 0; padding: 0; }
+      .bluey-tracks-panel li {
+        padding: 8px 10px; border-radius: 8px;
+        color: #fff; font-size: 14px; cursor: pointer;
+        font-family: 'Hello Headline', sans-serif;
+        display: flex; align-items: center; gap: 8px;
+        white-space: nowrap;
+      }
+      .bluey-tracks-panel li:hover,
+      .bluey-tracks-panel li:focus { background: rgba(255,255,255,0.12); outline: none; }
+      .bluey-tracks-panel li .tick { width: 16px; text-align: center; opacity: 0; }
+      .bluey-tracks-panel li.selected .tick { opacity: 1; }
+      .bluey-tracks-panel li.selected { color: #4cc2ff; }
+
+      /* Bottom control bar — thin full-width progress on top, times
+         at the corners, transport cluster centered. */
+      .player-overlay .video-js .vjs-control-bar {
+        display: flex; flex-wrap: wrap; align-items: center;
+        height: auto; padding: 4px 16px 8px;
+        background: linear-gradient(transparent, rgba(0,0,0,0.78));
+      }
+      .video-js .vjs-progress-control {
+        order: 0; flex: 0 0 100%; width: 100%;
+        height: 16px; min-height: 16px;
+      }
+      .video-js .vjs-progress-holder {
+        height: 4px; border-radius: 2px; margin: 0;
+        background: rgba(255,255,255,0.25);
+      }
+      .video-js .vjs-play-progress { background: #fff; border-radius: 2px; }
+      .video-js .vjs-load-progress, .video-js .vjs-load-progress div {
+        background: rgba(255,255,255,0.35);
+      }
+      /* Seek handle — video.js offsets the circle in em units tuned
+         for its default (thicker) bar, which leaves it floating
+         above our 4px line. Anchor it to the exact vertical centre
+         of the bar instead. */
+      .video-js .vjs-play-progress::before {
+        font-size: 13px;
+        top: 50%;
+        right: -6.5px;
+        transform: translateY(-50%);
+        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      }
+
+      .video-js .vjs-current-time { display: flex; order: 1; padding: 0; margin-right: auto; }
+      .bluey-prev-ep   { order: 3; }
+      .bluey-back10    { order: 4; }
+      .video-js .vjs-play-control { order: 5; }
+      .bluey-fwd10     { order: 6; }
+      .bluey-next-ep   { order: 7; }
+      .video-js .vjs-remaining-time { display: flex; order: 8; margin-left: auto; padding: 0 6px 0 0; }
+      .video-js .vjs-fullscreen-control { order: 9; }
+
+      .video-js .vjs-current-time .vjs-current-time-display,
+      .video-js .vjs-remaining-time .vjs-remaining-time-display {
+        font-size: 14px; font-family: 'Hello Headline', sans-serif;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+      }
+
+      /* Custom transport buttons (inline SVG) */
+      .bluey-ctrl { cursor: pointer; }
+      .bluey-ctrl svg { width: 26px; height: 26px; display: block; margin: auto; }
+      .video-js .vjs-play-control .vjs-icon-placeholder::before { font-size: 30px; line-height: 30px; position: static; }
+      .video-js .vjs-control-bar .vjs-button { height: 40px; }
+
+      /* Hide the stock pickers that the combined panel replaces,
+         plus clutter the reference design doesn't show. */
+      .video-js .vjs-audio-button,
+      .video-js .vjs-subs-caps-button,
+      .video-js .vjs-duration,
+      .video-js .vjs-time-divider,
+      .video-js .vjs-volume-panel,
+      .video-js .vjs-picture-in-picture-control { display: none !important; }
+
+      /* Cast button when re-parented into the top-right cluster —
+         match the tracks button footprint so the pair reads as one
+         group (per the reference layout). */
+      .bluey-topright .vjs-chromecast-button {
+        width: 44px; height: 36px;
+        background: rgba(0,0,0,0.45); border-radius: 8px;
+        margin: 0;
+      }
+      .bluey-topright .vjs-chromecast-button:hover,
+      .bluey-topright .vjs-chromecast-button:focus {
+        background: rgba(0,0,0,0.7); outline: none;
+      }
+
+      /* Custom cast glyph — replaces the Silvermine sprite so it
+         matches the tracks button's line style. Second rule swaps in
+         the "connected" variant (filled inner wedge) while casting. */
+      .bluey-topright .vjs-chromecast-button .vjs-icon-placeholder {
+        display: block; width: 100%; height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.92-11-11-11zm20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+        background-size: 22px 22px !important;
+      }
+      .bluey-topright .vjs-chromecast-button.vjs-chromecast-casting-state .vjs-icon-placeholder {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.92-11-11-11zm20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM19 7H5v1.63c3.96 1.28 7.09 4.41 8.37 8.37H19V7z'/%3E%3C/svg%3E") !important;
+      }
+
+      /* Custom fullscreen glyph — corners-out normally, corners-in
+         while fullscreen. Kills the icon-font glyph first. */
+      .video-js .vjs-fullscreen-control .vjs-icon-placeholder::before {
+        content: '' !important;
+      }
+      .video-js .vjs-fullscreen-control .vjs-icon-placeholder {
+        display: block; width: 100%; height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 22px 22px;
+      }
+      .video-js.vjs-fullscreen .vjs-fullscreen-control .vjs-icon-placeholder {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z'/%3E%3C/svg%3E");
+      }
+
+      @media (max-width: 600px) {
+        .bluey-ctrl svg { width: 20px; height: 20px; }
+        .bluey-tracks-panel { right: 8px; min-width: 240px; }
+        .vjs-episode-title { left: 14px; top: 12px; max-width: 55%; }
+        /* Clear the mobile close (X) button: 40px wide at right:12px. */
+        .bluey-topright { right: 60px; top: 10px; }
+      }
 
       /* Toast */
       .toast {
@@ -743,23 +926,52 @@
       .toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
 
       /* Skip Intro */
+      /* Skip Intro — white pill, black uppercase label with a
+         skip-ahead glyph (Disney+ reference). Shown/hidden via
+         inline display from the component. */
       .vjs-skip-intro-overlay {
         position: absolute;
         right: 35px;
         bottom: 35px;
         z-index: 4;
-        background: rgba(0,0,0,0.55);
-        color: #fff;
+        background: #fff;
+        color: #000;
         border: none;
-        border-radius: 6px;
-        padding: 10px 14px;
+        border-radius: 4px;
+        padding: 12px 18px;
         font-family: 'Hello Headline', sans-serif;
-        font-size: 14px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
         cursor: pointer;
         display: none;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+        transition: bottom .15s ease, background .15s ease;
+      }
+      .vjs-skip-intro-overlay::before {
+        content: '';
+        width: 18px;
+        height: 18px;
+        flex: none;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M3 5l8 7-8 7V5zm9 0l8 7-8 7V5z'/%3E%3Crect x='19.5' y='5' width='2.5' height='14'/%3E%3C/svg%3E") center/contain no-repeat;
+      }
+      /* Lift the button clear of the control bar whenever the bar is
+         showing (user active or paused) so the two never overlap. */
+      .vjs-user-active .vjs-skip-intro-overlay,
+      .vjs-paused .vjs-skip-intro-overlay {
+        bottom: 96px;
       }
       .vjs-skip-intro-overlay:focus,
-      .vjs-skip-intro-overlay:hover { background: rgba(0,0,0,0.75); }
+      .vjs-skip-intro-overlay:hover { background: #e2e2e2; outline: none; }
+
+      /* Mini-player (pip) mode: hide the top-right cluster + panel
+         like the other overlays — no room for them in the small
+         window. */
+      .player-overlay.pip .bluey-topright { display: none; }
+      .player-overlay.pip .bluey-tracks-panel { display: none !important; }
 
       /* Up Next */
       .vjs-upnext-overlay{
@@ -823,9 +1035,13 @@
       body.dark #episodes li .ep-info h2 { color: #fbbf24; }
       body.dark #episodes li .ep-info p { color: #8899aa; }
       body.dark .toast { background: rgba(15,17,24,0.95); color: #fbbf24; }
-      body.dark .vjs-episode-title { background: rgba(15,17,24,0.6); color: #fbbf24; }
-      body.dark .vjs-skip-intro-overlay { background: rgba(15,17,24,0.6); color: #fbbf24; }
-      body.dark .vjs-skip-intro-overlay:hover { background: rgba(15,17,24,0.85); }
+      /* New TV-style title is plain bold text — keep it white in dark
+         mode too (no pill background). */
+      body.dark .vjs-episode-title { background: transparent; color: #fff; }
+      /* Skip Intro pill stays white-on-black in dark mode too (it
+         floats over video, not over themed page chrome). */
+      body.dark .vjs-skip-intro-overlay { background: #fff; color: #000; }
+      body.dark .vjs-skip-intro-overlay:hover { background: #e2e2e2; }
       body.dark .vjs-upnext-overlay { background: rgba(15,17,24,0.7); color: #fbbf24; }
       body.dark .vjs-upnext-btn { background: #394867; color: #ffd700; }
 
@@ -1234,10 +1450,13 @@
       let currentAudioStreamIndexUsed = null;
       let currentSubStreamIndexUsed   = null;
       // Cached per-episode stream facts for code that runs outside
-      // playEpisode's scope (the MP4 error-fallback path needs them
-      // to build a correct cast / fallback URL).
+      // playEpisode's scope (the error-fallback path needs them to
+      // build a correct fallback / cast URL).
       let currentDefaultAudioIndex    = null;
       let currentMediaSourceId        = null;
+      let currentPlaySessionId        = null;
+      let currentVideoBitRate         = 5000000;
+      let currentAudioBitRate         = 192000;
 
       let selectedSeason = null;
       let episodes = [];
@@ -1475,6 +1694,197 @@
       videojs.registerComponent('TitleOverlay', TitleOverlay);
       const titleOverlay = player.addChild('TitleOverlay', {});
       function setPlayerTitle(text) { if (titleOverlay) titleOverlay.set(text); }
+
+      /* ── TV-style transport buttons ─────────────────────────────
+         prev-episode | -10s | play/pause (stock) | +10s | next-episode
+         Generic Button subclass: inline SVG icon + click callback. */
+      const VjsButton = videojs.getComponent('Button');
+      class BlueyCtrlButton extends VjsButton {
+        constructor(p, options) {
+          super(p, options);
+          this.controlText(options.label);
+          this.addClass('bluey-ctrl');
+          this.addClass(options.cls);
+          this.el().innerHTML = options.svg;
+        }
+        handleClick() { this.options_.onClick(); }
+      }
+      videojs.registerComponent('BlueyCtrlButton', BlueyCtrlButton);
+
+      const _svgPrev = '<svg viewBox="0 0 24 24" fill="none"><path d="M6 5v14M19 6l-9 6 9 6V6z" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+      const _svgNext = '<svg viewBox="0 0 24 24" fill="none"><path d="M18 5v14M5 6l9 6-9 6V6z" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+      const _svgB10  = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 4a8 8 0 1 1-7.4 4.9" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M4 3v6h6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="12" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold" font-family="sans-serif">10</text></svg>';
+      const _svgF10  = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 4a8 8 0 1 0 7.4 4.9" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M20 3v6h-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="12" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold" font-family="sans-serif">10</text></svg>';
+
+      function playPrevEpisodeNow() {
+        if (currentEpisodeIndex > 0 && episodes[currentEpisodeIndex - 1]) {
+          currentEpisodeIndex -= 1;
+          playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+        } else {
+          // First episode of the list — restart instead.
+          try { player.currentTime(0); } catch {}
+        }
+      }
+      function playNextEpisodeNow() {
+        if (nextPrepared) { playNextPrepared(false); return; }
+        queueNextEpisode();
+      }
+
+      player.controlBar.addChild(new BlueyCtrlButton(player, {
+        label: 'Previous episode', cls: 'bluey-prev-ep', svg: _svgPrev,
+        onClick: playPrevEpisodeNow,
+      }));
+      player.controlBar.addChild(new BlueyCtrlButton(player, {
+        label: 'Back 10 seconds', cls: 'bluey-back10', svg: _svgB10,
+        onClick: () => { try { player.currentTime(Math.max(0, (player.currentTime() || 0) - 10)); } catch {} },
+      }));
+      player.controlBar.addChild(new BlueyCtrlButton(player, {
+        label: 'Forward 10 seconds', cls: 'bluey-fwd10', svg: _svgF10,
+        onClick: () => { try { player.currentTime((player.currentTime() || 0) + 10); } catch {} },
+      }));
+      player.controlBar.addChild(new BlueyCtrlButton(player, {
+        label: 'Next episode', cls: 'bluey-next-ep', svg: _svgNext,
+        onClick: playNextEpisodeNow,
+      }));
+
+      /* ── Top-right cluster: tracks panel button + cast ───────── */
+      class TopRightControls extends BaseComp {
+        createEl() { return videojs.dom.createEl('div', { className: 'bluey-topright' }); }
+      }
+      videojs.registerComponent('TopRightControls', TopRightControls);
+      const topRight = player.addChild('TopRightControls', {});
+
+      // Tracks button — the rounded "subtitles" glyph from the
+      // reference UI. Opens the combined Audio / Subtitles panel.
+      const tracksBtn = document.createElement('button');
+      tracksBtn.className = 'bluey-tracks-btn';
+      tracksBtn.type = 'button';
+      tracksBtn.title = 'Audio & Subtitles';
+      tracksBtn.setAttribute('aria-label', 'Audio and subtitles');
+      tracksBtn.innerHTML =
+        '<svg width="28" height="20" viewBox="0 0 28 20" fill="none">' +
+        '<rect x="1" y="1" width="26" height="18" rx="4" stroke="#fff" stroke-width="2"/>' +
+        '<line x1="6" y1="13" x2="14" y2="13" stroke="#fff" stroke-width="2" stroke-linecap="round"/>' +
+        '<line x1="17" y1="13" x2="22" y2="13" stroke="#fff" stroke-width="2" stroke-linecap="round"/>' +
+        '</svg>';
+      topRight.el().appendChild(tracksBtn);
+
+      // PiP button — shrinks the player overlay into the page's own
+      // floating mini-player (same path the close button's
+      // "fullscreen → pip" branch uses). Sits between the tracks
+      // button and the cast button (cast is re-parented in last, so
+      // DOM order ends up tracks | pip | cast).
+      const pipBtn = document.createElement('button');
+      pipBtn.className = 'bluey-tracks-btn bluey-pip-btn';
+      pipBtn.type = 'button';
+      pipBtn.title = 'Picture in picture';
+      pipBtn.setAttribute('aria-label', 'Picture in picture');
+      pipBtn.innerHTML =
+        '<svg width="22" height="22" viewBox="0 0 24 24" fill="none">' +
+        '<rect x="2" y="4" width="20" height="16" rx="3" stroke="#fff" stroke-width="2"/>' +
+        '<rect x="12" y="12" width="7" height="5" rx="1" fill="#fff"/>' +
+        '</svg>';
+      pipBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        enterPipMode();
+      });
+      topRight.el().appendChild(pipBtn);
+
+      // Combined Audio / Subtitles panel — rebuilt from the live
+      // track lists every time it opens, so it always reflects the
+      // current episode's streams (and survives cast tech swaps).
+      const tracksPanel = document.createElement('div');
+      tracksPanel.className = 'bluey-tracks-panel';
+      player.el().appendChild(tracksPanel);
+
+      function buildTracksPanel() {
+        const at = player.audioTracks();
+        const tt = player.textTracks();
+        let audioItems = '';
+        for (let i = 0; i < at.length; i++) {
+          audioItems +=
+            `<li data-kind="audio" data-id="${at[i].id}" class="${at[i].enabled ? 'selected' : ''}" tabindex="0">` +
+            `<span class="tick">✓</span>${at[i].label || at[i].language || 'Audio'}</li>`;
+        }
+        let subItems =
+          `<li data-kind="sub" data-id="__off__" class="${preferredSubLang === 'off' ? 'selected' : ''}" tabindex="0">` +
+          `<span class="tick">✓</span>Off</li>`;
+        for (let i = 0; i < tt.length; i++) {
+          if (tt[i].kind !== 'subtitles' && tt[i].kind !== 'captions') continue;
+          subItems +=
+            `<li data-kind="sub" data-id="${i}" class="${tt[i].mode === 'showing' ? 'selected' : ''}" tabindex="0">` +
+            `<span class="tick">✓</span>${tt[i].label || tt[i].language || 'Subtitles'}</li>`;
+        }
+        tracksPanel.innerHTML =
+          `<div class="bluey-tracks-col"><h4>Audio</h4><ul>${audioItems || '<li style="opacity:.5">None</li>'}</ul></div>` +
+          `<div class="bluey-tracks-col"><h4>Subtitles</h4><ul>${subItems}</ul></div>`;
+      }
+
+      tracksBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (tracksPanel.classList.contains('open')) {
+          tracksPanel.classList.remove('open');
+        } else {
+          buildTracksPanel();
+          tracksPanel.classList.add('open');
+        }
+      });
+      document.addEventListener('click', () => tracksPanel.classList.remove('open'));
+      tracksPanel.addEventListener('click', (e) => {
+        const li = e.target.closest('li[data-kind]');
+        e.stopPropagation();
+        if (!li) return;
+        if (li.dataset.kind === 'audio') {
+          const at = player.audioTracks();
+          for (let i = 0; i < at.length; i++) {
+            // AudioTrackList enforces exclusivity; setting one
+            // enabled fires 'change', which our existing listener
+            // turns into a persisted preference + stream reload.
+            if (at[i].id === li.dataset.id) { at[i].enabled = true; break; }
+          }
+        } else {
+          const tt = player.textTracks();
+          if (li.dataset.id === '__off__') {
+            for (let i = 0; i < tt.length; i++) {
+              if (tt[i].kind === 'subtitles' || tt[i].kind === 'captions') tt[i].mode = 'disabled';
+            }
+          } else {
+            const idx = Number(li.dataset.id);
+            for (let i = 0; i < tt.length; i++) {
+              if (tt[i].kind !== 'subtitles' && tt[i].kind !== 'captions') continue;
+              tt[i].mode = (i === idx) ? 'showing' : 'disabled';
+            }
+          }
+          // The textTracks 'change' listener persists + updates cast.
+        }
+        tracksPanel.classList.remove('open');
+      });
+
+      // Move the Silvermine cast button out of the control bar and
+      // into the top-right cluster (next to the tracks button), per
+      // the reference layout. The component keeps working — only its
+      // DOM node is re-parented.
+      //
+      // The plugin creates the button asynchronously (it waits for
+      // the Cast sender SDK to come up), so a single attempt at
+      // ready() routinely ran too early and the button stayed in the
+      // control bar. Retry on a widening schedule until it appears.
+      function reparentCastButton(attempt) {
+        try {
+          const el =
+            (player.controlBar.getChild('chromecastButton') || {}).el_ ||
+            player.el().querySelector('.vjs-chromecast-button');
+          if (el && el.parentElement !== topRight.el()) {
+            topRight.el().appendChild(el);
+            return;
+          }
+          if (el) return; // already re-parented
+        } catch {}
+        if (attempt < 6) {
+          setTimeout(() => reparentCastButton(attempt + 1), 500 * (attempt + 1));
+        }
+      }
+      player.ready(() => reparentCastButton(0));
 
       /* EOS GUARD */
       function bufferedEndSafe() {
@@ -1891,6 +2301,12 @@
         }
         createEl() { return videojs.dom.createEl('button', { className: 'vjs-skip-intro-overlay' }); }
         setIntroAt(sec) { this.introAt = Number(sec) || SKIP_INTRO_SECONDS; this._dismissed = false; this._toggle(); }
+        // Explicit inline-display show/hide (the Component defaults
+        // only toggle the vjs-hidden class, which can't beat the
+        // stylesheet's display:none resting state). flex so the
+        // icon + label line up in the new pill layout.
+        show() { this.el().style.display = 'flex'; }
+        hide() { this.el().style.display = 'none'; }
       }
       videojs.registerComponent('SkipIntroOverlay', SkipIntroOverlay);
       const skipOverlay = player.addChild('SkipIntroOverlay', { introAt: SKIP_INTRO_SECONDS, showFrom: 0.5, autoHideAfter: 8 });
@@ -2235,6 +2651,16 @@
         overlay.classList.add('active');
         document.body.style.overflow = 'hidden';
       }
+      // Shrink the full player into the floating mini-player without
+      // pausing — used by the PiP button in the top-right cluster.
+      // Same transition closePlayer's fullscreen branch performs.
+      function enterPipMode() {
+        const overlay = document.getElementById('playerOverlay');
+        if (!overlay.classList.contains('active')) return;
+        overlay.classList.remove('active');
+        overlay.classList.add('pip');
+        document.body.style.overflow = '';
+      }
       function closePlayer() {
         const overlay = document.getElementById('playerOverlay');
         if (overlay.classList.contains('pip')) {
@@ -2406,6 +2832,9 @@
           (audioStreams.find(s => s.IsDefault) || audioStreams[0])?.Index;
         currentDefaultAudioIndex = defaultAudioIndex;
         currentMediaSourceId = mediaSourceId;
+        currentPlaySessionId = PlaySessionId;
+        currentVideoBitRate = VideoBitRate;
+        currentAudioBitRate = AudioBitRate;
         const progressive = buildMp4Url(episode, currentAudioStreamIndexUsed,
             { defaultAudioIndex, mediaSourceId });
         // Cast contentId strategy:
@@ -2984,18 +3413,39 @@
         const ep = episodes[currentEpisodeIndex];
         if (!ep) return;
         const t = getCurrentTime();
-        const mp4 = buildMp4Url(ep, currentAudioStreamIndexUsed, {
-          defaultAudioIndex: currentDefaultAudioIndex,
-          mediaSourceId: currentMediaSourceId,
-        });
-        // Local fallback path — the MP4 (single-track remux for
-        // non-default audio) becomes the cast contentId too; clear
-        // the HLS global so the load-request branch order doesn't
-        // pick a stale playlist from the previous source.
-        window.__castMP4 = mp4;
-        window.__castHLS = '';
         showToast('Stream hiccup — switching to fallback.');
-        try { player.src({ src: mp4, type: 'video/mp4' }); } catch {}
+        if (currentAudioStreamIndexUsed === currentDefaultAudioIndex ||
+            currentDefaultAudioIndex == null) {
+          // Default audio → static MP4. Byte-range seekable
+          // (Accept-Ranges: bytes), so resuming at `t` and seeking
+          // anywhere afterwards both work.
+          const mp4 = buildMp4Url(ep, currentAudioStreamIndexUsed, {
+            defaultAudioIndex: currentDefaultAudioIndex,
+            mediaSourceId: currentMediaSourceId,
+          });
+          window.__castMP4 = mp4;
+          window.__castHLS = '';
+          try { player.src({ src: mp4, type: 'video/mp4' }); } catch {}
+        } else {
+          // Non-default audio → TS-segment HLS. The remux MP4 we
+          // used before transcodes on the fly and Emby serves it
+          // with Accept-Ranges: none — the resume-seek to `t`
+          // silently failed (playback restarted from 0) and forward
+          // seeking was refused. The TS HLS playlist is VOD-type
+          // with every segment listed up front, so it's fully
+          // seekable, carries the selected audio, and runs through
+          // a different container than the fmp4 stream that just
+          // errored. The '-fb' marker keeps the transcode session
+          // distinct from the main and cast sessions.
+          const hls = buildCastHlsUrl(
+            ep, currentMediaSourceId,
+            (currentPlaySessionId || ('fb' + Date.now())) + '-fb',
+            currentVideoBitRate, currentAudioBitRate,
+            currentAudioStreamIndexUsed);
+          window.__castHLS = hls;
+          window.__castMP4 = '';
+          try { player.src({ src: hls, type: 'application/x-mpegURL' }); } catch {}
+        }
         player.one('loadedmetadata', () => autoPlayMaybe(t));
       }
 

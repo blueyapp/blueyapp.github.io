@@ -1,10 +1,10 @@
 {
   "notifications": [
     {
-      "id": 9,
+      "id": 10,
       "type": "announcement",
-      "title": "Added theme based on characters. Will add more later.",
-      "message": "🖼 Attachment",
+      "title": "This app now ready for public use.",
+      "message": "Since you're already using this app, you don't have to do anything anymore. Just update to the latest version. Any suggestion can be sent in Bluey Post",
       "created_at": 1783262000
     }
   ]

@@ -1,11 +1,11 @@
 {
   "notifications": [
     {
-      "id": 10,
+      "id": 11,
       "type": "announcement",
-      "title": "This app now ready for public use.",
-      "message": "Since you're already using this app, you don't have to do anything anymore. Just update to the latest version. Any suggestion can be sent in Bluey Post",
-      "created_at": 1783262000
+      "title": "The app now available to be downloaded from website",
+      "message": "Wish you enjoying the app. Just leave feedback and suggestion in Bluey Post",
+      "created_at": 1783520300
     }
   ]
 }

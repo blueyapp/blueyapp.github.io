@@ -23,6 +23,11 @@
     <link href="/fonts/HelloHeadline.css" rel="stylesheet" type="text/css">
     <link href="https://vjs.zencdn.net/8.16.0/video-js.css" rel="stylesheet" />
     <script src="https://vjs.zencdn.net/8.16.0/video.min.js"></script>
+    <!-- Chromecast — Silvermine tech + Google Cast sender SDK (same
+         stack the episodes player uses). -->
+    <link rel="stylesheet" href="https://unpkg.com/@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css" />
+    <script src="https://unpkg.com/@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.min.js"></script>
+    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
     <style>
       * { box-sizing: border-box; margin: 0; padding: 0; }
       body {
@@ -445,6 +450,197 @@
         }
       }
 
+      /* == TV-style player skin — ported from episodes.html ======= */
+
+      /* Title — big bold text, top-left, no pill. */
+      .vjs-episode-title {
+        position: absolute; left: 28px; top: 20px; z-index: 3;
+        padding: 0; border-radius: 0; background: transparent;
+        color: #fff;
+        font-family: 'Hello Headline', sans-serif;
+        font-size: clamp(15px, 1.8vw, 24px);
+        font-weight: 700;
+        pointer-events: none;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+        opacity: 0; transition: opacity .2s ease;
+        max-width: 70%;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .vjs-user-inactive.vjs-playing .vjs-episode-title { opacity: 0; }
+      .vjs-user-active .vjs-episode-title,
+      .vjs-paused .vjs-episode-title { opacity: 1; }
+      body.dark .vjs-episode-title { background: transparent; color: #fff; }
+
+      /* Top-right cluster: tracks (audio+subs) button + PiP button.
+         right offset clears the overlay's close (X) button. */
+      .bluey-topright {
+        position: absolute; top: 16px; right: 76px; z-index: 4;
+        display: flex; align-items: center; gap: 6px;
+        opacity: 0; transition: opacity .2s ease;
+      }
+      .vjs-user-active .bluey-topright,
+      .vjs-paused .bluey-topright { opacity: 1; }
+      .vjs-user-inactive.vjs-playing .bluey-topright { opacity: 0; pointer-events: none; }
+      .bluey-topright .vjs-button,
+      .bluey-topright .bluey-tracks-btn {
+        width: 44px; height: 36px;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(0,0,0,0.45); border: none; border-radius: 8px;
+        color: #fff; cursor: pointer;
+      }
+      .bluey-topright .bluey-tracks-btn:hover,
+      .bluey-topright .bluey-tracks-btn:focus,
+      .bluey-topright .vjs-button:hover {
+        background: rgba(0,0,0,0.7); outline: none;
+      }
+
+      /* Cast button when re-parented into the top-right cluster —
+         match the tracks button footprint so the group reads as one. */
+      .bluey-topright .vjs-chromecast-button {
+        width: 44px; height: 36px;
+        background: rgba(0,0,0,0.45); border-radius: 8px;
+        margin: 0;
+      }
+      .bluey-topright .vjs-chromecast-button:hover,
+      .bluey-topright .vjs-chromecast-button:focus {
+        background: rgba(0,0,0,0.7); outline: none;
+      }
+      /* Custom cast glyph — matches the tracks button's line style;
+         second rule swaps in the "connected" variant while casting. */
+      .bluey-topright .vjs-chromecast-button .vjs-icon-placeholder {
+        display: block; width: 100%; height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.92-11-11-11zm20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+        background-size: 22px 22px !important;
+      }
+      .bluey-topright .vjs-chromecast-button.vjs-chromecast-casting-state .vjs-icon-placeholder {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.92-11-11-11zm20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM19 7H5v1.63c3.96 1.28 7.09 4.41 8.37 8.37H19V7z'/%3E%3C/svg%3E") !important;
+      }
+
+      /* Combined Audio / Subtitles panel */
+      .bluey-tracks-panel {
+        position: absolute; top: 60px; right: 20px; z-index: 5;
+        display: none;
+        background: rgba(18,18,24,0.95);
+        border-radius: 12px;
+        padding: 14px 6px 10px;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+        max-height: 60%;
+        min-width: 320px;
+      }
+      .bluey-tracks-panel.open { display: flex; gap: 4px; }
+      .bluey-tracks-panel .bluey-tracks-col {
+        flex: 1; min-width: 140px; max-height: 100%;
+        overflow-y: auto; padding: 0 8px;
+      }
+      .bluey-tracks-panel h4 {
+        margin: 0 0 8px; padding: 0 10px;
+        color: rgba(255,255,255,0.55);
+        font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+        font-family: 'Hello Headline', sans-serif;
+      }
+      .bluey-tracks-panel ul { list-style: none; margin: 0; padding: 0; }
+      .bluey-tracks-panel li {
+        padding: 8px 10px; border-radius: 8px;
+        color: #fff; font-size: 14px; cursor: pointer;
+        font-family: 'Hello Headline', sans-serif;
+        display: flex; align-items: center; gap: 8px;
+        white-space: nowrap;
+      }
+      .bluey-tracks-panel li:hover,
+      .bluey-tracks-panel li:focus { background: rgba(255,255,255,0.12); outline: none; }
+      .bluey-tracks-panel li .tick { width: 16px; text-align: center; opacity: 0; }
+      .bluey-tracks-panel li.selected .tick { opacity: 1; }
+      .bluey-tracks-panel li.selected { color: #4cc2ff; }
+
+      /* Bottom control bar — thin full-width progress on top, times
+         at the corners, transport cluster centered. */
+      .player-overlay .video-js .vjs-control-bar {
+        display: flex; flex-wrap: wrap; align-items: center;
+        height: auto; padding: 4px 16px 8px;
+        background: linear-gradient(transparent, rgba(0,0,0,0.78));
+      }
+      .video-js .vjs-progress-control {
+        order: 0; flex: 0 0 100%; width: 100%;
+        height: 16px; min-height: 16px;
+      }
+      .video-js .vjs-progress-holder {
+        height: 4px; border-radius: 2px; margin: 0;
+        background: rgba(255,255,255,0.25);
+      }
+      .video-js .vjs-play-progress { background: #fff; border-radius: 2px; }
+      .video-js .vjs-load-progress, .video-js .vjs-load-progress div {
+        background: rgba(255,255,255,0.35);
+      }
+      /* Seek handle — anchored to the exact vertical centre of the
+         4px bar (video.js's default offsets assume a thicker bar). */
+      .video-js .vjs-play-progress::before {
+        font-size: 13px;
+        top: 50%;
+        right: -6.5px;
+        transform: translateY(-50%);
+        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      }
+
+      .video-js .vjs-current-time { display: flex; order: 1; padding: 0; margin-right: auto; }
+      .bluey-back10    { order: 4; }
+      .video-js .vjs-play-control { order: 5; }
+      .bluey-fwd10     { order: 6; }
+      .video-js .vjs-remaining-time { display: flex; order: 8; margin-left: auto; padding: 0 6px 0 0; }
+      .video-js .vjs-fullscreen-control { order: 9; }
+
+      .video-js .vjs-current-time .vjs-current-time-display,
+      .video-js .vjs-remaining-time .vjs-remaining-time-display {
+        font-size: 14px; font-family: 'Hello Headline', sans-serif;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+      }
+
+      /* Custom transport buttons (inline SVG) */
+      .bluey-ctrl { cursor: pointer; }
+      .bluey-ctrl svg { width: 26px; height: 26px; display: block; margin: auto; }
+      .video-js .vjs-play-control .vjs-icon-placeholder::before { font-size: 30px; line-height: 30px; position: static; }
+      .video-js .vjs-control-bar .vjs-button { height: 40px; }
+
+      /* Hide the stock pickers that the combined panel replaces,
+         plus clutter the reference design doesn't show. */
+      .video-js .vjs-audio-button,
+      .video-js .vjs-subs-caps-button,
+      .video-js .vjs-duration,
+      .video-js .vjs-time-divider,
+      .video-js .vjs-volume-panel,
+      .video-js .vjs-picture-in-picture-control { display: none !important; }
+
+      /* Custom fullscreen glyph — corners-out normally, corners-in
+         while fullscreen. Kills the icon-font glyph first. */
+      .video-js .vjs-fullscreen-control .vjs-icon-placeholder::before {
+        content: '' !important;
+      }
+      .video-js .vjs-fullscreen-control .vjs-icon-placeholder {
+        display: block; width: 100%; height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 22px 22px;
+      }
+      .video-js.vjs-fullscreen .vjs-fullscreen-control .vjs-icon-placeholder {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z'/%3E%3C/svg%3E");
+      }
+
+      /* Mini-player (pip) mode: hide the title + top-right cluster +
+         panel so the small window stays clean. */
+      .player-overlay.pip .vjs-episode-title { display: none; }
+      .player-overlay.pip .bluey-topright { display: none; }
+      .player-overlay.pip .bluey-tracks-panel { display: none !important; }
+
+      @media (max-width: 600px) {
+        .bluey-ctrl svg { width: 20px; height: 20px; }
+        .bluey-tracks-panel { right: 8px; min-width: 240px; }
+        .vjs-episode-title { left: 14px; top: 12px; max-width: 55%; }
+        /* Clear the mobile close (X) button. */
+        .bluey-topright { right: 60px; top: 10px; }
+      }
+
       /* Toast */
       .toast {
         position: fixed;
@@ -582,14 +778,221 @@
       const serverUrl = "https://blueynet.org:443";
       const apiKey = "6b2548952ea2439ea800b8cd3f1072d1";
       const movieId = "176581";
-      let selectedAudioStreamIndex = 1;
       let movieMetadata = {};
+
+      // ── Playback state (filled by loadAndPlay) ──────────────────
+      let audioStreams = [];
+      let subStreams = [];
+      let subTrackCodes = []; // canonical lang code per added text track
+      let mediaSourceId = null;
+      let playSessionId = null;
+      let videoBitrate = null;
+      let audioBitrate = null;
+      let selectedAudioStreamIndex = 1;
+
+      // Same persisted language keys the episodes player uses, so a
+      // choice made there carries over to this page (and back).
+      const AUDIO_LANG_STORAGE_KEY = "bluey_episodes_audio_lang";
+      const SUB_LANG_STORAGE_KEY = "bluey_episodes_sub_lang";
+      let preferredAudioLang = localStorage.getItem(AUDIO_LANG_STORAGE_KEY) || 'eng';
+      let preferredSubLang = localStorage.getItem(SUB_LANG_STORAGE_KEY) || 'off';
+
+      /* ── Language helpers (ported from episodes.html) ─────────── */
+      // Browser-native language-code → display-name resolver.
+      let _languageDisplay = null;
+      try {
+        _languageDisplay = new Intl.DisplayNames(['en'], { type: 'language' });
+      } catch {}
+      const ISO_LANG_NAMES = {
+        eng: 'English', en: 'English',
+        msa: 'Malay',   may: 'Malay', zsm: 'Malay', ms: 'Malay',
+        ara: 'Arabic',  ar: 'Arabic',
+        tgl: 'Tagalog', fil: 'Filipino', tl: 'Tagalog',
+      };
+      function lookupLangName(code) {
+        if (!code) return null;
+        if (_languageDisplay) {
+          try {
+            const name = _languageDisplay.of(code);
+            if (name && name.toLowerCase() !== code.toLowerCase()) return name;
+          } catch {}
+        }
+        return ISO_LANG_NAMES[code] || null;
+      }
+      function normalizeLangHint(stream) {
+        return [
+          stream.Language, stream.DisplayLanguage, stream.DisplayTitle, stream.Title, stream.Codec
+        ].filter(Boolean).join(' ').toLowerCase();
+      }
+      const CODEC_ONLY_WORDS = new Set([
+        'track','audio','subtitle','subtitles','stream',
+        'aac','ac3','eac3','dts','dtshd','flac','mp3','mp2',
+        'opus','vorbis','pcm','lpcm','truehd','dolby','atmos',
+        'alac','wav','wma',
+        'stereo','mono','surround','quad',
+        'default','forced','sdh','hi','hearing','impaired',
+        'kbps','hz','khz','bit','ch',
+        'a','b','c',
+      ]);
+      function isCodecOnlyLabel(title) {
+        if (!title) return true;
+        const t = title.toLowerCase().trim();
+        if (/^(track|audio|subtitle|stream)\s*\d*$/.test(t)) return true;
+        const tokens = t.split(/[^a-z0-9]+/).filter(Boolean);
+        if (tokens.length === 0) return true;
+        const numeric = /^\d+(\.\d+)?$/;
+        return tokens.every(tok => CODEC_ONLY_WORDS.has(tok) || numeric.test(tok));
+      }
+      function canonicalLangCode(stream) {
+        const raw = (stream.Language || stream.DisplayLanguage || '').toLowerCase().trim();
+        if (raw) return raw;
+        const title = (stream.DisplayTitle || stream.Title || '').trim();
+        if (title && isCodecOnlyLabel(title)) return 'eng';
+        return '';
+      }
+      function niceLangLabelFrom(stream) {
+        const code = (stream.Language || stream.DisplayLanguage || '').toLowerCase().trim();
+        if (code) {
+          const name = lookupLangName(code);
+          if (name) return name;
+        }
+        const title = (stream.DisplayTitle || stream.Title || '').trim();
+        if (title && !isCodecOnlyLabel(title)) return title;
+        if (code) return code.toUpperCase();
+        return 'English';
+      }
+      function sortStreamsByLabel(streams) {
+        return (streams || []).slice().sort((a, b) => {
+          const la = niceLangLabelFrom(a).toLowerCase();
+          const lb = niceLangLabelFrom(b).toLowerCase();
+          return la.localeCompare(lb);
+        });
+      }
+      function pickAudioStreamIndex(list, preferredLangCode) {
+        if (!list || list.length === 0) return { index: null };
+        if (preferredLangCode) {
+          const match = list.find(s => canonicalLangCode(s) === preferredLangCode);
+          if (match) return { index: match.Index };
+        }
+        const eng = list.find(s => /(^|[^a-z])(eng|english|en)([^a-z]|$)/.test(normalizeLangHint(s)));
+        if (eng) return { index: eng.Index };
+        return { index: list[0].Index };
+      }
+      function srclangFromCode(code) {
+        const map = { eng:'en', msa:'ms', may:'ms', zsm:'ms', ara:'ar', tgl:'tl', fil:'tl',
+          spa:'es', fre:'fr', fra:'fr', ger:'de', deu:'de', ita:'it', por:'pt',
+          rus:'ru', jpn:'ja', kor:'ko', chi:'zh', zho:'zh', hin:'hi', ind:'id',
+          tha:'th', vie:'vi', dut:'nl', nld:'nl', pol:'pl', tur:'tr', swe:'sv',
+          nor:'no', nob:'no', dan:'da', fin:'fi' };
+        return map[code] || code || 'en';
+      }
+
+      // ── Cast globals — read by modifyLoadRequestFn at load time ──
+      window.__isCasting = false;
+      window.__castTitle = "Bluey's Big Play";
+      window.__castSubtitle = 'Special';
+      window.__castPoster = '';
+      window.__castHLS = '';
+      window.__castDurationSec = null;
+      window.__castSubs = [];
+      window.__castActiveSubEmbyIndex = null;
 
       const player = videojs('player', {
         controls: true,
         preload: 'auto',
         muted: false,
         fluid: true,
+        techOrder: ['chromecast', 'html5'],
+        // ⚠ The Silvermine plugin reads these functions from the
+        // TOP-LEVEL `chromecast` key (they are Tech options, not
+        // plugin options) — same layout as episodes.html.
+        chromecast: {
+          requestTitleFn: () => window.__castTitle || document.title,
+          requestSubtitleFn: () => window.__castSubtitle || '',
+          modifyLoadRequestFn: (request) => {
+            if (window.__castHLS) {
+              // Cast a dedicated TS-segment HLS session with the
+              // selected audio baked in. Emby's variant playlist is
+              // VOD-type (all segments + ENDLIST up front), so the
+              // receiver knows the real duration immediately.
+              request.media.contentId = window.__castHLS;
+              request.media.contentType = 'application/x-mpegURL';
+              try { request.media.hlsSegmentFormat = 'ts'; } catch {}
+            } else {
+              // Casting the player's own HLS URL directly: Emby
+              // serves fmp4 segments there.
+              try {
+                request.media.hlsSegmentFormat = 'fmp4';
+                request.media.hlsVideoSegmentFormat = 'fmp4';
+              } catch {}
+            }
+            try { request.media.streamType = chrome.cast.media.StreamType.BUFFERED; } catch {}
+
+            // Declare the exact duration so the receiver's seek bar
+            // is correct from the first frame.
+            if (typeof window.__castDurationSec === 'number' &&
+                window.__castDurationSec > 0) {
+              try { request.media.duration = window.__castDurationSec; } catch {}
+            }
+
+            // Movie metadata (title + poster) for the receiver UI.
+            // Images MUST be chrome.cast.Image instances.
+            let md = null;
+            try {
+              md = new chrome.cast.media.MovieMediaMetadata();
+              md.metadataType = chrome.cast.media.MetadataType.MOVIE;
+            } catch {
+              md = new chrome.cast.media.GenericMediaMetadata();
+              md.metadataType = chrome.cast.media.MetadataType.GENERIC;
+            }
+            md.title = window.__castTitle || document.title || 'Bluey';
+            md.subtitle = window.__castSubtitle || '';
+            if (window.__castPoster) {
+              try { md.images = [new chrome.cast.Image(window.__castPoster)]; }
+              catch { md.images = [{ url: window.__castPoster }]; }
+            }
+            request.media.metadata = md;
+
+            // Subtitles as Cast sidecar tracks — the Silvermine tech
+            // doesn't forward text tracks, so declare them ourselves;
+            // the receiver fetches the VTT files straight from Emby.
+            const subs = window.__castSubs || [];
+            if (subs.length) {
+              try {
+                request.media.tracks = subs.map((s, i) => {
+                  const tr = new chrome.cast.media.Track(i + 1, chrome.cast.media.TrackType.TEXT);
+                  tr.trackContentId = s.url;
+                  tr.trackContentType = 'text/vtt';
+                  tr.subtype = chrome.cast.media.TextTrackType.SUBTITLES;
+                  tr.name = s.label || 'Subtitles';
+                  tr.language = srclangFromCode(s.code) || s.code || 'en';
+                  return tr;
+                });
+                const style = new chrome.cast.media.TextTrackStyle();
+                style.backgroundColor = '#00000099';
+                style.foregroundColor = '#FFFFFFFF';
+                style.edgeType = chrome.cast.media.TextTrackEdgeType.OUTLINE;
+                style.edgeColor = '#000000FF';
+                style.fontGenericFamily = chrome.cast.media.TextTrackFontGenericFamily.SANS_SERIF;
+                style.fontScale = 1.0;
+                request.media.textTrackStyle = style;
+                const activeIdx = subs.findIndex(
+                  s => s.embyIndex === window.__castActiveSubEmbyIndex
+                );
+                request.activeTrackIds = activeIdx >= 0 ? [activeIdx + 1] : [];
+              } catch {}
+            }
+
+            request.autoplay = true;
+            return request;
+          }
+        },
+        plugins: {
+          chromecast: {
+            receiverAppID: 'CC1AD845',
+            addButtonToControlBar: true
+          }
+        },
         html5: {
           vhs: {
             smoothQualityChange: true,
@@ -598,6 +1001,19 @@
           }
         }
       });
+
+      // Exact runtime from Emby's RunTimeTicks (100 ns units) — the
+      // transcoded HLS stream's own duration can drift a few seconds,
+      // so the seek bar / end time report Emby's authoritative value.
+      let durationOverrideSec = null;
+      const _origDuration = player.duration.bind(player);
+      player.duration = function (v) {
+        if (v !== undefined) return _origDuration(v);
+        if (durationOverrideSec != null && isFinite(durationOverrideSec) && durationOverrideSec > 0) {
+          return durationOverrideSec;
+        }
+        return _origDuration();
+      };
 
       // Player overlay controls
       function openPlayer() {
@@ -646,6 +1062,247 @@
         expandFromPip();
       });
 
+      /* ── TV-style player UI (ported from episodes.html) ───────── */
+
+      // Title overlay — top-left, shows the movie name.
+      const BaseComp = videojs.getComponent('Component');
+      class TitleOverlay extends BaseComp {
+        createEl() { return videojs.dom.createEl('div', { className: 'vjs-episode-title' }); }
+        set(text) { this.el().textContent = text || ''; }
+      }
+      videojs.registerComponent('TitleOverlay', TitleOverlay);
+      const titleOverlay = player.addChild('TitleOverlay', {});
+      function setPlayerTitle(text) { if (titleOverlay) titleOverlay.set(text); }
+
+      // Transport buttons: -10s | play/pause (stock) | +10s. No
+      // prev/next here — it's a single movie, not a playlist.
+      const VjsButton = videojs.getComponent('Button');
+      class BlueyCtrlButton extends VjsButton {
+        constructor(p, options) {
+          super(p, options);
+          this.controlText(options.label);
+          this.addClass('bluey-ctrl');
+          this.addClass(options.cls);
+          this.el().innerHTML = options.svg;
+        }
+        handleClick() { this.options_.onClick(); }
+      }
+      videojs.registerComponent('BlueyCtrlButton', BlueyCtrlButton);
+
+      const _svgB10 = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 4a8 8 0 1 1-7.4 4.9" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M4 3v6h6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="12" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold" font-family="sans-serif">10</text></svg>';
+      const _svgF10 = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 4a8 8 0 1 0 7.4 4.9" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M20 3v6h-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="12" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold" font-family="sans-serif">10</text></svg>';
+
+      player.controlBar.addChild(new BlueyCtrlButton(player, {
+        label: 'Back 10 seconds', cls: 'bluey-back10', svg: _svgB10,
+        onClick: () => { try { player.currentTime(Math.max(0, (player.currentTime() || 0) - 10)); } catch {} },
+      }));
+      player.controlBar.addChild(new BlueyCtrlButton(player, {
+        label: 'Forward 10 seconds', cls: 'bluey-fwd10', svg: _svgF10,
+        onClick: () => { try { player.currentTime((player.currentTime() || 0) + 10); } catch {} },
+      }));
+
+      // Top-right cluster: tracks button + native PiP button.
+      class TopRightControls extends BaseComp {
+        createEl() { return videojs.dom.createEl('div', { className: 'bluey-topright' }); }
+      }
+      videojs.registerComponent('TopRightControls', TopRightControls);
+      const topRight = player.addChild('TopRightControls', {});
+
+      const tracksBtn = document.createElement('button');
+      tracksBtn.className = 'bluey-tracks-btn';
+      tracksBtn.type = 'button';
+      tracksBtn.title = 'Audio & Subtitles';
+      tracksBtn.setAttribute('aria-label', 'Audio and subtitles');
+      tracksBtn.innerHTML =
+        '<svg width="28" height="20" viewBox="0 0 28 20" fill="none">' +
+        '<rect x="1" y="1" width="26" height="18" rx="4" stroke="#fff" stroke-width="2"/>' +
+        '<line x1="6" y1="13" x2="14" y2="13" stroke="#fff" stroke-width="2" stroke-linecap="round"/>' +
+        '<line x1="17" y1="13" x2="22" y2="13" stroke="#fff" stroke-width="2" stroke-linecap="round"/>' +
+        '</svg>';
+      topRight.el().appendChild(tracksBtn);
+
+      // PiP button — browser-NATIVE picture-in-picture; the page's
+      // own mini player is only the fallback (Firefox etc.).
+      const pipBtn = document.createElement('button');
+      pipBtn.className = 'bluey-tracks-btn bluey-pip-btn';
+      pipBtn.type = 'button';
+      pipBtn.title = 'Picture in picture';
+      pipBtn.setAttribute('aria-label', 'Picture in picture');
+      pipBtn.innerHTML =
+        '<svg width="22" height="22" viewBox="0 0 24 24" fill="none">' +
+        '<rect x="2" y="4" width="20" height="16" rx="3" stroke="#fff" stroke-width="2"/>' +
+        '<rect x="12" y="12" width="7" height="5" rx="1" fill="#fff"/>' +
+        '</svg>';
+      pipBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const videoEl = player.el().querySelector('video');
+        try {
+          if (document.pictureInPictureElement) {
+            await document.exitPictureInPicture();
+            return;
+          }
+          if (videoEl && document.pictureInPictureEnabled &&
+              !videoEl.disablePictureInPicture) {
+            await videoEl.requestPictureInPicture();
+            const overlay = document.getElementById('playerOverlay');
+            overlay.classList.remove('active', 'pip');
+            document.body.style.overflow = '';
+            return;
+          }
+        } catch (_) { /* fall through to the in-page mini player */ }
+        enterPipModeFallback();
+      });
+      topRight.el().appendChild(pipBtn);
+
+      function enterPipModeFallback() {
+        const overlay = document.getElementById('playerOverlay');
+        if (!overlay.classList.contains('active')) return;
+        overlay.classList.remove('active');
+        overlay.classList.add('pip');
+        document.body.style.overflow = '';
+      }
+
+      // Native PiP window closed — bring the player overlay back so
+      // playback never continues invisibly.
+      document.addEventListener('leavepictureinpicture', () => {
+        const overlay = document.getElementById('playerOverlay');
+        if (!overlay.classList.contains('active') &&
+            !overlay.classList.contains('pip')) {
+          expandFromPip();
+        }
+      });
+
+      // Move the Silvermine cast button out of the control bar and
+      // into the top-right cluster (tracks | pip | cast). The plugin
+      // creates the button asynchronously, so retry on a widening
+      // schedule until it appears.
+      function reparentCastButton(attempt) {
+        try {
+          const el =
+            (player.controlBar.getChild('chromecastButton') || {}).el_ ||
+            player.el().querySelector('.vjs-chromecast-button');
+          if (el && el.parentElement !== topRight.el()) {
+            topRight.el().appendChild(el);
+            return;
+          }
+          if (el) return; // already re-parented
+        } catch {}
+        if (attempt < 6) {
+          setTimeout(() => reparentCastButton(attempt + 1), 500 * (attempt + 1));
+        }
+      }
+      player.ready(() => reparentCastButton(0));
+
+      player.on('chromecastConnected', () => {
+        window.__isCasting = true;
+      });
+      player.on('chromecastDisconnected', () => {
+        window.__isCasting = false;
+        // The plugin restores the html5 source asynchronously —
+        // re-assert the single-showing subtitle state once it's back.
+        player.one('loadeddata', () => applySubtitleSelection(preferredSubLang));
+      });
+
+      // Flip the receiver's active subtitle track without reloading
+      // the media — used by the tracks panel while casting.
+      function castSetActiveSubtitle(code) {
+        if (!window.__isCasting) return;
+        try {
+          const ctx = cast && cast.framework && cast.framework.CastContext.getInstance();
+          const session = ctx && ctx.getCurrentSession();
+          const media = session && session.getMediaSession();
+          if (!media) return;
+          let ids = [];
+          if (code && code !== 'off') {
+            const subs = window.__castSubs || [];
+            const i = subs.findIndex(s =>
+              (s.code || '').toLowerCase() === code ||
+              srclangFromCode(s.code) === code);
+            if (i >= 0) { ids = [i + 1]; window.__castActiveSubEmbyIndex = subs[i].embyIndex; }
+          } else {
+            window.__castActiveSubEmbyIndex = null;
+          }
+          media.editTracksInfo(
+            new chrome.cast.media.EditTracksInfoRequest(ids),
+            () => {},
+            (e) => console.warn('cast editTracksInfo failed', e)
+          );
+        } catch {}
+      }
+
+      // Combined Audio / Subtitles panel — audio list comes from
+      // Emby's MediaStreams (the HLS transcode only embeds one track;
+      // switching reloads the stream with the chosen AudioStreamIndex
+      // and resumes position), subtitles from the player's own
+      // remote text tracks.
+      const tracksPanel = document.createElement('div');
+      tracksPanel.className = 'bluey-tracks-panel';
+      player.el().appendChild(tracksPanel);
+
+      function buildTracksPanel() {
+        let audioItems = '';
+        for (const s of sortStreamsByLabel(audioStreams)) {
+          audioItems +=
+            `<li data-kind="audio" data-index="${s.Index}" class="${s.Index === selectedAudioStreamIndex ? 'selected' : ''}" tabindex="0">` +
+            `<span class="tick">✓</span>${niceLangLabelFrom(s)}</li>`;
+        }
+        const tt = player.textTracks();
+        let anyShowing = false;
+        let subItems = '';
+        for (let i = 0; i < tt.length; i++) {
+          if (tt[i].kind !== 'subtitles' && tt[i].kind !== 'captions') continue;
+          const showing = tt[i].mode === 'showing';
+          if (showing) anyShowing = true;
+          subItems +=
+            `<li data-kind="sub" data-id="${i}" class="${showing ? 'selected' : ''}" tabindex="0">` +
+            `<span class="tick">✓</span>${tt[i].label || tt[i].language || 'Subtitles'}</li>`;
+        }
+        subItems =
+          `<li data-kind="sub" data-id="__off__" class="${anyShowing ? '' : 'selected'}" tabindex="0">` +
+          `<span class="tick">✓</span>Off</li>` + subItems;
+        tracksPanel.innerHTML =
+          `<div class="bluey-tracks-col"><h4>Audio</h4><ul>${audioItems || '<li style="opacity:.5">None</li>'}</ul></div>` +
+          `<div class="bluey-tracks-col"><h4>Subtitles</h4><ul>${subItems}</ul></div>`;
+      }
+
+      tracksBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (tracksPanel.classList.contains('open')) {
+          tracksPanel.classList.remove('open');
+        } else {
+          buildTracksPanel();
+          tracksPanel.classList.add('open');
+        }
+      });
+      document.addEventListener('click', () => tracksPanel.classList.remove('open'));
+      tracksPanel.addEventListener('click', (e) => {
+        const li = e.target.closest('li[data-kind]');
+        e.stopPropagation();
+        if (!li) return;
+        if (li.dataset.kind === 'audio') {
+          reloadWithAudio(Number(li.dataset.index));
+        } else {
+          const tt = player.textTracks();
+          if (li.dataset.id === '__off__') {
+            for (let i = 0; i < tt.length; i++) {
+              if (tt[i].kind === 'subtitles' || tt[i].kind === 'captions') tt[i].mode = 'disabled';
+            }
+            preferredSubLang = 'off';
+          } else {
+            const idx = Number(li.dataset.id);
+            for (let i = 0; i < tt.length; i++) {
+              if (tt[i].kind !== 'subtitles' && tt[i].kind !== 'captions') continue;
+              tt[i].mode = (i === idx) ? 'showing' : 'disabled';
+            }
+            preferredSubLang = subTrackCodes[idx] || 'eng';
+          }
+          localStorage.setItem(SUB_LANG_STORAGE_KEY, preferredSubLang);
+          // While casting, flip the receiver's sidecar track too.
+          castSetActiveSubtitle(preferredSubLang);
+        }
+        tracksPanel.classList.remove('open');
+      });
+
       function fetchMovieMetadata() {
         return fetch(
           `${serverUrl}/emby/Users/ba603d94a7c24b3b8c7e7ea2fedc9162/Items/${movieId}?fields=ShareLevel&ExcludeFields=VideoChapters,VideoMediaSources,MediaStreams&X-Emby-Token=${apiKey}`
@@ -659,8 +1316,98 @@
             document.getElementById('infoDesc').textContent = data.Overview || '';
             const runtime = data.RunTimeTicks ? Math.round(data.RunTimeTicks / 600000000) : '';
             document.getElementById('infoDuration').textContent = runtime ? `${runtime}m` : '';
+            // Authoritative duration for the seek bar / end time —
+            // the transcoded HLS stream's own metadata can drift.
+            if (data.RunTimeTicks) {
+              durationOverrideSec = data.RunTimeTicks / 10000000;
+              try { player.trigger('durationchange'); } catch {}
+            }
+            setPlayerTitle(data.Name || "Bluey's Big Play");
           })
           .catch(err => console.error("Error retrieving movie metadata:", err));
+      }
+
+      function buildHlsUrl(audioIndex) {
+        return `${serverUrl}/emby/videos/${movieId}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${playSessionId}&X-Emby-Token=${apiKey}&VideoCodec=h264,h265,hevc&AudioCodec=mp3,aac&VideoBitrate=${videoBitrate}&AudioBitrate=${audioBitrate}&AudioStreamIndex=${audioIndex}&TranscodingMaxAudioChannels=2&SegmentContainer=m4s,ts&MinSegments=2&BreakOnNonKeyFrames=True&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&hevc-codectag=hvc1&TranscodeReasons=ContainerBitrateExceedsLimit`;
+      }
+
+      // Cast variant: TS segments (the Default Media Receiver's
+      // safest format) and a distinct PlaySessionId so the cast
+      // transcode session doesn't collide with the local one.
+      function buildCastHlsUrl(audioIndex) {
+        return `${serverUrl}/emby/videos/${movieId}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${playSessionId}-cast&X-Emby-Token=${apiKey}&VideoCodec=h264&AudioCodec=mp3,aac&VideoBitrate=${videoBitrate}&AudioBitrate=${audioBitrate}&AudioStreamIndex=${audioIndex}&TranscodingMaxAudioChannels=2&SegmentContainer=ts&MinSegments=2&BreakOnNonKeyFrames=True&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&TranscodeReasons=ContainerBitrateExceedsLimit`;
+      }
+
+      // (Re)attach every subtitle stream Emby reports as a remote
+      // text track. Remote tracks are auto-removed on src changes,
+      // so this runs after every player.src(...) call.
+      function attachSubtitleTracks() {
+        const rtt = player.remoteTextTracks();
+        for (let i = rtt.length - 1; i >= 0; i--) player.removeRemoteTextTrack(rtt[i]);
+        subTrackCodes = [];
+        window.__castSubs = [];
+        for (const s of subStreams) {
+          const code = canonicalLangCode(s) || 'eng';
+          const vttUrl = `${serverUrl}/emby/Videos/${movieId}/${mediaSourceId}/Subtitles/${s.Index}/0/Stream.vtt?api_key=${apiKey}`;
+          subTrackCodes.push(code);
+          window.__castSubs.push({
+            url: vttUrl,
+            label: niceLangLabelFrom(s),
+            code: code,
+            embyIndex: s.Index,
+          });
+          player.addRemoteTextTrack({
+            kind: 'subtitles',
+            label: niceLangLabelFrom(s),
+            srclang: srclangFromCode(code),
+            src: vttUrl,
+            default: false
+          }, false);
+        }
+        // Active sidecar track for the next cast load request.
+        if (preferredSubLang && preferredSubLang !== 'off') {
+          const m = subStreams.find(s => (canonicalLangCode(s) || 'eng') === preferredSubLang);
+          window.__castActiveSubEmbyIndex = m ? m.Index : null;
+        } else {
+          window.__castActiveSubEmbyIndex = null;
+        }
+        applySubtitleSelection(preferredSubLang);
+      }
+
+      // Exactly one showing track (or none for 'off') — mirrors the
+      // episodes player's subtitle-overlap fix.
+      function applySubtitleSelection(code) {
+        const tt = player.textTracks();
+        let subIdx = -1;
+        for (let i = 0; i < tt.length; i++) {
+          if (tt[i].kind !== 'subtitles' && tt[i].kind !== 'captions') continue;
+          subIdx += 1;
+          const wanted = code && code !== 'off' && subTrackCodes[subIdx] === code;
+          tt[i].mode = wanted ? 'showing' : 'disabled';
+        }
+      }
+
+      // Switch audio language: persist the choice, reload the HLS
+      // stream with the new AudioStreamIndex, and resume position.
+      function reloadWithAudio(newIndex) {
+        const stream = audioStreams.find(s => s.Index === newIndex);
+        if (stream) {
+          preferredAudioLang = canonicalLangCode(stream) || 'eng';
+          localStorage.setItem(AUDIO_LANG_STORAGE_KEY, preferredAudioLang);
+        }
+        if (newIndex === selectedAudioStreamIndex) return;
+        const resumeAt = player.currentTime() || 0;
+        const wasPaused = player.paused();
+        selectedAudioStreamIndex = newIndex;
+        // Keep the cast contentId in step — while casting, the src
+        // change below triggers a fresh load request that reads it.
+        window.__castHLS = buildCastHlsUrl(newIndex);
+        player.src({ type: 'application/x-mpegURL', src: buildHlsUrl(newIndex) });
+        attachSubtitleTracks();
+        player.one('loadedmetadata', () => {
+          try { if (resumeAt > 1) player.currentTime(resumeAt); } catch {}
+          if (!wasPaused) player.play();
+        });
       }
 
       function loadAndPlay() {
@@ -668,28 +1415,33 @@
           .then(r => r.json())
           .then(playbackInfo => {
             const ms = playbackInfo.MediaSources[0];
-            const mediaSourceId = ms.Id;
-            const playSessionId = playbackInfo.PlaySessionId;
+            mediaSourceId = ms.Id;
+            playSessionId = playbackInfo.PlaySessionId;
             const videoStream = ms.MediaStreams.find(s => s.Type === "Video");
-            const audioStream = ms.MediaStreams.find(s => s.Type === "Audio");
+            const audioDefault = ms.MediaStreams.find(s => s.Type === "Audio");
+            videoBitrate = videoStream ? videoStream.BitRate : null;
+            audioBitrate = audioDefault ? audioDefault.BitRate : null;
+            audioStreams = ms.MediaStreams.filter(s => s.Type === 'Audio');
+            subStreams = ms.MediaStreams.filter(s => s.Type === 'Subtitle');
 
-            const hls = `${serverUrl}/emby/videos/${movieId}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${playSessionId}&X-Emby-Token=${apiKey}&VideoCodec=h264,h265,hevc&AudioCodec=mp3,aac&VideoBitrate=${videoStream.BitRate}&AudioBitrate=${audioStream.BitRate}&AudioStreamIndex=${selectedAudioStreamIndex}&TranscodingMaxAudioChannels=2&SegmentContainer=m4s,ts&MinSegments=2&BreakOnNonKeyFrames=True&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&hevc-codectag=hvc1&TranscodeReasons=ContainerBitrateExceedsLimit`;
+            // Saved language preference → stream index (falls back to
+            // English, then the file's first audio track).
+            const pick = pickAudioStreamIndex(audioStreams, preferredAudioLang);
+            selectedAudioStreamIndex =
+              pick.index != null ? pick.index : (audioDefault ? audioDefault.Index : 1);
 
-            const poster = `${serverUrl}/emby/Items/${movieMetadata.Id}/Images/Thumb?X-Emby-Token=${apiKey}`;
-
+            const poster = `${serverUrl}/emby/Items/${movieMetadata.Id || movieId}/Images/Thumb?X-Emby-Token=${apiKey}`;
             player.poster(poster);
-            player.src({ type: 'application/x-mpegURL', src: hls });
 
-            // Add subtitles
-            const rtt = player.remoteTextTracks();
-            for (let i = rtt.length - 1; i >= 0; i--) player.removeRemoteTextTrack(rtt[i]);
-            player.addRemoteTextTrack({
-              kind: 'subtitles',
-              label: 'English',
-              srclang: 'en',
-              src: `${serverUrl}/emby/Videos/${movieMetadata.Id}/${mediaSourceId}/Subtitles/2/0/Stream.vtt?api_key=${apiKey}`,
-              default: false
-            }, false);
+            // Cast globals — consumed by modifyLoadRequestFn when the
+            // user hits the cast button (or is already casting).
+            window.__castHLS = buildCastHlsUrl(selectedAudioStreamIndex);
+            window.__castPoster = poster;
+            window.__castTitle = movieMetadata.Name || "Bluey's Big Play";
+            window.__castDurationSec = durationOverrideSec;
+
+            player.src({ type: 'application/x-mpegURL', src: buildHlsUrl(selectedAudioStreamIndex) });
+            attachSubtitleTracks();
 
             player.play();
 

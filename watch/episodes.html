@@ -1134,6 +1134,7 @@
         <a href="/watch">Watch</a>
         <a href="/music">Music</a>
         <a href="/listen">Listen</a>
+        <a href="/app">App</a>
         <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
         <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="5"/>
@@ -1769,11 +1770,13 @@
         '</svg>';
       topRight.el().appendChild(tracksBtn);
 
-      // PiP button — shrinks the player overlay into the page's own
-      // floating mini-player (same path the close button's
-      // "fullscreen → pip" branch uses). Sits between the tracks
-      // button and the cast button (cast is re-parented in last, so
-      // DOM order ends up tracks | pip | cast).
+      // PiP button — browser-NATIVE picture-in-picture (the floating
+      // always-on-top window), not the page's own mini player. The
+      // in-page mini player remains only as a fallback where the API
+      // isn't available (Firefox) or the video element can't PiP
+      // (e.g. while casting). Sits between the tracks button and the
+      // cast button (cast is re-parented last, so DOM order ends up
+      // tracks | pip | cast).
       const pipBtn = document.createElement('button');
       pipBtn.className = 'bluey-tracks-btn bluey-pip-btn';
       pipBtn.type = 'button';
@@ -1784,11 +1787,45 @@
         '<rect x="2" y="4" width="20" height="16" rx="3" stroke="#fff" stroke-width="2"/>' +
         '<rect x="12" y="12" width="7" height="5" rx="1" fill="#fff"/>' +
         '</svg>';
-      pipBtn.addEventListener('click', (e) => {
+      pipBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
+        // Query the <video> at click time — the tech (and its video
+        // element) is swapped when casting starts/stops.
+        const videoEl = player.el().querySelector('video');
+        try {
+          if (document.pictureInPictureElement) {
+            await document.exitPictureInPicture();
+            return;
+          }
+          if (videoEl && document.pictureInPictureEnabled &&
+              !videoEl.disablePictureInPicture) {
+            await videoEl.requestPictureInPicture();
+            // Hide the fullscreen overlay so the page is usable while
+            // the floating window plays — restored by the
+            // leavepictureinpicture listener below.
+            const overlay = document.getElementById('playerOverlay');
+            overlay.classList.remove('active', 'pip');
+            document.body.style.overflow = '';
+            return;
+          }
+        } catch (_) {
+          // requestPictureInPicture can reject (no video frame yet,
+          // casting, permission) — fall through to the in-page mini
+          // player so the button always does something.
+        }
         enterPipMode();
       });
       topRight.el().appendChild(pipBtn);
+
+      // Native PiP window closed (X or "back to tab") — bring the
+      // player overlay back so playback never continues invisibly.
+      document.addEventListener('leavepictureinpicture', () => {
+        const overlay = document.getElementById('playerOverlay');
+        if (!overlay.classList.contains('active') &&
+            !overlay.classList.contains('pip')) {
+          expandFromPip();
+        }
+      });
 
       // Combined Audio / Subtitles panel — rebuilt from the live
       // track lists every time it opens, so it always reflects the

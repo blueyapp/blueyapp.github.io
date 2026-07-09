@@ -787,6 +787,16 @@
       let subTrackCodes = []; // canonical lang code per added text track
       let mediaSourceId = null;
       let playSessionId = null;
+      // Emby keys the running transcode job on PlaySessionId — asking
+      // for a different AudioStreamIndex under the SAME id just
+      // re-attaches to the old job (old audio). Every audio switch
+      // bumps this counter so the request lands on a fresh session.
+      let audioSwitchCount = 0;
+      function activePlaySessionId() {
+        return audioSwitchCount === 0
+          ? playSessionId
+          : `${playSessionId}-a${audioSwitchCount}`;
+      }
       let videoBitrate = null;
       let audioBitrate = null;
       let selectedAudioStreamIndex = 1;
@@ -1329,14 +1339,14 @@
       }
 
       function buildHlsUrl(audioIndex) {
-        return `${serverUrl}/emby/videos/${movieId}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${playSessionId}&X-Emby-Token=${apiKey}&VideoCodec=h264,h265,hevc&AudioCodec=mp3,aac&VideoBitrate=${videoBitrate}&AudioBitrate=${audioBitrate}&AudioStreamIndex=${audioIndex}&TranscodingMaxAudioChannels=2&SegmentContainer=m4s,ts&MinSegments=2&BreakOnNonKeyFrames=True&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&hevc-codectag=hvc1&TranscodeReasons=ContainerBitrateExceedsLimit`;
+        return `${serverUrl}/emby/videos/${movieId}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${activePlaySessionId()}&X-Emby-Token=${apiKey}&VideoCodec=h264,h265,hevc&AudioCodec=mp3,aac&VideoBitrate=${videoBitrate}&AudioBitrate=${audioBitrate}&AudioStreamIndex=${audioIndex}&TranscodingMaxAudioChannels=2&SegmentContainer=m4s,ts&MinSegments=2&BreakOnNonKeyFrames=True&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&hevc-codectag=hvc1&TranscodeReasons=ContainerBitrateExceedsLimit`;
       }
 
       // Cast variant: TS segments (the Default Media Receiver's
       // safest format) and a distinct PlaySessionId so the cast
       // transcode session doesn't collide with the local one.
       function buildCastHlsUrl(audioIndex) {
-        return `${serverUrl}/emby/videos/${movieId}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${playSessionId}-cast&X-Emby-Token=${apiKey}&VideoCodec=h264&AudioCodec=mp3,aac&VideoBitrate=${videoBitrate}&AudioBitrate=${audioBitrate}&AudioStreamIndex=${audioIndex}&TranscodingMaxAudioChannels=2&SegmentContainer=ts&MinSegments=2&BreakOnNonKeyFrames=True&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&TranscodeReasons=ContainerBitrateExceedsLimit`;
+        return `${serverUrl}/emby/videos/${movieId}/master.m3u8?DeviceId=dd998c9b-ecf6-4b63-a13b-18306834db87&MediaSourceId=${mediaSourceId}&PlaySessionId=${activePlaySessionId()}-cast&X-Emby-Token=${apiKey}&VideoCodec=h264&AudioCodec=mp3,aac&VideoBitrate=${videoBitrate}&AudioBitrate=${audioBitrate}&AudioStreamIndex=${audioIndex}&TranscodingMaxAudioChannels=2&SegmentContainer=ts&MinSegments=2&BreakOnNonKeyFrames=True&h264-profile=high,main,baseline,constrainedbaseline&h264-level=62&TranscodeReasons=ContainerBitrateExceedsLimit`;
       }
 
       // (Re)attach every subtitle stream Emby reports as a remote
@@ -1400,6 +1410,10 @@
         const resumeAt = player.currentTime() || 0;
         const wasPaused = player.paused();
         selectedAudioStreamIndex = newIndex;
+        // Fresh PlaySessionId — see activePlaySessionId(): without
+        // this, Emby re-attaches to the running transcode and keeps
+        // playing the OLD audio track.
+        audioSwitchCount += 1;
         // Keep the cast contentId in step — while casting, the src
         // change below triggers a fresh load request that reads it.
         window.__castHLS = buildCastHlsUrl(newIndex);

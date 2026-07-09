@@ -1513,7 +1513,11 @@
         controls: true,
         preload: 'auto',
         muted: false,
-        fluid: false,
+        // Fluid sizing — the player's height comes from the video's
+        // own 16:9 ratio, so the modal card hugs the video exactly
+        // instead of stretching it into a fixed-height box with
+        // letterbox bars (same setup as blueys-big-play.html).
+        fluid: true,
         techOrder: ['chromecast', 'html5'],
         // ⚠ IMPORTANT: the Silvermine plugin reads these three
         // functions from the TOP-LEVEL `chromecast` key (they are

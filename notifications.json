@@ -1,10 +1,10 @@
 {
   "notifications": [
     {
-      "id": 11,
+      "id": 12,
       "type": "announcement",
-      "title": "The app now available to be downloaded from website",
-      "message": "Wish you enjoying the app. Just leave feedback and suggestion in Bluey Post",
+      "title": "About the Google TV",
+      "message": "So I'm trying to make continue watching show up in google tv (not android tv) and unfortunately, google changed the way make people have to register with them before making their app eligible to have it which is bummer so it's either I have to ask google to approve or just let it as it is now. For me I prefer to not have the app having any thing goes to google but if you have opinion you can share it here.",
       "created_at": 1783520300
     }
   ]

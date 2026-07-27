@@ -1,11 +1,11 @@
 {
   "notifications": [
     {
-      "id": 12,
+      "id": 13,
       "type": "announcement",
-      "title": "About the Google TV",
-      "message": "So I'm trying to make continue watching show up in google tv (not android tv) and unfortunately, google changed the way make people have to register with them before making their app eligible to have it which is bummer so it's either I have to ask google to approve or just let it as it is now. For me I prefer to not have the app having any thing goes to google but if you have opinion you can share it here.",
-      "created_at": 1783520300
+      "title": "New Podcast",
+      "message": "We heard you, now Gotta Be Done podcast available in this app. Just make sure to update to the latest version so it can read the data. Don't worry the if new episodes dropped it will show up there.",
+      "created_at": 1785155900
     }
   ]
 }

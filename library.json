@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 2,
   "shows": [
     {
       "section": "Bluey",
@@ -24,18 +24,7 @@
     {
       "section": "Podcasts",
       "items": [
-        {"id": "359904", "title": "Behind Bluey", "artist": " "},
-        {
-          "feed": "https://www.blueypod.com/feed.xml",
-          "title": "Gotta Be Done - A Bluey Podcast",
-          "posterUrl": "https://pbcdn1.podbean.com/imglogo/image-logo/4210837/Logo_-_square2.jpg",
-          "sort": "date",
-          "notice": {
-            "id": "unofficial-source",
-            "title": "Unofficial source",
-            "body": "This podcast is published outside the official Bluey channels. It is not produced by or affiliated with Ludo Studio, and its views are its own."
-          }
-        }
+        {"id": "359904", "title": "Behind Bluey", "artist": " "}
       ]
     },
     {

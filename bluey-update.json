@@ -1,5 +1,7 @@
 {
    "latest_version": "10.4065-QLD",
-   "build_number": 56,
-   "download_url": "https://dl.dropboxusercontent.com/scl/fi/c84775gvhga5woloegsnf/bluey_update.apk?rlkey=es82mt6s4f6z5eljx2baks62p&st=rj2ej24s"
+   "build_number": 57,
+   "download_url": "https://dl.dropboxusercontent.com/scl/fi/c84775gvhga5woloegsnf/bluey_update.apk?rlkey=es82mt6s4f6z5eljx2baks62p&st=rj2ej24s",
+   "splits_url": "https://dl.dropboxusercontent.com/scl/fi/g4ir5w8ns0tp00idyxlu9/app-release.apks?rlkey=eld8pwo1kv89mkqcs38gi7oxw&st=0lxfn05q",
+   "splits_min_sdk": 27
 }

@@ -22,7 +22,7 @@
     {
       "section": "First of The Month",
       "items": [
-        {"id": "380190", "title": "Toy Story 5"}
+        {"id": "380190", "title": "Toy Story 5", "type": "movie"}
       ]
     }
   ],

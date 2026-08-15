@@ -3,25 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Watch Bluey Minisodes</title>
+    <title>Watch Bluey Minisodes!</title>
 
     <!-- Meta / OpenGraph -->
-      <meta name="title" content="Watch Bluey Minisodes">
-      <meta name="description" content="The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together.">
-      <meta name="keywords" content="bluey, bluey, bluey">
-      <meta name="robots" content="index, follow">
-      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-      <meta name="language" content="English">
-      <meta name="author" content="Bluey Heeler">
-      <!-- Social meta -->
-      <meta property="og:title" content="Watch Bluey Minisodes">
-      <meta property="og:description" content="The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together.">
-      <meta property="og:image" content="https://cdn.iview.abc.net.au/thumbs/1200/mp/MP2423H118C00DS1_6667b1657c3f7_3600.jpg">
-      <meta property="og:url" content="https://pages.blueynet.org/watch/minisodes">
-      <meta name="twitter:card" content="summary_large_image">
-      <meta name="twitter:title" content="Watch Bluey Minisodes">
-      <meta name="twitter:description" content="The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together.">
-      <meta name="twitter:image" content="https://cdn.iview.abc.net.au/thumbs/1200/mp/MP2423H118C00DS1_6667b1657c3f7_3600.jpg">
+    <meta name="description" content="The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together." />
+    <meta name="keywords" content="bluey, children's show, family entertainment" />
+    <meta name="robots" content="index, follow" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="language" content="English" />
+    <meta name="author" content="Bluey Heeler" />
+    <meta property="og:title" content="Watch Bluey Minisodes!" />
+    <meta property="og:description" content="The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together." />
+    <meta property="og:image" content="https://cdn.iview.abc.net.au/thumbs/1200/mp/MP2423H118C00DS1_6667b1657c3f7_3600.jpg" />
+    <meta property="og:url" content="https://pages.blueynet.org/watch/minisodes" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Watch Bluey Minisodes!" />
+    <meta name="twitter:description" content="The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together." />
+    <meta name="twitter:image" content="https://cdn.iview.abc.net.au/thumbs/1200/mp/MP2423H118C00DS1_6667b1657c3f7_3600.jpg" />
     <link rel="icon" href="/bluey-star.ico" type="image/x-icon" />
 
     <!-- Fonts -->
@@ -713,17 +711,232 @@
         }
       }
 
-      /* Episode title overlay on video */
+      /* == Loading spinner — Disney+ aurora ring ================== */
+      .video-js .vjs-loading-spinner {
+        border: none;
+        box-shadow: none;
+        background: url("https://static-assets.bamgrid.com/product/disneyplus/images/spinner-loader-aurora@3x.aeea41b523c09921ea43b90e2adf6521.png") center / contain no-repeat;
+        width: 72px;
+        height: 72px;
+        margin: 0;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        transform-origin: 50% 50%;
+        border-radius: 0;
+        opacity: 1;
+      }
+      /* Kill the stock border-ring pseudo elements. */
+      .video-js .vjs-loading-spinner::before,
+      .video-js .vjs-loading-spinner::after { display: none; }
+      /* Chain vjs-spinner-show (video.js's own visibility keyframe —
+         flips `visibility` after a 300ms grace so micro-buffers don't
+         flash) with our continuous rotation. */
+      .vjs-seeking .vjs-loading-spinner,
+      .vjs-waiting .vjs-loading-spinner {
+        animation:
+          vjs-spinner-show 0s linear 0.3s forwards,
+          bluey-aurora-spin 1.1s linear infinite;
+      }
+      @keyframes bluey-aurora-spin {
+        from { transform: translate(-50%, -50%) rotate(0deg); }
+        to { transform: translate(-50%, -50%) rotate(360deg); }
+      }
+
+      /* == TV-style player skin (Apple TV reference) ============== */
+
+      /* Episode title — big bold text, top-left, no pill. */
       .vjs-episode-title {
-        position: absolute; left: 12px; top: 12px; z-index: 3;
-        padding: 6px 10px; border-radius: 6px;
-        background: rgba(0,0,0,0.55); color: #fff;
-        font-family: 'Hello Headline', sans-serif; font-size: 14px;
-        pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+        position: absolute; left: 28px; top: 20px; z-index: 3;
+        padding: 0; border-radius: 0; background: transparent;
+        color: #fff;
+        font-family: 'Hello Headline', sans-serif;
+        font-size: clamp(15px, 1.8vw, 24px);
+        font-weight: 700;
+        pointer-events: none;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+        opacity: 0; transition: opacity .2s ease;
+        max-width: 70%;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .vjs-user-inactive.vjs-playing .vjs-episode-title { opacity: 0; }
+      .vjs-user-active .vjs-episode-title,
+      .vjs-paused .vjs-episode-title { opacity: 1; }
+
+      /* Top-right cluster: tracks (audio+subs) button + cast button.
+         right offset clears the overlay's close (X) button, which
+         occupies top:12px/right:16px at 44px wide. */
+      .bluey-topright {
+        position: absolute; top: 16px; right: 76px; z-index: 4;
+        display: flex; align-items: center; gap: 6px;
         opacity: 0; transition: opacity .2s ease;
       }
-      .vjs-user-inactive .vjs-episode-title { opacity: 0; }
-      .vjs-user-active .vjs-episode-title { opacity: 1; }
+      .vjs-user-active .bluey-topright,
+      .vjs-paused .bluey-topright { opacity: 1; }
+      .vjs-user-inactive.vjs-playing .bluey-topright { opacity: 0; pointer-events: none; }
+      .bluey-topright .vjs-button,
+      .bluey-topright .bluey-tracks-btn {
+        width: 44px; height: 36px;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(0,0,0,0.45); border: none; border-radius: 8px;
+        color: #fff; cursor: pointer;
+      }
+      .bluey-topright .bluey-tracks-btn:hover,
+      .bluey-topright .bluey-tracks-btn:focus,
+      .bluey-topright .vjs-button:hover {
+        background: rgba(0,0,0,0.7); outline: none;
+      }
+      .bluey-topright .vjs-button .vjs-icon-placeholder::before {
+        font-size: 22px; line-height: 36px;
+      }
+
+      /* Combined Audio / Subtitles panel */
+      .bluey-tracks-panel {
+        position: absolute; top: 60px; right: 20px; z-index: 5;
+        display: none;
+        background: rgba(18,18,24,0.95);
+        border-radius: 12px;
+        padding: 14px 6px 10px;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+        max-height: 60%;
+        min-width: 320px;
+      }
+      .bluey-tracks-panel.open { display: flex; gap: 4px; }
+      .bluey-tracks-panel .bluey-tracks-col {
+        flex: 1; min-width: 140px; max-height: 100%;
+        overflow-y: auto; padding: 0 8px;
+      }
+      .bluey-tracks-panel h4 {
+        margin: 0 0 8px; padding: 0 10px;
+        color: rgba(255,255,255,0.55);
+        font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+        font-family: 'Hello Headline', sans-serif;
+      }
+      .bluey-tracks-panel ul { list-style: none; margin: 0; padding: 0; }
+      .bluey-tracks-panel li {
+        padding: 8px 10px; border-radius: 8px;
+        color: #fff; font-size: 14px; cursor: pointer;
+        font-family: 'Hello Headline', sans-serif;
+        display: flex; align-items: center; gap: 8px;
+        white-space: nowrap;
+      }
+      .bluey-tracks-panel li:hover,
+      .bluey-tracks-panel li:focus { background: rgba(255,255,255,0.12); outline: none; }
+      .bluey-tracks-panel li .tick { width: 16px; text-align: center; opacity: 0; }
+      .bluey-tracks-panel li.selected .tick { opacity: 1; }
+      .bluey-tracks-panel li.selected { color: #4cc2ff; }
+
+      /* Bottom control bar — thin full-width progress on top, times
+         at the corners, transport cluster centered. */
+      .player-overlay .video-js .vjs-control-bar {
+        display: flex; flex-wrap: wrap; align-items: center;
+        height: auto; padding: 4px 16px 8px;
+        background: linear-gradient(transparent, rgba(0,0,0,0.78));
+      }
+      .video-js .vjs-progress-control {
+        order: 0; flex: 0 0 100%; width: 100%;
+        height: 16px; min-height: 16px;
+      }
+      .video-js .vjs-progress-holder {
+        height: 4px; border-radius: 2px; margin: 0;
+        background: rgba(255,255,255,0.25);
+      }
+      .video-js .vjs-play-progress { background: #fff; border-radius: 2px; }
+      .video-js .vjs-load-progress, .video-js .vjs-load-progress div {
+        background: rgba(255,255,255,0.35);
+      }
+      /* Seek handle — video.js offsets the circle in em units tuned
+         for its default (thicker) bar, which leaves it floating
+         above our 4px line. Anchor it to the exact vertical centre
+         of the bar instead. */
+      .video-js .vjs-play-progress::before {
+        font-size: 13px;
+        top: 50%;
+        right: -6.5px;
+        transform: translateY(-50%);
+        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      }
+
+      .video-js .vjs-current-time { display: flex; order: 1; padding: 0; margin-right: auto; }
+      .bluey-prev-ep   { order: 3; }
+      .bluey-back10    { order: 4; }
+      .video-js .vjs-play-control { order: 5; }
+      .bluey-fwd10     { order: 6; }
+      .bluey-next-ep   { order: 7; }
+      .video-js .vjs-remaining-time { display: flex; order: 8; margin-left: auto; padding: 0 6px 0 0; }
+      .video-js .vjs-fullscreen-control { order: 9; }
+
+      .video-js .vjs-current-time .vjs-current-time-display,
+      .video-js .vjs-remaining-time .vjs-remaining-time-display {
+        font-size: 14px; font-family: 'Hello Headline', sans-serif;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+      }
+
+      /* Custom transport buttons (inline SVG) */
+      .bluey-ctrl { cursor: pointer; }
+      .bluey-ctrl svg { width: 26px; height: 26px; display: block; margin: auto; }
+      .video-js .vjs-play-control .vjs-icon-placeholder::before { font-size: 30px; line-height: 30px; position: static; }
+      .video-js .vjs-control-bar .vjs-button { height: 40px; }
+
+      /* Hide the stock pickers that the combined panel replaces,
+         plus clutter the reference design doesn't show. */
+      .video-js .vjs-audio-button,
+      .video-js .vjs-subs-caps-button,
+      .video-js .vjs-duration,
+      .video-js .vjs-time-divider,
+      .video-js .vjs-volume-panel,
+      .video-js .vjs-picture-in-picture-control { display: none !important; }
+
+      /* Cast button when re-parented into the top-right cluster —
+         match the tracks button footprint so the pair reads as one
+         group (per the reference layout). */
+      .bluey-topright .vjs-chromecast-button {
+        width: 44px; height: 36px;
+        background: rgba(0,0,0,0.45); border-radius: 8px;
+        margin: 0;
+      }
+      .bluey-topright .vjs-chromecast-button:hover,
+      .bluey-topright .vjs-chromecast-button:focus {
+        background: rgba(0,0,0,0.7); outline: none;
+      }
+
+      /* Custom cast glyph — replaces the Silvermine sprite so it
+         matches the tracks button's line style. Second rule swaps in
+         the "connected" variant (filled inner wedge) while casting. */
+      .bluey-topright .vjs-chromecast-button .vjs-icon-placeholder {
+        display: block; width: 100%; height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.92-11-11-11zm20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+        background-size: 22px 22px !important;
+      }
+      .bluey-topright .vjs-chromecast-button.vjs-chromecast-casting-state .vjs-icon-placeholder {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.92-11-11-11zm20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM19 7H5v1.63c3.96 1.28 7.09 4.41 8.37 8.37H19V7z'/%3E%3C/svg%3E") !important;
+      }
+
+      /* Custom fullscreen glyph — corners-out normally, corners-in
+         while fullscreen. Kills the icon-font glyph first. */
+      .video-js .vjs-fullscreen-control .vjs-icon-placeholder::before {
+        content: '' !important;
+      }
+      .video-js .vjs-fullscreen-control .vjs-icon-placeholder {
+        display: block; width: 100%; height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 22px 22px;
+      }
+      .video-js.vjs-fullscreen .vjs-fullscreen-control .vjs-icon-placeholder {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z'/%3E%3C/svg%3E");
+      }
+
+      @media (max-width: 600px) {
+        .bluey-ctrl svg { width: 20px; height: 20px; }
+        .bluey-tracks-panel { right: 8px; min-width: 240px; }
+        .vjs-episode-title { left: 14px; top: 12px; max-width: 55%; }
+        /* Clear the mobile close (X) button: 40px wide at right:12px. */
+        .bluey-topright { right: 60px; top: 10px; }
+      }
 
       /* Toast */
       .toast {
@@ -745,23 +958,52 @@
       .toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
 
       /* Skip Intro */
+      /* Skip Intro — white pill, black uppercase label with a
+         skip-ahead glyph (Disney+ reference). Shown/hidden via
+         inline display from the component. */
       .vjs-skip-intro-overlay {
         position: absolute;
         right: 35px;
         bottom: 35px;
         z-index: 4;
-        background: rgba(0,0,0,0.55);
-        color: #fff;
+        background: #fff;
+        color: #000;
         border: none;
-        border-radius: 6px;
-        padding: 10px 14px;
+        border-radius: 4px;
+        padding: 12px 18px;
         font-family: 'Hello Headline', sans-serif;
-        font-size: 14px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
         cursor: pointer;
         display: none;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+        transition: bottom .15s ease, background .15s ease;
+      }
+      .vjs-skip-intro-overlay::before {
+        content: '';
+        width: 18px;
+        height: 18px;
+        flex: none;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M3 5l8 7-8 7V5zm9 0l8 7-8 7V5z'/%3E%3Crect x='19.5' y='5' width='2.5' height='14'/%3E%3C/svg%3E") center/contain no-repeat;
+      }
+      /* Lift the button clear of the control bar whenever the bar is
+         showing (user active or paused) so the two never overlap. */
+      .vjs-user-active .vjs-skip-intro-overlay,
+      .vjs-paused .vjs-skip-intro-overlay {
+        bottom: 96px;
       }
       .vjs-skip-intro-overlay:focus,
-      .vjs-skip-intro-overlay:hover { background: rgba(0,0,0,0.75); }
+      .vjs-skip-intro-overlay:hover { background: #e2e2e2; outline: none; }
+
+      /* Mini-player (pip) mode: hide the top-right cluster + panel
+         like the other overlays — no room for them in the small
+         window. */
+      .player-overlay.pip .bluey-topright { display: none; }
+      .player-overlay.pip .bluey-tracks-panel { display: none !important; }
 
       /* Up Next */
       .vjs-upnext-overlay{
@@ -825,9 +1067,13 @@
       body.dark #episodes li .ep-info h2 { color: #fbbf24; }
       body.dark #episodes li .ep-info p { color: #8899aa; }
       body.dark .toast { background: rgba(15,17,24,0.95); color: #fbbf24; }
-      body.dark .vjs-episode-title { background: rgba(15,17,24,0.6); color: #fbbf24; }
-      body.dark .vjs-skip-intro-overlay { background: rgba(15,17,24,0.6); color: #fbbf24; }
-      body.dark .vjs-skip-intro-overlay:hover { background: rgba(15,17,24,0.85); }
+      /* New TV-style title is plain bold text — keep it white in dark
+         mode too (no pill background). */
+      body.dark .vjs-episode-title { background: transparent; color: #fff; }
+      /* Skip Intro pill stays white-on-black in dark mode too (it
+         floats over video, not over themed page chrome). */
+      body.dark .vjs-skip-intro-overlay { background: #fff; color: #000; }
+      body.dark .vjs-skip-intro-overlay:hover { background: #e2e2e2; }
       body.dark .vjs-upnext-overlay { background: rgba(15,17,24,0.7); color: #fbbf24; }
       body.dark .vjs-upnext-btn { background: #394867; color: #ffd700; }
 
@@ -920,6 +1166,7 @@
         <a href="/watch">Watch</a>
         <a href="/music">Music</a>
         <a href="/listen">Listen</a>
+        <a href="/app">App</a>
         <button class="darkmode-toggle" id="darkToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
         <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="5"/>
@@ -968,7 +1215,7 @@
       <div class="hero-content">
         <img src="/images/jTjeYzB7yHDkxGdYFfA1gQqAwn.png" alt="Bluey Minisodes" class="hero-logo" />
         <div class="hero-label">All Episodes</div>
-        <p class="hero-desc">The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together.The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together.</p>
+        <p class="hero-desc">The Bluey Minisodes are a collection of funny and sweet episodes featuring Bluey and her family and friends. This collection of every day moments introduces some new characters and games they have been playing together.</p>
         <div class="hero-tagline">The Biggest Little Show!</div>
       </div>
       <div class="hero-scroll-hint" tabindex="0" role="button" onclick="document.getElementById('episode-section').scrollIntoView({behavior:'smooth'})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('episode-section').scrollIntoView({behavior:'smooth'})}">
@@ -1228,13 +1475,21 @@
       // Storage keys — both hold ISO language codes (e.g. 'eng',
       // 'msa', 'ara'). Sub key may also be 'off' meaning "user
       // explicitly turned subtitles off".
-      const AUDIO_LANG_STORAGE_KEY = "bluey_episodes_audio_lang";
-      const SUB_LANG_STORAGE_KEY   = "bluey_episodes_sub_lang";
+      const AUDIO_LANG_STORAGE_KEY = "bluey_minisodes_audio_lang";
+      const SUB_LANG_STORAGE_KEY   = "bluey_minisodes_sub_lang";
 
       let preferredAudioLang = 'eng';
       let preferredSubLang   = 'off';
       let currentAudioStreamIndexUsed = null;
       let currentSubStreamIndexUsed   = null;
+      // Cached per-episode stream facts for code that runs outside
+      // playEpisode's scope (the error-fallback path needs them to
+      // build a correct fallback / cast URL).
+      let currentDefaultAudioIndex    = null;
+      let currentMediaSourceId        = null;
+      let currentPlaySessionId        = null;
+      let currentVideoBitRate         = 5000000;
+      let currentAudioBitRate         = 192000;
 
       let selectedSeason = null;
       let episodes = [];
@@ -1255,11 +1510,18 @@
       window.__castSubtitle = '';
       window.__castPoster = '';
       window.__castMP4 = '';
-      window.__castSeriesTitle = 'Bluey';
+      window.__castHLS = '';
+      window.__castDurationSec = null;
+      window.__castSeriesTitle = 'Bluey Minisodes';
       window.__castSeason = null;
       window.__castEpisode = null;
       window.__castEpisodeTitle = '';
       window.__isCasting = false;
+      // Subtitle tracks for the current episode, in cast-friendly
+      // form: [{ url, code, label, embyIndex }]. Read by
+      // modifyLoadRequestFn so the receiver gets them declared.
+      window.__castSubs = [];
+      window.__castActiveSubEmbyIndex = null;
 
       let nextPrefetchStarted = false;
 
@@ -1283,52 +1545,128 @@
         controls: true,
         preload: 'auto',
         muted: false,
-        fluid: false,
+        // Fluid sizing — the player's height comes from the video's
+        // own 16:9 ratio, so the modal card hugs the video exactly
+        // instead of stretching it into a fixed-height box with
+        // letterbox bars (same setup as blueys-big-play.html).
+        fluid: true,
         techOrder: ['chromecast', 'html5'],
+        // ⚠ IMPORTANT: the Silvermine plugin reads these three
+        // functions from the TOP-LEVEL `chromecast` key (they are
+        // Tech options, not plugin options). They were previously
+        // nested inside plugins.chromecast, where the tech never
+        // saw them — which is why the TV showed no metadata and
+        // why none of the load-request customisation ever ran.
+        chromecast: {
+          requestTitleFn: () => window.__castTitle || document.title,
+          requestSubtitleFn: () => window.__castSubtitle || '',
+          modifyLoadRequestFn: (request) => {
+            if (window.__castHLS) {
+              // Non-default audio: cast a dedicated TS-segment HLS
+              // session. Emby's variant playlist is VOD-type with
+              // every segment + EXT-X-ENDLIST listed up front
+              // (verified against the live server), so the receiver
+              // knows the real duration immediately — unlike the
+              // on-the-fly MP4 remux, which looks like a growing
+              // live file (creeping end time + premature FINISHED
+              // that skipped to the next episode).
+              request.media.contentId = window.__castHLS;
+              request.media.contentType = 'application/x-mpegURL';
+              try { request.media.hlsSegmentFormat = 'ts'; } catch {}
+            } else if (window.__castMP4) {
+              request.media.contentId = window.__castMP4;
+              request.media.contentType = 'video/mp4';
+            } else {
+              // Casting the player's own HLS URL directly: Emby
+              // serves fmp4 segments there, and the Default Media
+              // Receiver assumes TS unless told otherwise.
+              try {
+                request.media.hlsSegmentFormat = 'fmp4';
+                request.media.hlsVideoSegmentFormat = 'fmp4';
+              } catch {}
+            }
+            try { request.media.streamType = chrome.cast.media.StreamType.BUFFERED; } catch {}
+
+            // Declare the exact duration so the receiver's seek bar
+            // is correct from the first frame. Without this, the
+            // on-the-fly remux looks like a growing/live file and
+            // the TV's end time creeps upward as new data arrives.
+            if (typeof window.__castDurationSec === 'number' &&
+                window.__castDurationSec > 0) {
+              try { request.media.duration = window.__castDurationSec; } catch {}
+            }
+
+            // Default Media Receiver renders episode info from
+            // TvShowMediaMetadata (series + season/episode badge +
+            // poster). Fall back to GenericMediaMetadata if the
+            // Cast SDK build doesn't expose the TV type.
+            //
+            // Images MUST be chrome.cast.Image instances — plain
+            // { url } objects are silently ignored by the receiver.
+            let md = null;
+            try {
+              md = new chrome.cast.media.TvShowMediaMetadata();
+              md.metadataType = chrome.cast.media.MetadataType.TV_SHOW;
+              md.seriesTitle = window.__castSeriesTitle || 'Bluey Minisodes';
+              if (window.__castSeason != null)   md.season  = Number(window.__castSeason);
+              if (window.__castEpisode != null)  md.episode = Number(window.__castEpisode);
+              md.episodeTitle =
+                window.__castEpisodeTitle ||
+                window.__castTitle ||
+                document.title || '';
+            } catch {
+              md = new chrome.cast.media.GenericMediaMetadata();
+              md.metadataType = chrome.cast.media.MetadataType.GENERIC;
+            }
+            md.title    = window.__castTitle    || document.title || 'Bluey Minisodes';
+            md.subtitle = window.__castSubtitle || '';
+            if (window.__castPoster) {
+              try { md.images = [new chrome.cast.Image(window.__castPoster)]; }
+              catch { md.images = [{ url: window.__castPoster }]; }
+            }
+            request.media.metadata = md;
+
+            // ── Subtitles for the TV ──────────────────────────
+            // The Silvermine tech does NOT forward text tracks
+            // (its source literally says "Text tracks are not
+            // supported"), so we declare them ourselves as Cast
+            // sidecar tracks. The receiver fetches the VTT files
+            // directly from the Emby server.
+            const subs = window.__castSubs || [];
+            if (subs.length) {
+              try {
+                request.media.tracks = subs.map((s, i) => {
+                  const tr = new chrome.cast.media.Track(i + 1, chrome.cast.media.TrackType.TEXT);
+                  tr.trackContentId = s.url;
+                  tr.trackContentType = 'text/vtt';
+                  tr.subtype = chrome.cast.media.TextTrackType.SUBTITLES;
+                  tr.name = s.label || 'Subtitles';
+                  tr.language = srclangFromCode(s.code) || s.code || 'en';
+                  return tr;
+                });
+                const style = new chrome.cast.media.TextTrackStyle();
+                style.backgroundColor = '#00000099';
+                style.foregroundColor = '#FFFFFFFF';
+                style.edgeType = chrome.cast.media.TextTrackEdgeType.OUTLINE;
+                style.edgeColor = '#000000FF';
+                style.fontGenericFamily = chrome.cast.media.TextTrackFontGenericFamily.SANS_SERIF;
+                style.fontScale = 1.0;
+                request.media.textTrackStyle = style;
+                const activeIdx = subs.findIndex(
+                  s => s.embyIndex === window.__castActiveSubEmbyIndex
+                );
+                request.activeTrackIds = activeIdx >= 0 ? [activeIdx + 1] : [];
+              } catch {}
+            }
+
+            request.autoplay = true;
+            return request;
+          }
+        },
         plugins: {
           chromecast: {
             receiverAppID: 'CC1AD845',
-            addButtonToControlBar: true,
-            requestTitleFn: () => window.__castTitle || document.title,
-            requestSubtitleFn: () => window.__castSubtitle || '',
-            modifyLoadRequestFn: (request) => {
-              if (window.__castMP4) {
-                request.media.contentId = window.__castMP4;
-                request.media.contentType = 'video/mp4';
-              }
-              // Default Media Receiver renders episode info from
-              // TvShowMediaMetadata (series + season/episode badge +
-              // poster). Fall back to GenericMediaMetadata if the
-              // Cast SDK build doesn't expose the TV type.
-              //
-              // Images MUST be chrome.cast.Image instances — plain
-              // { url } objects are silently ignored by the receiver,
-              // which is why the poster never showed up before.
-              let md = null;
-              try {
-                md = new chrome.cast.media.TvShowMediaMetadata();
-                md.metadataType = chrome.cast.media.MetadataType.TV_SHOW;
-                md.seriesTitle = window.__castSeriesTitle || 'Bluey Minisodes';
-                if (window.__castSeason != null)   md.season  = Number(window.__castSeason);
-                if (window.__castEpisode != null)  md.episode = Number(window.__castEpisode);
-                md.episodeTitle =
-                  window.__castEpisodeTitle ||
-                  window.__castTitle ||
-                  document.title || '';
-              } catch {
-                md = new chrome.cast.media.GenericMediaMetadata();
-                md.metadataType = chrome.cast.media.MetadataType.GENERIC;
-              }
-              md.title    = window.__castTitle    || document.title || 'Bluey';
-              md.subtitle = window.__castSubtitle || '';
-              if (window.__castPoster) {
-                try { md.images = [new chrome.cast.Image(window.__castPoster)]; }
-                catch { md.images = [{ url: window.__castPoster }]; }
-              }
-              request.media.metadata = md;
-              request.autoplay = true;
-              return request;
-            }
+            addButtonToControlBar: true
           }
         },
         html5: {
@@ -1371,6 +1709,14 @@
         } else {
           __overrideDurationSec = null;
         }
+        // Published for the Chromecast load request: the remux MP4
+        // is transcoded on the fly, so the receiver can't read a
+        // duration from the (still-growing) file and shows a creeping
+        // end time. Declaring media.duration up front fixes the TV's
+        // seek bar. Both playEpisode and playNextPrepared call this
+        // before src(), so the value is always current when
+        // modifyLoadRequestFn reads it.
+        window.__castDurationSec = __overrideDurationSec;
         // Nudge video.js so the duration display + seek bar pick up
         // the new value without waiting for the next tech tick.
         try { player.trigger('durationchange'); } catch {}
@@ -1385,6 +1731,233 @@
       videojs.registerComponent('TitleOverlay', TitleOverlay);
       const titleOverlay = player.addChild('TitleOverlay', {});
       function setPlayerTitle(text) { if (titleOverlay) titleOverlay.set(text); }
+
+      /* ── TV-style transport buttons ─────────────────────────────
+         prev-episode | -10s | play/pause (stock) | +10s | next-episode
+         Generic Button subclass: inline SVG icon + click callback. */
+      const VjsButton = videojs.getComponent('Button');
+      class BlueyCtrlButton extends VjsButton {
+        constructor(p, options) {
+          super(p, options);
+          this.controlText(options.label);
+          this.addClass('bluey-ctrl');
+          this.addClass(options.cls);
+          this.el().innerHTML = options.svg;
+        }
+        handleClick() { this.options_.onClick(); }
+      }
+      videojs.registerComponent('BlueyCtrlButton', BlueyCtrlButton);
+
+      const _svgPrev = '<svg viewBox="0 0 24 24" fill="none"><path d="M6 5v14M19 6l-9 6 9 6V6z" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+      const _svgNext = '<svg viewBox="0 0 24 24" fill="none"><path d="M18 5v14M5 6l9 6-9 6V6z" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+      const _svgB10  = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 4a8 8 0 1 1-7.4 4.9" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M4 3v6h6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="12" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold" font-family="sans-serif">10</text></svg>';
+      const _svgF10  = '<svg viewBox="0 0 24 24" fill="none"><path d="M12 4a8 8 0 1 0 7.4 4.9" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M20 3v6h-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="12" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold" font-family="sans-serif">10</text></svg>';
+
+      function playPrevEpisodeNow() {
+        if (currentEpisodeIndex > 0 && episodes[currentEpisodeIndex - 1]) {
+          currentEpisodeIndex -= 1;
+          playEpisode(episodes[currentEpisodeIndex], currentEpisodeIndex);
+        } else {
+          // First episode of the list — restart instead.
+          try { player.currentTime(0); } catch {}
+        }
+      }
+      function playNextEpisodeNow() {
+        if (nextPrepared) { playNextPrepared(false); return; }
+        queueNextEpisode();
+      }
+
+      player.controlBar.addChild(new BlueyCtrlButton(player, {
+        label: 'Previous episode', cls: 'bluey-prev-ep', svg: _svgPrev,
+        onClick: playPrevEpisodeNow,
+      }));
+      player.controlBar.addChild(new BlueyCtrlButton(player, {
+        label: 'Back 10 seconds', cls: 'bluey-back10', svg: _svgB10,
+        onClick: () => { try { player.currentTime(Math.max(0, (player.currentTime() || 0) - 10)); } catch {} },
+      }));
+      player.controlBar.addChild(new BlueyCtrlButton(player, {
+        label: 'Forward 10 seconds', cls: 'bluey-fwd10', svg: _svgF10,
+        onClick: () => { try { player.currentTime((player.currentTime() || 0) + 10); } catch {} },
+      }));
+      player.controlBar.addChild(new BlueyCtrlButton(player, {
+        label: 'Next episode', cls: 'bluey-next-ep', svg: _svgNext,
+        onClick: playNextEpisodeNow,
+      }));
+
+      /* ── Top-right cluster: tracks panel button + cast ───────── */
+      class TopRightControls extends BaseComp {
+        createEl() { return videojs.dom.createEl('div', { className: 'bluey-topright' }); }
+      }
+      videojs.registerComponent('TopRightControls', TopRightControls);
+      const topRight = player.addChild('TopRightControls', {});
+
+      // Tracks button — the rounded "subtitles" glyph from the
+      // reference UI. Opens the combined Audio / Subtitles panel.
+      const tracksBtn = document.createElement('button');
+      tracksBtn.className = 'bluey-tracks-btn';
+      tracksBtn.type = 'button';
+      tracksBtn.title = 'Audio & Subtitles';
+      tracksBtn.setAttribute('aria-label', 'Audio and subtitles');
+      tracksBtn.innerHTML =
+        '<svg width="28" height="20" viewBox="0 0 28 20" fill="none">' +
+        '<rect x="1" y="1" width="26" height="18" rx="4" stroke="#fff" stroke-width="2"/>' +
+        '<line x1="6" y1="13" x2="14" y2="13" stroke="#fff" stroke-width="2" stroke-linecap="round"/>' +
+        '<line x1="17" y1="13" x2="22" y2="13" stroke="#fff" stroke-width="2" stroke-linecap="round"/>' +
+        '</svg>';
+      topRight.el().appendChild(tracksBtn);
+
+      // PiP button — browser-NATIVE picture-in-picture (the floating
+      // always-on-top window), not the page's own mini player. The
+      // in-page mini player remains only as a fallback where the API
+      // isn't available (Firefox) or the video element can't PiP
+      // (e.g. while casting). Sits between the tracks button and the
+      // cast button (cast is re-parented last, so DOM order ends up
+      // tracks | pip | cast).
+      const pipBtn = document.createElement('button');
+      pipBtn.className = 'bluey-tracks-btn bluey-pip-btn';
+      pipBtn.type = 'button';
+      pipBtn.title = 'Picture in picture';
+      pipBtn.setAttribute('aria-label', 'Picture in picture');
+      pipBtn.innerHTML =
+        '<svg width="22" height="22" viewBox="0 0 24 24" fill="none">' +
+        '<rect x="2" y="4" width="20" height="16" rx="3" stroke="#fff" stroke-width="2"/>' +
+        '<rect x="12" y="12" width="7" height="5" rx="1" fill="#fff"/>' +
+        '</svg>';
+      pipBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        // Query the <video> at click time — the tech (and its video
+        // element) is swapped when casting starts/stops.
+        const videoEl = player.el().querySelector('video');
+        try {
+          if (document.pictureInPictureElement) {
+            await document.exitPictureInPicture();
+            return;
+          }
+          if (videoEl && document.pictureInPictureEnabled &&
+              !videoEl.disablePictureInPicture) {
+            await videoEl.requestPictureInPicture();
+            // Hide the fullscreen overlay so the page is usable while
+            // the floating window plays — restored by the
+            // leavepictureinpicture listener below.
+            const overlay = document.getElementById('playerOverlay');
+            overlay.classList.remove('active', 'pip');
+            document.body.style.overflow = '';
+            return;
+          }
+        } catch (_) {
+          // requestPictureInPicture can reject (no video frame yet,
+          // casting, permission) — fall through to the in-page mini
+          // player so the button always does something.
+        }
+        enterPipMode();
+      });
+      topRight.el().appendChild(pipBtn);
+
+      // Native PiP window closed (X or "back to tab") — bring the
+      // player overlay back so playback never continues invisibly.
+      document.addEventListener('leavepictureinpicture', () => {
+        const overlay = document.getElementById('playerOverlay');
+        if (!overlay.classList.contains('active') &&
+            !overlay.classList.contains('pip')) {
+          expandFromPip();
+        }
+      });
+
+      // Combined Audio / Subtitles panel — rebuilt from the live
+      // track lists every time it opens, so it always reflects the
+      // current episode's streams (and survives cast tech swaps).
+      const tracksPanel = document.createElement('div');
+      tracksPanel.className = 'bluey-tracks-panel';
+      player.el().appendChild(tracksPanel);
+
+      function buildTracksPanel() {
+        const at = player.audioTracks();
+        const tt = player.textTracks();
+        let audioItems = '';
+        for (let i = 0; i < at.length; i++) {
+          audioItems +=
+            `<li data-kind="audio" data-id="${at[i].id}" class="${at[i].enabled ? 'selected' : ''}" tabindex="0">` +
+            `<span class="tick">✓</span>${at[i].label || at[i].language || 'Audio'}</li>`;
+        }
+        let subItems =
+          `<li data-kind="sub" data-id="__off__" class="${preferredSubLang === 'off' ? 'selected' : ''}" tabindex="0">` +
+          `<span class="tick">✓</span>Off</li>`;
+        for (let i = 0; i < tt.length; i++) {
+          if (tt[i].kind !== 'subtitles' && tt[i].kind !== 'captions') continue;
+          subItems +=
+            `<li data-kind="sub" data-id="${i}" class="${tt[i].mode === 'showing' ? 'selected' : ''}" tabindex="0">` +
+            `<span class="tick">✓</span>${tt[i].label || tt[i].language || 'Subtitles'}</li>`;
+        }
+        tracksPanel.innerHTML =
+          `<div class="bluey-tracks-col"><h4>Audio</h4><ul>${audioItems || '<li style="opacity:.5">None</li>'}</ul></div>` +
+          `<div class="bluey-tracks-col"><h4>Subtitles</h4><ul>${subItems}</ul></div>`;
+      }
+
+      tracksBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (tracksPanel.classList.contains('open')) {
+          tracksPanel.classList.remove('open');
+        } else {
+          buildTracksPanel();
+          tracksPanel.classList.add('open');
+        }
+      });
+      document.addEventListener('click', () => tracksPanel.classList.remove('open'));
+      tracksPanel.addEventListener('click', (e) => {
+        const li = e.target.closest('li[data-kind]');
+        e.stopPropagation();
+        if (!li) return;
+        if (li.dataset.kind === 'audio') {
+          const at = player.audioTracks();
+          for (let i = 0; i < at.length; i++) {
+            // AudioTrackList enforces exclusivity; setting one
+            // enabled fires 'change', which our existing listener
+            // turns into a persisted preference + stream reload.
+            if (at[i].id === li.dataset.id) { at[i].enabled = true; break; }
+          }
+        } else {
+          const tt = player.textTracks();
+          if (li.dataset.id === '__off__') {
+            for (let i = 0; i < tt.length; i++) {
+              if (tt[i].kind === 'subtitles' || tt[i].kind === 'captions') tt[i].mode = 'disabled';
+            }
+          } else {
+            const idx = Number(li.dataset.id);
+            for (let i = 0; i < tt.length; i++) {
+              if (tt[i].kind !== 'subtitles' && tt[i].kind !== 'captions') continue;
+              tt[i].mode = (i === idx) ? 'showing' : 'disabled';
+            }
+          }
+          // The textTracks 'change' listener persists + updates cast.
+        }
+        tracksPanel.classList.remove('open');
+      });
+
+      // Move the Silvermine cast button out of the control bar and
+      // into the top-right cluster (next to the tracks button), per
+      // the reference layout. The component keeps working — only its
+      // DOM node is re-parented.
+      //
+      // The plugin creates the button asynchronously (it waits for
+      // the Cast sender SDK to come up), so a single attempt at
+      // ready() routinely ran too early and the button stayed in the
+      // control bar. Retry on a widening schedule until it appears.
+      function reparentCastButton(attempt) {
+        try {
+          const el =
+            (player.controlBar.getChild('chromecastButton') || {}).el_ ||
+            player.el().querySelector('.vjs-chromecast-button');
+          if (el && el.parentElement !== topRight.el()) {
+            topRight.el().appendChild(el);
+            return;
+          }
+          if (el) return; // already re-parented
+        } catch {}
+        if (attempt < 6) {
+          setTimeout(() => reparentCastButton(attempt + 1), 500 * (attempt + 1));
+        }
+      }
+      player.ready(() => reparentCastButton(0));
 
       /* EOS GUARD */
       function bufferedEndSafe() {
@@ -1429,6 +2002,14 @@
       }
       function scheduleFinishIfStuck(reason) {
         if (eosFired) return;
+        // Never run the stall-guard while casting. The cast tech only
+        // reports coarse time updates and no buffered ranges, which
+        // made nearEndNow() true ~3s before the real end — the
+        // synthetic 'ended' then yanked the receiver into a new load
+        // while it was still finishing the current item. The
+        // chromecast tech fires a genuine 'ended' itself, so the
+        // guard isn't needed there.
+        if (window.__isCasting) return;
         if (!nearEndNow()) {
           if (eosTimer) { clearTimeout(eosTimer); eosTimer = null; }
           return;
@@ -1455,6 +2036,21 @@
       let nextPrepared = null;
       let suppressEndedOnce = false;
       let nextPrepToken = 0;
+
+      // Single-flight guard for auto-advance. While casting, "the
+      // episode finished" is reported by BOTH the chromecast tech's
+      // 'ended' event AND our manual MediaSession listener — without
+      // this guard they raced each other, firing queueNextEpisode
+      // twice, issuing two overlapping cast load requests, and the
+      // receiver gave up and went idle (the "cast just stops on the
+      // next episode" bug).
+      let _lastAdvanceAt = 0;
+      function advanceGuard() {
+        const now = Date.now();
+        if (now - _lastAdvanceAt < 2500) return false;
+        _lastAdvanceAt = now;
+        return true;
+      }
 
       class UpNextOverlay extends BaseComp {
         constructor(player, options){
@@ -1573,10 +2169,19 @@
           const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
           const subPick = pickSubtitleStream(subStreams, preferredSubLang);
           const hls = buildHlsUrl(ep, mediaSourceId, info.PlaySessionId, VideoBitRate, AudioBitRate, pick.index);
-          const mp4 = buildMp4Url(ep, pick.index);
+          const defaultAudioIndex =
+            (audioStreams.find(s => s.IsDefault) || audioStreams[0])?.Index;
+          prepared.defaultAudioIndex = defaultAudioIndex;
+          const mp4 = buildMp4Url(ep, pick.index, { defaultAudioIndex, mediaSourceId });
           try { const img = new Image(); img.src = poster; } catch {}
           prepared.hls = hls;
           prepared.mp4 = mp4;
+          // Cast HLS for non-default audio — same strategy as
+          // playEpisode (TS segments, separate -cast session id).
+          prepared.castHls = (pick.index === defaultAudioIndex)
+            ? ''
+            : buildCastHlsUrl(ep, mediaSourceId, info.PlaySessionId,
+                VideoBitRate, AudioBitRate, pick.index);
           prepared.audioIndex = pick.index;
           // Sort both lists for display now (cheap, once per
           // prefetch). pickAudioStreamIndex above already ran on
@@ -1611,10 +2216,30 @@
           window.__castTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
           window.__castSubtitle = `Bluey Minisodes | Season ${nextPrepared.episode.ParentIndexNumber}`;
           window.__castPoster = nextPrepared.poster;
-          window.__castMP4 = nextPrepared.mp4 || '';
+          // Same strategy as playEpisode: static MP4 for default
+          // audio, TS-segment cast HLS for any other selection.
+          if (nextPrepared.castHls) {
+            window.__castMP4 = '';
+            window.__castHLS = nextPrepared.castHls;
+          } else {
+            window.__castMP4 = nextPrepared.mp4 || '';
+            window.__castHLS = '';
+          }
           window.__castSeason = nextPrepared.episode.ParentIndexNumber;
           window.__castEpisode = nextPrepared.episode.IndexNumber;
           window.__castEpisodeTitle = nextPrepared.episode.Name;
+          // Build cast subtitle declarations BEFORE src() — the
+          // chromecast tech assembles its load request during the
+          // src change, and modifyLoadRequestFn reads these globals
+          // at that moment.
+          const subStreams = nextPrepared.subStreams || [];
+          window.__castSubs = subStreams.map(s => ({
+            url: `${serverUrl}/emby/Videos/${nextPrepared.episode.Id}/${nextPrepared.mediaSourceId}/Subtitles/${s.Index}/0/Stream.vtt?api_key=${apiKey}`,
+            code: canonicalLangCode(s),
+            label: niceLangLabelFrom(s),
+            embyIndex: s.Index,
+          }));
+          window.__castActiveSubEmbyIndex = nextPrepared.subPickIndex;
           player.poster(nextPrepared.poster);
           // Override duration with Emby's exact ticks before the new
           // src loads so the display doesn't briefly show the HLS-
@@ -1622,20 +2247,24 @@
           setDurationOverrideFromTicks(nextPrepared.runTimeTicks);
           player.src({ src: nextPrepared.hls, type: 'application/x-mpegURL' });
           currentAudioStreamIndexUsed = nextPrepared.audioIndex;
+          currentDefaultAudioIndex = nextPrepared.defaultAudioIndex ?? null;
+          currentMediaSourceId = nextPrepared.mediaSourceId || null;
+          currentSubStreamIndexUsed = nextPrepared.subPickIndex;
+          // While casting, the auto-advance creates a brand-new
+          // remote MediaSession — re-attach the finished-listener
+          // to it, or the NEXT episode's ending would go unnoticed
+          // and the queue would silently stop (the reported bug).
+          if (window.__isCasting) { setTimeout(attachCastMediaListener, 250); }
           try {
             const rtt = player.remoteTextTracks();
             for (let i = rtt.length - 1; i >= 0; i--) player.removeRemoteTextTrack(rtt[i]);
           } catch {}
           // Add every subtitle stream the prepared episode carries so
           // the dropdown can switch tracks without re-fetching media.
-          const subStreams = nextPrepared.subStreams || [];
-          subStreams.forEach(s => {
-            const vtt = `${serverUrl}/emby/Videos/${nextPrepared.episode.Id}/${nextPrepared.mediaSourceId}/Subtitles/${s.Index}/0/Stream.vtt?api_key=${apiKey}`;
-            const code = canonicalLangCode(s);
-            const niceLabel = niceLangLabelFrom(s);
+          window.__castSubs.forEach(s => {
             try {
               player.addRemoteTextTrack(
-                { kind: 'subtitles', src: vtt, srclang: code || srclangFromCode(code), label: niceLabel },
+                { kind: 'subtitles', src: s.url, srclang: s.code || srclangFromCode(s.code), label: s.label },
                 false,
               );
             } catch {}
@@ -1652,28 +2281,12 @@
                   ? [{ Index: nextPrepared.audioIndex, Language: preferredAudioLang }]
                   : []);
           populateAudioTracks(audioStreamsForNext, nextPrepared.audioIndex);
-          // Apply saved sub preference via the player's text track
-          // list. Suppress the change handler during this batch
-          // assignment so we don't accidentally persist transient
-          // state.
-          const pickedCode = nextPrepared.subPickCode || 'off';
-          _suppressTextChange = true;
-          const tt = player.textTracks();
-          for (let i = 0; i < tt.length; i++) {
-            const track = tt[i];
-            if (pickedCode === 'off') {
-              track.mode = 'disabled';
-            } else if ((track.language || '').toLowerCase() === srclangFromCode(pickedCode) ||
-                       (track.language || '').toLowerCase() === pickedCode) {
-              track.mode = 'showing';
-            } else {
-              track.mode = 'disabled';
-            }
-          }
-          _suppressTextChange = false;
+          // Apply saved sub preference — exactly one track showing
+          // (the helper suppresses the change handler itself).
+          applySubtitleSelection(nextPrepared.subPickCode || 'off');
           const niceTitle = `S${nextPrepared.episode.ParentIndexNumber}E${nextPrepared.episode.IndexNumber}: ${nextPrepared.episode.Name}`;
           setPlayerTitle(niceTitle);
-          document.title = `Watch Bluey Minisodes | ${niceTitle}`;
+          document.title = `Watch Bluey Minisodes! | ${niceTitle}`;
           // Update info panel
           const ep = nextPrepared.episode;
           const runtime = ep.RunTimeTicks ? Math.round(ep.RunTimeTicks / 600000000) : 7;
@@ -1695,6 +2308,13 @@
         nextPrepared = null;
       }
 
+      /* Skip Intro
+       *
+       * ╔══════════════════════════════════════════════════════════╗
+       * ║  TO CHANGE WHERE "SKIP INTRO" JUMPS TO, EDIT THIS LINE:  ║
+       * ╚══════════════════════════════════════════════════════════╝ */
+      const SKIP_INTRO_SECONDS = 0;
+
       // Persist captions
       player.on('texttrackchange', () => {
         const on = Array.from(player.textTracks()).some(t => t.mode === 'showing');
@@ -1713,31 +2333,28 @@
       player.on('chromecastConnected', () => {
         window.__isCasting = true;
         attachCastMediaListener();
-        // Tech swap → re-bind listeners + repopulate the audio
-        // menu against the chromecast tech so the button stays
-        // visible (and our handler fires when the menu is used).
-        setTimeout(() => {
-          if (_lastAudioStreams) {
-            populateAudioTracks(_lastAudioStreams, currentAudioStreamIndexUsed);
-          } else {
-            rebindTrackListeners();
-          }
-        }, 0);
+        startCastWatchdog();
+        // Tech swap → rebuild the audio menu (repopulates the NEW
+        // tech's track list AND recreates the control-bar button,
+        // which video.js binds to a specific list at construction).
+        setTimeout(refreshAudioMenu, 0);
       });
       player.on('chromecastDisconnected', () => {
         window.__isCasting = false;
+        stopCastWatchdog();
         detachCastMediaListener();
-        // Tech swapped back to html5 — the html5 tech has its own
-        // (now empty) AudioTrackList, so the menu vanished. Rebuild
-        // from the cached stream list to bring it back without
-        // waiting for the user to start a new episode.
-        setTimeout(() => {
-          if (_lastAudioStreams) {
-            populateAudioTracks(_lastAudioStreams, currentAudioStreamIndexUsed);
-          } else {
-            rebindTrackListeners();
-          }
-        }, 0);
+        // Tech swapped back to html5. Rebuild now AND once more on
+        // the next loadeddata — the plugin restores the source
+        // asynchronously, and a rebuild that runs before the html5
+        // tech finishes loading lands on yet another empty list.
+        setTimeout(refreshAudioMenu, 0);
+        player.one('loadeddata', () => {
+          refreshAudioMenu();
+          // Re-assert the single-showing subtitle state too — the
+          // restored source re-attaches text tracks and can leave
+          // more than one in 'showing'.
+          applySubtitleSelection(preferredSubLang);
+        });
       });
 
       let castMedia = null;
@@ -1759,9 +2376,70 @@
           if (!castMedia) return;
           if (castMedia.playerState === chrome.cast.media.PlayerState.IDLE &&
               castMedia.idleReason === chrome.cast.media.IdleReason.FINISHED) {
+            // Fallback only — the chromecast tech already converts
+            // FINISHED into a videojs 'ended' event, which the
+            // onEndedHandler picks up. The guard keeps the two
+            // paths from double-advancing.
+            if (!advanceGuard()) return;
             queueNextEpisode();
           }
         } catch {}
+      }
+
+      // attachCastMediaListener is idempotent (it bails if already
+      // attached to the current MediaSession), so re-checking on
+      // every 'playing' keeps the listener pointed at whatever
+      // media session the receiver is currently running — covering
+      // auto-advance, manual episode taps, and fallback reloads.
+      player.on('playing', () => { if (window.__isCasting) attachCastMediaListener(); });
+
+      // ── Cast end-of-media watchdog ────────────────────────────
+      // Listener-based end detection is fragile across consecutive
+      // cast loads: update listeners bind to a SPECIFIC MediaSession
+      // object, each new episode creates a NEW one, and the timed
+      // re-attach can lose the race — after which neither the tech's
+      // 'ended' nor castMediaUpdate ever fires again and auto-
+      // advance dies. This poller reads the CURRENT media session
+      // fresh on every tick, so it cannot go stale.
+      let _castWatchdog = null;
+      let _castSawNearEnd = false;
+      function startCastWatchdog() {
+        stopCastWatchdog();
+        _castSawNearEnd = false;
+        _castWatchdog = setInterval(() => {
+          try {
+            if (!window.__isCasting) { stopCastWatchdog(); return; }
+            const ctx = cast && cast.framework && cast.framework.CastContext.getInstance();
+            const session = ctx && ctx.getCurrentSession();
+            if (!session) return;
+            const msn = session.getMediaSession();
+            if (msn && msn.media) {
+              // Keep the legacy listener bound to the live session
+              // object too (no-op when already attached).
+              attachCastMediaListener();
+              const dur = msn.media.duration || window.__castDurationSec || 0;
+              const t = (typeof msn.getEstimatedTime === 'function')
+                  ? msn.getEstimatedTime()
+                  : (msn.currentTime || 0);
+              if (dur > 0 && t > 0 && (dur - t) <= 8) _castSawNearEnd = true;
+              if (msn.playerState === chrome.cast.media.PlayerState.IDLE &&
+                  msn.idleReason === chrome.cast.media.IdleReason.FINISHED) {
+                _castSawNearEnd = false;
+                if (advanceGuard()) queueNextEpisode();
+              }
+            } else if (_castSawNearEnd) {
+              // We were within seconds of the end and the media
+              // session has vanished — the receiver finished and
+              // dropped the session before any FINISHED status
+              // reached us. Treat as ended.
+              _castSawNearEnd = false;
+              if (advanceGuard()) queueNextEpisode();
+            }
+          } catch {}
+        }, 1500);
+      }
+      function stopCastWatchdog() {
+        if (_castWatchdog) { clearInterval(_castWatchdog); _castWatchdog = null; }
       }
 
       // Parse deep-link: ?s1e1 or ?s2e5 etc.
@@ -1913,9 +2591,58 @@
         if (typeof audioIndex === 'number') url += `&AudioStreamIndex=${audioIndex}`;
         return url;
       }
-      function buildMp4Url(episode, audioIndex) {
-        let url = `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`;
+      // HLS URL for the CAST RECEIVER (non-default audio only).
+      // Differs from the local buildHlsUrl in two ways:
+      //   - SegmentContainer=ts: the most compatible segment format
+      //     for the Default Media Receiver (the local player uses
+      //     fmp4, which is what made earlier HLS casts fail).
+      //   - "-cast" suffix on the PlaySessionId so the receiver's
+      //     transcode session doesn't collide with (or tear down)
+      //     the local player's session for the same episode.
+      function buildCastHlsUrl(episode, mediaSourceId, PlaySessionId, VideoBitRate, AudioBitRate, audioIndex) {
+        let url = `${serverUrl}/emby/videos/${episode.Id}/master.m3u8` +
+                  `?MediaSourceId=${mediaSourceId}` +
+                  `&PlaySessionId=${PlaySessionId}-cast` +
+                  `&api_key=${apiKey}` +
+                  `&VideoCodec=h264&AudioCodec=aac` +
+                  `&VideoBitrate=${VideoBitRate}&AudioBitrate=${AudioBitRate}` +
+                  `&TranscodingMaxAudioChannels=2` +
+                  `&SegmentContainer=ts&MinSegments=2&h264-profile=main`;
         if (typeof audioIndex === 'number') url += `&AudioStreamIndex=${audioIndex}`;
+        return url;
+      }
+      // Progressive MP4 URL — used as the Chromecast contentId.
+      //
+      // Static=true serves the ORIGINAL file and silently ignores
+      // AudioStreamIndex, so the cast receiver always played the
+      // container's default (first) audio track regardless of the
+      // user's selection. When the chosen track isn't the default,
+      // we drop Static and ask Emby for a remux: the h264 video is
+      // stream-copied (EnableAutoStreamCopy is on by default — no
+      // re-encode), only the selected audio is transcoded to AAC.
+      function buildMp4Url(episode, audioIndex, opts) {
+        const o = opts || {};
+        const isDefaultTrack =
+          (typeof audioIndex !== 'number') ||
+          (typeof o.defaultAudioIndex === 'number' && audioIndex === o.defaultAudioIndex);
+        if (isDefaultTrack) {
+          // Original file untouched — the container default IS the
+          // selected track, so static streaming is correct and free.
+          let url = `${serverUrl}/emby/videos/${episode.Id}/stream.mp4?Static=true&api_key=${apiKey}`;
+          if (typeof audioIndex === 'number') url += `&AudioStreamIndex=${audioIndex}`;
+          return url;
+        }
+        // AllowAudioStreamCopy=false forces Emby to decode + re-encode
+        // the SELECTED audio stream. Without it the server may
+        // stream-copy the container default and quietly ignore
+        // AudioStreamIndex (the source of "still plays English").
+        // Video still stream-copies, so this stays cheap.
+        let url = `${serverUrl}/emby/videos/${episode.Id}/stream.mp4` +
+                  `?api_key=${apiKey}` +
+                  `&VideoCodec=h264&AudioCodec=aac&MaxAudioChannels=2` +
+                  `&AudioStreamIndex=${audioIndex}` +
+                  `&AllowAudioStreamCopy=false`;
+        if (o.mediaSourceId) url += `&MediaSourceId=${o.mediaSourceId}`;
         return url;
       }
 
@@ -1927,6 +2654,16 @@
         overlay.classList.remove('pip');
         overlay.classList.add('active');
         document.body.style.overflow = 'hidden';
+      }
+      // Shrink the full player into the floating mini-player without
+      // pausing — used by the PiP button in the top-right cluster.
+      // Same transition closePlayer's fullscreen branch performs.
+      function enterPipMode() {
+        const overlay = document.getElementById('playerOverlay');
+        if (!overlay.classList.contains('active')) return;
+        overlay.classList.remove('active');
+        overlay.classList.add('pip');
+        document.body.style.overflow = '';
       }
       function closePlayer() {
         const overlay = document.getElementById('playerOverlay');
@@ -2046,7 +2783,7 @@
 
         const niceTitle = `S${episode.ParentIndexNumber}E${episode.IndexNumber}: ${episode.Name}`;
         setPlayerTitle(niceTitle);
-        document.title = `Watch Bluey Minisodes | ${niceTitle}`;
+        document.title = `Watch Bluey Minisodes! | ${niceTitle}`;
         syncSeasonHighlight(episode);
 
         const poster = `${serverUrl}/emby/Items/${episode.Id}/Images/Primary?api_key=${apiKey}`;
@@ -2092,8 +2829,55 @@
         const AudioBitRate = (audioStreams.find(s => s.Index === currentAudioStreamIndexUsed)?.BitRate) || 192000;
 
         const hls = buildHlsUrl(episode, mediaSourceId, PlaySessionId, VideoBitRate, AudioBitRate, currentAudioStreamIndexUsed);
-        const progressive = buildMp4Url(episode, currentAudioStreamIndexUsed);
-        window.__castMP4 = progressive;
+        // Default = the container's flagged-default audio stream (or
+        // the first one). buildMp4Url only remuxes when the selection
+        // differs from this, so English-on-English stays Static.
+        const defaultAudioIndex =
+          (audioStreams.find(s => s.IsDefault) || audioStreams[0])?.Index;
+        currentDefaultAudioIndex = defaultAudioIndex;
+        currentMediaSourceId = mediaSourceId;
+        currentPlaySessionId = PlaySessionId;
+        currentVideoBitRate = VideoBitRate;
+        currentAudioBitRate = AudioBitRate;
+        const progressive = buildMp4Url(episode, currentAudioStreamIndexUsed,
+            { defaultAudioIndex, mediaSourceId });
+        // Cast contentId strategy:
+        //   - Default audio → static MP4 (byte-for-byte original,
+        //     exact duration, byte-range seeking — proven working).
+        //   - Non-default audio → dedicated TS-segment HLS session.
+        //     The MP4 remux DID carry the right audio (verified via
+        //     ffprobe), but it transcodes on the fly: the receiver
+        //     saw a growing file → creeping end time + premature
+        //     FINISHED that auto-skipped to the next episode. The
+        //     HLS variant playlist is VOD-type with all segments +
+        //     ENDLIST up front, so duration is stable and 'ended'
+        //     fires only at the true end.
+        if (currentAudioStreamIndexUsed === defaultAudioIndex) {
+          window.__castMP4 = progressive;
+          window.__castHLS = '';
+        } else {
+          window.__castMP4 = '';
+          window.__castHLS = buildCastHlsUrl(
+            episode, mediaSourceId, PlaySessionId,
+            VideoBitRate, AudioBitRate, currentAudioStreamIndexUsed);
+        }
+
+        // Compute subtitle streams and the saved-preference pick
+        // BEFORE setting src — the chromecast tech builds its load
+        // request during src(), and modifyLoadRequestFn reads
+        // __castSubs / __castActiveSubEmbyIndex at that moment.
+        const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
+        const sortedSubStreams = sortStreamsByLabel(subStreams);
+        const subPick = pickSubtitleStream(subStreams, preferredSubLang);
+        currentSubStreamIndexUsed = subPick ? subPick.Index : null;
+        const subPickCode = subPick ? canonicalLangCode(subPick) : 'off';
+        window.__castSubs = sortedSubStreams.map(s => ({
+          url: `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/${s.Index}/0/Stream.vtt?api_key=${apiKey}`,
+          code: canonicalLangCode(s),
+          label: niceLangLabelFrom(s),
+          embyIndex: s.Index,
+        }));
+        window.__castActiveSubEmbyIndex = subPick ? subPick.Index : null;
 
         const rtt = player.remoteTextTracks();
         for (let i = rtt.length - 1; i >= 0; i--) player.removeRemoteTextTrack(rtt[i]);
@@ -2122,49 +2906,37 @@
         // can switch on the fly without a media reload. Adding
         // alphabetically by label so the menu reads tidily; the
         // active selection is decided separately below.
-        const subStreams = (ms.MediaStreams || []).filter(s => s.Type === 'Subtitle');
-        const sortedSubStreams = sortStreamsByLabel(subStreams);
-        sortedSubStreams.forEach(s => {
-          const vtt = `${serverUrl}/emby/Videos/${episode.Id}/${mediaSourceId}/Subtitles/${s.Index}/0/Stream.vtt?api_key=${apiKey}`;
-          const code = canonicalLangCode(s);
-          const niceLabel = niceLangLabelFrom(s);
+        window.__castSubs.forEach(s => {
           try {
             player.addRemoteTextTrack(
-              { kind: 'subtitles', src: vtt, srclang: code || srclangFromCode(code), label: niceLabel },
+              { kind: 'subtitles', src: s.url, srclang: s.code || srclangFromCode(s.code), label: s.label },
               false,
             );
           } catch {}
         });
 
-        // Apply the saved subtitle preference. _suppressTextChange
-        // guards against the change handler firing during this
-        // initial setup (which would otherwise persist the
-        // not-yet-user-chosen state).
-        const subPick = pickSubtitleStream(subStreams, preferredSubLang);
-        currentSubStreamIndexUsed = subPick ? subPick.Index : null;
-        const subPickCode = subPick ? canonicalLangCode(subPick) : 'off';
-        _suppressTextChange = true;
-        const tt = player.textTracks();
-        for (let i = 0; i < tt.length; i++) {
-          const track = tt[i];
-          if (!subPick) {
-            track.mode = 'disabled';
-          } else if ((track.language || '').toLowerCase() === srclangFromCode(subPickCode) ||
-                     (track.language || '').toLowerCase() === subPickCode) {
-            track.mode = 'showing';
-          } else {
-            track.mode = 'disabled';
-          }
-        }
-        _suppressTextChange = false;
+        // Apply the saved subtitle preference — exactly one track
+        // showing (the helper suppresses the change handler itself,
+        // so this initial setup doesn't persist transient state).
+        applySubtitleSelection(subPick ? subPickCode : 'off');
 
-        const onReadyToPlay = async () => { try { player.muted(false); } catch {}; await autoPlayMaybe(seekTime); };
+        // Fire onReadyToPlay exactly ONCE on whichever of these two
+        // events arrives first. Previously both one()s ran (html5
+        // fires both events), seeking and calling play() twice.
+        let _readyFired = false;
+        const onReadyToPlay = async () => {
+          if (_readyFired) return;
+          _readyFired = true;
+          try { player.muted(false); } catch {}
+          await autoPlayMaybe(seekTime);
+        };
         player.one('loadedmetadata', onReadyToPlay);
         player.one('loadeddata', onReadyToPlay);
 
         if (onEndedHandler) player.off('ended', onEndedHandler);
         onEndedHandler = () => {
           if (suppressEndedOnce){ suppressEndedOnce = false; return; }
+          if (!advanceGuard()) return;
           if (nextPrepared) { playNextPrepared(true); return; }
           queueNextEpisode();
         };
@@ -2372,6 +3144,34 @@
         }
       }
 
+      // Push a subtitle change to the Chromecast receiver mid-
+      // playback. trackId mapping matches modifyLoadRequestFn:
+      // cast track i+1 ↔ window.__castSubs[i].
+      function castSetActiveSubtitle(code) {
+        if (!window.__isCasting) return;
+        try {
+          const ctx = cast && cast.framework && cast.framework.CastContext.getInstance();
+          const session = ctx && ctx.getCurrentSession();
+          const media = session && session.getMediaSession();
+          if (!media) return;
+          let ids = [];
+          if (code && code !== 'off') {
+            const subs = window.__castSubs || [];
+            const i = subs.findIndex(s =>
+              (s.code || '').toLowerCase() === code ||
+              srclangFromCode(s.code) === code);
+            if (i >= 0) { ids = [i + 1]; window.__castActiveSubEmbyIndex = subs[i].embyIndex; }
+          } else {
+            window.__castActiveSubEmbyIndex = null;
+          }
+          media.editTracksInfo(
+            new chrome.cast.media.EditTracksInfoRequest(ids),
+            () => {},
+            (e) => console.warn('cast editTracksInfo failed', e)
+          );
+        } catch {}
+      }
+
       function _onTextTrackChange() {
         if (_suppressTextChange) return;
         const tt = player.textTracks();
@@ -2386,6 +3186,7 @@
         subsWanted = activeCode !== 'off';
         localStorage.setItem(SUB_LANG_STORAGE_KEY, activeCode);
         localStorage.setItem('bluey_subtitle_on', subsWanted ? '1' : '0');
+        castSetActiveSubtitle(activeCode);
       }
 
       function rebindTrackListeners() {
@@ -2424,6 +3225,70 @@
           }));
         });
         _suppressAudioChange = false;
+      }
+
+      // Set EXACTLY ONE text track to 'showing' (or none for 'off').
+      // The previous inline loops set 'showing' on every track whose
+      // language matched — with two same-language streams (English +
+      // English SDH) or duplicate tracks surviving a Chromecast tech
+      // swap, both rendered at once and the cues stacked on screen.
+      function applySubtitleSelection(code) {
+        _suppressTextChange = true;
+        const tt = player.textTracks();
+        let shown = false;
+        for (let i = 0; i < tt.length; i++) {
+          const track = tt[i];
+          if (track.kind !== 'subtitles' && track.kind !== 'captions') continue;
+          const lang = (track.language || '').toLowerCase();
+          const matches = code && code !== 'off' &&
+            (lang === code || lang === srclangFromCode(code));
+          if (matches && !shown) {
+            track.mode = 'showing';
+            shown = true;
+          } else {
+            track.mode = 'disabled';
+          }
+        }
+        _suppressTextChange = false;
+      }
+
+      // Rebuild the audio menu AND recreate the control-bar button.
+      //
+      // Why recreating the button is necessary: video.js's
+      // AudioTrackButton binds its addtrack/removetrack listeners to
+      // player.audioTracks() AT CONSTRUCTION — and that list belongs
+      // to the tech. The Chromecast plugin swaps techs on connect /
+      // disconnect, so after a cast session the button is still
+      // listening to the old tech's dead list; tracks we add to the
+      // NEW list never reach it and it stays hidden. Disposing and
+      // re-adding the button makes it bind to the current tech's
+      // list.
+      function refreshAudioMenu() {
+        if (_lastAudioStreams) {
+          populateAudioTracks(_lastAudioStreams, currentAudioStreamIndexUsed);
+        } else {
+          rebindTrackListeners();
+        }
+        try {
+          const cb = player.controlBar;
+          const old = cb.getChild('audioTrackButton');
+          let index = -1;
+          if (old) {
+            index = cb.children().indexOf(old);
+            cb.removeChild(old);
+            old.dispose();
+          }
+          if (index < 0) {
+            // No previous button (e.g. it was never created because
+            // the page loaded with <2 tracks) — slot it before the
+            // fullscreen toggle like video.js's default layout.
+            const fs = cb.getChild('fullscreenToggle');
+            index = fs ? cb.children().indexOf(fs) : cb.children().length;
+          }
+          cb.addChild('audioTrackButton', {}, index);
+        } catch (e) {
+          console.warn('refreshAudioMenu: button rebuild failed', e);
+        }
       }
 
       function toggleShuffleMode() {
@@ -2552,10 +3417,39 @@
         const ep = episodes[currentEpisodeIndex];
         if (!ep) return;
         const t = getCurrentTime();
-        const mp4 = buildMp4Url(ep, currentAudioStreamIndexUsed);
-        window.__castMP4 = mp4;
         showToast('Stream hiccup — switching to fallback.');
-        try { player.src({ src: mp4, type: 'video/mp4' }); } catch {}
+        if (currentAudioStreamIndexUsed === currentDefaultAudioIndex ||
+            currentDefaultAudioIndex == null) {
+          // Default audio → static MP4. Byte-range seekable
+          // (Accept-Ranges: bytes), so resuming at `t` and seeking
+          // anywhere afterwards both work.
+          const mp4 = buildMp4Url(ep, currentAudioStreamIndexUsed, {
+            defaultAudioIndex: currentDefaultAudioIndex,
+            mediaSourceId: currentMediaSourceId,
+          });
+          window.__castMP4 = mp4;
+          window.__castHLS = '';
+          try { player.src({ src: mp4, type: 'video/mp4' }); } catch {}
+        } else {
+          // Non-default audio → TS-segment HLS. The remux MP4 we
+          // used before transcodes on the fly and Emby serves it
+          // with Accept-Ranges: none — the resume-seek to `t`
+          // silently failed (playback restarted from 0) and forward
+          // seeking was refused. The TS HLS playlist is VOD-type
+          // with every segment listed up front, so it's fully
+          // seekable, carries the selected audio, and runs through
+          // a different container than the fmp4 stream that just
+          // errored. The '-fb' marker keeps the transcode session
+          // distinct from the main and cast sessions.
+          const hls = buildCastHlsUrl(
+            ep, currentMediaSourceId,
+            (currentPlaySessionId || ('fb' + Date.now())) + '-fb',
+            currentVideoBitRate, currentAudioBitRate,
+            currentAudioStreamIndexUsed);
+          window.__castHLS = hls;
+          window.__castMP4 = '';
+          try { player.src({ src: hls, type: 'application/x-mpegURL' }); } catch {}
+        }
         player.one('loadedmetadata', () => autoPlayMaybe(t));
       }
 
@@ -2569,6 +3463,7 @@
         const t = player.currentTime() || 0;
         if (isFinite(d) && d > 0 && (d - t) <= 3) {
           console.warn('Near-end hiccup detected — advancing.');
+          if (!advanceGuard()) return;
           if (nextPrepared) { playNextPrepared(true); } else { queueNextEpisode(); }
           return;
         }
@@ -2579,6 +3474,7 @@
         }
         consecutiveErrors = 0;
         showToast('That episode failed to load — jumping to the next.');
+        if (!advanceGuard()) return;
         if (nextPrepared) { playNextPrepared(true); } else { queueNextEpisode(); }
       });
     </script>
